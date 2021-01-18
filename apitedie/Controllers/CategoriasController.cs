@@ -12,7 +12,7 @@ namespace apitedie.Controllers
     {
         static readonly ICategoriaRepositorio categoria = new CategoriaRepositorio();
 
-        public IEnumerable<Categorias> GetAllProdutos()
+        public IEnumerable<Categorias> GetAllCategorias()
         {
             return categoria.GetAll();
         }

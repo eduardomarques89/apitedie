@@ -24,7 +24,7 @@ namespace apitedie.Models
                 }
             }
 
-            Add(new Categorias { IdEmpresa = 1, IdCategoria = 1, NomeCategoria = "Sorvete", Icone = "https://api.tedie.com.br/icone/sorvete.png" });
+            //Add(new Categorias { IdEmpresa = 1, IdCategoria = 1, NomeCategoria = "Sorvete", Icone = "https://api.tedie.com.br/icone/sorvete.png" });
         }
 
         public Categorias Get(int id)
