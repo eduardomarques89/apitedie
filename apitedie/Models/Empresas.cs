@@ -22,6 +22,9 @@ namespace apitedie.Models
         public string TipoEntrega { get; set; }
         public string Status { get; set; }
         public string Token { get; set; }
+
+        public int CEPInicial { get; set; }
+        public int CEPFinal { get; set; }
     }
 
     public interface IEmpresaRepositorio
