@@ -22,9 +22,7 @@ namespace apitedie.Models
                 {
                     Add(new Categorias { IdEmpresa = Convert.ToInt32(reader["idempresa"].ToString()), IdCategoria = Convert.ToInt16(reader["idcategoria"].ToString()), NomeCategoria = reader["nomecategoria"].ToString(), Icone = reader["icone"].ToString() });
                 }
-            }
-
-            //Add(new Categorias { IdEmpresa = 1, IdCategoria = 1, NomeCategoria = "Sorvete", Icone = "https://api.tedie.com.br/icone/sorvete.png" });
+            } 
         }
 
         public Categorias Get(int id)
