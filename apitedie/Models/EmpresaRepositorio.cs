@@ -10,21 +10,38 @@ namespace apitedie.Models
         private List<Empresas> empresas = new List<Empresas>();
         private int _nextId = 1;
 
-        public EmpresaRepositorio(int idempresa)
+        public EmpresaRepositorio()
         {
             using (IDataReader reader = DatabaseFactory.CreateDatabase("DefaultConnection").ExecuteReader(CommandType.Text,
-                @"select E.IDEMPRESA, E.STATUS, E.NOME_FANTASIA, ENDERECO, BAIRRO, NUM, CIDADE, UF, LOGO, SCORE, LATITUDE, LONGITUDE, CEP, TIPOENTREGA from app_empresa e
+                @"select LG.CEP_INICIAL,LG.CEP_FINAL, E.IDEMPRESA, E.STATUS, E.NOME_FANTASIA, ENDERECO, BAIRRO, NUM, CIDADE, UF, LOGO, SCORE, LATITUDE, LONGITUDE, CEP, TIPOENTREGA from app_empresa e
                     join APP_EMPRESA_TIPOENTREGA Etp on e.idempresa = Etp.IDEMPRESA AND ETP.STATUS = 'A'
                     join APP_TIPOENTREGA TP ON TP.IDTIPOENTREGA = Etp.IDTIPOENTREGA AND TP.STATUS = 'A'
                     LEFT JOIN APP_EMPRESA_LOGISTICA LG ON LG.IDEMPRESA = E.IDEMPRESA AND LG.STATUS = 'A'
-                    --WHERE '13870410' > CEP_INICIAL AND '13870410' < CEP_FINAL
                     ORDER BY SCORE DESC"))
             {
                 //se o colaborador selecionado existir no banco dados avaliacao_colaborador,
                 //dá uma mensagem de erro informando que o colaborador já está cadastrado
                 while (reader.Read())
                 {
-                    Add(new Empresas { IdEmpresa = Convert.ToInt32(reader["idempresa"].ToString()), Nome = reader["nome_fantasia"].ToString(), Endereco = reader["endereco"].ToString(), Bairro = reader["bairro"].ToString(), Cidade = reader["cidade"].ToString(), Uf = reader["uf"].ToString(), Num = reader["num"].ToString(), Logo = reader["logo"].ToString(), Score = Convert.ToDouble(reader["score"].ToString()), CEP = Convert.ToInt32(reader["cep"].ToString()), Latitude = Convert.ToDouble(reader["latitude"].ToString()), Status = reader["status"].ToString(), Longitude = Convert.ToDouble(reader["longitude"].ToString()), TipoEntrega = reader["tipoentrega"].ToString() });
+                    Add(new Empresas
+                    {
+                        IdEmpresa = Convert.ToInt32(reader["idempresa"].ToString()),
+                        Nome = reader["nome_fantasia"].ToString(),
+                        Endereco = reader["endereco"].ToString(),
+                        Bairro = reader["bairro"].ToString(),
+                        Cidade = reader["cidade"].ToString(),
+                        Uf = reader["uf"].ToString(),
+                        Num = reader["num"].ToString(),
+                        Logo = reader["logo"].ToString(),
+                        Score = Convert.ToDouble(reader["score"].ToString()),
+                        CEP = Convert.ToInt32(reader["cep"].ToString()),
+                        Latitude = Convert.ToDouble(reader["latitude"].ToString()),
+                        Status = reader["status"].ToString(),
+                        Longitude = Convert.ToDouble(reader["longitude"].ToString()),
+                        TipoEntrega = reader["tipoentrega"].ToString(),
+                        CEPFinal = reader["cep_final"].ToString() == "" ? 0 : Convert.ToInt32(reader["cep_final"]),
+                        CEPInicial = reader["cep_inicial"].ToString() == "" ? 0 : Convert.ToInt32(reader["cep_inicial"]),
+                    });
                 }
             }
 

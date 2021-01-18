@@ -16,7 +16,7 @@ namespace apitedie.Models
              * e não mais pelo campo VALOR_PROMOCIONAL em APP_PRODUTO_ATACADO.
              */
             using (IDataReader reader = DatabaseFactory.CreateDatabase("DefaultConnection").ExecuteReader(CommandType.Text,
-                @"SELECT EL.CEP_INICIAL,EL.CEP_FINAL,P.IDPRODUTO, P.IDEMPRESA, P.NOME_ABREV, P.DESCRICAO, PB.LINK_IMAGEM, P.CODIGO_BARRAS, P.STATUS, U.ABREVIACAO, P.PONTOS,
+                @"SELECT EL.CEP_INICIAL,EL.CEP_FINAL,P.IDPRODUTO, P.IDEMPRESA, P.NOME_ABREV, P.DESCRICAO, P.IMAGEM, P.CODIGO_BARRAS, P.STATUS, U.ABREVIACAO, P.PONTOS,
                     C.NOMECATEGORIA, P.QTDEPADRAO, PA.QTDEINICIAL, PA.QTDEFINAL, PA.VALOR FROM APP_PRODUTO P
                     JOIN APP_UNIDADE U ON U.IDUNIDADE = P.IDUNIDADE
                     JOIN APP_CATEGORIA C ON C.IDCATEGORIA = P.IDCATEGORIA
@@ -55,7 +55,7 @@ namespace apitedie.Models
                                 Categoria = reader["nomecategoria"].ToString(),
                                 Codigo_Barras = reader["codigo_barras"]?.ToString(),
                                 Preco_De = Convert.ToDouble(reader["valor"]),
-                                Imagem = reader["link_imagem"].ToString(),
+                                Imagem = reader["imagem"].ToString(),
                                 QtdePadrao = reader["qtdepadrao"].ToString() == "" ? 0 : Convert.ToDouble(reader["qtdepadrao"]),
                                 UnidadeMedida = reader["abreviacao"].ToString(),
                                 Estoque = Convert.ToDouble(readerestoque["qtdeestoque"]),

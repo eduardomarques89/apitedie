@@ -67,7 +67,7 @@ namespace apitedie.Controllers
             if (!string.IsNullOrEmpty(Categoria))
                 produtos = produtos.Where(p => string.Equals(p.Categoria, Categoria, StringComparison.OrdinalIgnoreCase));
 
-            produtos = produtos.Where(p => p.CEPInicial <= CEP && p.CEPFinal >= CEP);
+            produtos = produtos.Where(p => p.CEPInicial <= CEP && p.CEPFinal >= CEP).ToList();
 
             if (!string.IsNullOrEmpty(searchQuery) && searchQuery != "\"\"")
                 produtos = produtos.Where(p => p.Nome.ToLower().Contains(searchQuery.ToLower()));

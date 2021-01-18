@@ -10,7 +10,7 @@ namespace apitedie.Controllers
 {
     public class EmpresasController : ApiController
     {
-        static readonly IEmpresaRepositorio repositorio = new EmpresaRepositorio(2);
+        static readonly IEmpresaRepositorio repositorio = new EmpresaRepositorio();
 
         public IEnumerable<Empresas> GetAllEmpresas()
         {
@@ -31,6 +31,13 @@ namespace apitedie.Controllers
         {
             return repositorio.GetAll().Where(
                 p => string.Equals(p.IdEmpresa.ToString(), idempresa.ToString(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        [Route("api/empresas/GetListaEmpresaByCEP")]
+        public IEnumerable<Empresas> GetListaEmpresaByCEP(int CEP)
+        {
+            var repo = repositorio.GetAll();
+            return repo.Where(p => p.CEPInicial <= CEP && p.CEPFinal >= CEP).ToList();
         }
     }
 }
