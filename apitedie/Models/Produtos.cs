@@ -11,6 +11,7 @@ namespace apitedie.Models
         public string Nome { get; set; }
         public string Descricao { get; set; }
         public string Categoria { get; set; }
+        public int IdCategoria { get; set; }
         public string Codigo_Barras { get; set; }
         public double Preco_De { get; set; }
         //public double Preco_Por { get; set; } // O preco de promoção vem da tabela oferta

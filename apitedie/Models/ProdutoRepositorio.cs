@@ -17,7 +17,7 @@ namespace apitedie.Models
              */
             using (IDataReader reader = DatabaseFactory.CreateDatabase("DefaultConnection").ExecuteReader(CommandType.Text,
                 @"SELECT EL.CEP_INICIAL,EL.CEP_FINAL,P.IDPRODUTO, P.IDEMPRESA, P.NOME_ABREV, P.DESCRICAO, P.IMAGEM, P.CODIGO_BARRAS, P.STATUS, U.ABREVIACAO, P.PONTOS,
-                    C.NOMECATEGORIA, P.QTDEPADRAO, PA.QTDEINICIAL, PA.QTDEFINAL, PA.VALOR FROM APP_PRODUTO P
+                    C.NOMECATEGORIA, C.idcategoria, P.QTDEPADRAO, PA.QTDEINICIAL, PA.QTDEFINAL, PA.VALOR FROM APP_PRODUTO P
                     JOIN APP_UNIDADE U ON U.IDUNIDADE = P.IDUNIDADE
                     JOIN APP_CATEGORIA C ON C.IDCATEGORIA = P.IDCATEGORIA
                     LEFT JOIN APP_PRODUTO_BASE PB ON PB.CODIGO_BARRAS = P.CODIGO_BARRAS
@@ -53,6 +53,7 @@ namespace apitedie.Models
                                 Nome = reader["nome_abrev"].ToString(),
                                 Descricao = reader["descricao"].ToString(),
                                 Categoria = reader["nomecategoria"].ToString(),
+                                IdCategoria = reader["idcategoria"].ToString() == "" ? 0 : Convert.ToInt32(reader["idcategoria"]),
                                 Codigo_Barras = reader["codigo_barras"]?.ToString(),
                                 Preco_De = Convert.ToDouble(reader["valor"]),
                                 Imagem = reader["imagem"].ToString(),
