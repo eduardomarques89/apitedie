@@ -29,6 +29,7 @@ namespace apitedie.Models
     public class Ofertas
     {
         public int IdOferta;
+        public int IdProduto;
         public string Data_inicio;
         public string Data_fim;
         public double Valor;
