@@ -80,8 +80,9 @@ namespace apitedie.Controllers
         [Route("api/produtos/Ofertas")]
         public HttpResponseMessage GetOfertasPorCEPPaginado(int CEP, int offset, int limite, string searchQuery)
         {
-            IEnumerable<Produtos> produtos = repositorio.GetAll()
-               .Where(p => p.CEPInicial <= CEP && p.CEPFinal >= CEP);
+            IEnumerable<Produtos> produtos = repositorio.GetAll();
+
+            produtos = produtos.Where(p => p.CEPInicial <= CEP && p.CEPFinal >= CEP);
 
             SqlConnection _conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
             SqlCommand _comandoSQL = new SqlCommand("SELECT * FROM APP_OFERTA WHERE CONVERT(date, DATA_INICIO) <= CONVERT(date, GETDATE()) " +
