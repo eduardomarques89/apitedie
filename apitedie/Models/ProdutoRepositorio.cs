@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
 using Microsoft.Practices.EnterpriseLibrary.Data;
 
 namespace apitedie.Models
@@ -70,6 +73,32 @@ namespace apitedie.Models
                         }
                     }
                 }
+            }
+
+            // Adiciona ofertas
+            SqlConnection _conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            SqlCommand _comandoSQL = new SqlCommand("SELECT * FROM APP_OFERTA WHERE CONVERT(date, DATA_INICIO) <= CONVERT(date, GETDATE()) " +
+                "AND CONVERT(date, DATA_FIM) >= CONVERT(date, GETDATE())", _conn);
+            List<Produtos> produtosComOfertas = produtos;
+            _conn.Open();
+            var dr = _comandoSQL.ExecuteReader();
+            while (dr.Read())
+            {
+                int idProduto2 = Convert.ToInt32(dr["idproduto"]);
+                produtos.Where(p => p.Id == idProduto2).ToList().ForEach(pa =>
+                {
+                    if (pa.Ofertas == null)
+                        pa.Ofertas = new List<Ofertas>();
+                    pa.Ofertas.Add(new Ofertas
+                    {
+                        IdOferta = Convert.ToInt32(dr["idoferta"]),
+                        Data_inicio = dr["data_inicio"].ToString(),
+                        Data_fim = dr["data_fim"].ToString(),
+                        Valor = dr["valor"].ToString() == "" ? 0 : Convert.ToDouble(dr["valor"]),
+                        ValorPromocional = dr["valor_promocional"].ToString() == "" ? 0 : Convert.ToDouble(dr["valor_promocional"]),
+                        Status = dr["status"].ToString(),
+                    });
+                });
             }
         }
 

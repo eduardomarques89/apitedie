@@ -44,15 +44,9 @@ namespace apitedie.Models
                     });
                 }
             }
-
-            //Add(new Empresas { IdEmpresa = 1, Nome = "Milk Moni", Cidade = "São João da Boa Vista", Score = 4.59 });
-            //Add(new Empresas { IdEmpresa = 2, Nome = "Big Bom", Cidade = "São João da Boa Vista", Score = 5.75 });
-            //Add(new Empresas { IdEmpresa = 3, Nome = "Sempre Vale", Cidade = "São João da Boa Vista", Score = 3.9 });
-            //Add(new Empresas { IdEmpresa = 4, Nome = "Marino Loja 1", Cidade = "São João da Boa Vista", Score = 2.99 });
-            //Add(new Empresas { IdEmpresa = 5, Nome = "Quinta Hiper +", Cidade = "São João da Boa Vista", Score = 6.50 });
-            //Add(new Empresas { IdEmpresa = 6, Nome = "PaneGill", Cidade = "São João da Boa Vista", Score = 4.25 });
         }
 
+        // TODO a funcao de adicionar cadastra na memoria, mas não cadastra no banco de dados. É assim em toda API.
         public Empresas Add(Empresas item)
         {
             if (item == null)

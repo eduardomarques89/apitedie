@@ -26,7 +26,7 @@ namespace apitedie.Controllers
             }
             return item;
         }
-      
+
         public IEnumerable<Empresas> GetListaEmpresa(string token, int idempresa)
         {
             return repositorio.GetAll().Where(
@@ -37,7 +37,17 @@ namespace apitedie.Controllers
         public IEnumerable<Empresas> GetListaEmpresaByCEP(int CEP)
         {
             var repo = repositorio.GetAll();
-            return repo.Where(p => p.CEPInicial <= CEP && p.CEPFinal >= CEP).ToList();
+            repo = repo.Where(p => p.CEPInicial <= CEP && p.CEPFinal >= CEP).ToList();
+            return repo;
+        }
+
+        [Route("api/empresas/getMarketsListByIds")]
+        public HttpResponseMessage getMarketsListByIds([FromUri]  int[] ids)
+        {
+            if(ids == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
+            var emps = repositorio.GetAll();
+            emps = emps.Where(e => ids.Contains(e.IdEmpresa));
+            return Request.CreateResponse(HttpStatusCode.OK, emps);
         }
     }
 }
