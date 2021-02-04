@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -42,12 +44,53 @@ namespace apitedie.Controllers
         }
 
         [Route("api/empresas/getMarketsListByIds")]
-        public HttpResponseMessage getMarketsListByIds([FromUri]  int[] ids)
+        public HttpResponseMessage getMarketsListByIds([FromUri] int[] ids)
         {
-            if(ids == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
+            if (ids == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
             var emps = repositorio.GetAll();
             emps = emps.Where(e => ids.Contains(e.IdEmpresa));
             return Request.CreateResponse(HttpStatusCode.OK, emps);
+        }
+
+        [Route("api/empresas/horarios")]
+        public HttpResponseMessage GetHorarios([FromUri] int id)
+        {
+            List<object> horarios = new List<object>();
+
+            SqlConnection _conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            var sql = " select  EH.IDHORARIO horacod, EH.IDTIPOENTREGA identrega, Etp.TAXA, HO.horario, TP.TIPOENTREGA  from APP_EMPRESA_HORARIO EH " +
+                    " join APP_EMPRESA_TIPOENTREGA Etp on EH.idempresa = Etp.IDEMPRESA AND Etp.STATUS = 'A' " +
+                    " join APP_TIPOENTREGA TP ON TP.IDTIPOENTREGA = Etp.IDTIPOENTREGA AND TP.STATUS = 'A' and tp.IDTIPOENTREGA = eh.IDTIPOENTREGA " +
+                    " join APP_HORARIO HO ON HO.IDHORARIO = EH.IDHORARIO AND HO.STATUS = 'A' and eh.IDHORARIO = ho.IDHORARIO " +
+                    " where etp.IDEMPRESA = " + id +
+                    " group by  EH.IDHORARIO , EH.IDTIPOENTREGA , Etp.TAXA, HO.horario, TP.TIPOENTREGA; ";
+            SqlCommand _comandoSQL = new SqlCommand(sql, _conn);
+            try
+            {
+                _conn.Open();
+                var dr = _comandoSQL.ExecuteReader();
+                while (dr.Read())
+                {
+                    horarios.Add(new
+                    {
+                        horacod = dr["horacod"].ToString(),
+                        identrega = dr["identrega"].ToString(),
+                        TAXA = dr["TAXA"].ToString(),
+                        horario = dr["horario"].ToString(),
+                        TIPOENTREGA = dr["TIPOENTREGA"].ToString(),
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            finally
+            {
+                _conn.Close();
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK, horarios);
         }
     }
 }
