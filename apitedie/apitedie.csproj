@@ -249,6 +249,7 @@
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CategoriaRepositorio.cs" />
+    <Compile Include="Models\CartaoCredito.cs" />
     <Compile Include="Models\Categorias.cs" />
     <Compile Include="Models\CupomRepositorio.cs" />
     <Compile Include="Models\Cupons.cs" />
