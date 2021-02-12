@@ -10,7 +10,6 @@ namespace apitedie.Models
     public class PedidoRepositorio : IPedidoRepositorio
     {
         private List<Pedidos> Pedidos = new List<Pedidos>();
-        private int _nextId = 1;
 
         public PedidoRepositorio()
         {
@@ -28,7 +27,31 @@ namespace apitedie.Models
             {
                 while (reader.Read())
                 {
-                    Add(new Pedidos { IdCliente = Convert.ToInt32(reader["idcliente"].ToString()), NumeroPedido = reader["numeropedido"].ToString(), Data = Convert.ToDateTime(reader["data"].ToString()), Valor = Convert.ToDouble(reader["valor"].ToString()), Taxa = Convert.ToDouble(reader["taxa"].ToString()), Desconto = Convert.ToDouble(reader["desconto"].ToString()), Cupom = reader["cupom"].ToString(), TipoEntrega = reader["tipoentrega"].ToString(), DiaSemana = reader["diasemana"].ToString(), Horario = reader["horario"].ToString(), Status = reader["status"].ToString(), Endereco = reader["endereco"].ToString(), Bairro = reader["bairro"].ToString(), CEP = reader["cep"].ToString(), Num = reader["num"].ToString(), Cidade = reader["cidade"].ToString(), UF = reader["uf"].ToString(), Complemento = reader["complemento"].ToString(), FormaPagamento = reader["formapagamento"].ToString(), QtdeParcela = Convert.ToInt16(reader["qtdeparcela"].ToString()), Observacao = reader["observacao"].ToString(), Score = Convert.ToDouble(reader["score"].ToString()) });
+                    Add(new Pedidos
+                    {
+                        IdCliente = Convert.ToInt32(reader["idcliente"].ToString()),
+                        NumeroPedido = reader["numeropedido"].ToString(),
+                        Data = Convert.ToDateTime(reader["data"].ToString()),
+                        Valor = Convert.ToDouble(reader["valor"].ToString()),
+                        Taxa = Convert.ToDouble(reader["taxa"].ToString()),
+                        Desconto = Convert.ToDouble(reader["desconto"].ToString()),
+                        Cupom = reader["cupom"].ToString(),
+                        TipoEntrega = reader["tipoentrega"].ToString(),
+                        DiaSemana = reader["diasemana"].ToString(),
+                        Horario = reader["horario"].ToString(),
+                        Status = reader["status"].ToString(),
+                        Endereco = reader["endereco"].ToString(),
+                        Bairro = reader["bairro"].ToString(),
+                        CEP = reader["cep"].ToString(),
+                        Num = reader["num"].ToString(),
+                        Cidade = reader["cidade"].ToString(),
+                        UF = reader["uf"].ToString(),
+                        Complemento = reader["complemento"].ToString(),
+                        FormaPagamento = reader["formapagamento"].ToString(),
+                        QtdeParcela = Convert.ToInt16(reader["qtdeparcela"].ToString()),
+                        Observacao = reader["observacao"].ToString(),
+                        Score = Convert.ToDouble(reader["score"].ToString())
+                    });
                 }
             }
         }
@@ -39,9 +62,56 @@ namespace apitedie.Models
             {
                 throw new ArgumentNullException("item");
             }
-            item.Id = _nextId++;
             Pedidos.Add(item);
             return item;
+        }
+
+        public void Insere(Pedidos c)
+        {
+            SqlConnection _conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            SqlCommand _comandoSQL = new SqlCommand(
+                " INSERT INTO APP_PEDIDO (IdCliente, Numero_Pedido, Data, Valor, Taxa, Desconto, IdCupom, IdTipoEntrega, " +
+                " IdDiaSemana, IdHorario, IdEndereco, IdCartao, IdFormaPagamento, QtdeParcela, Observacao) " +
+                " VALUES (@IdCliente, @Numero_Pedido, @Data, @Valor, @Taxa, @Desconto, @IdCupom, @IdTipoEntrega, " +
+                " @IdDiaSemana, @IdHorario, @IdEndereco, @IdCartao, @IdFormaPagamento, @QtdeParcela, @Observacao) ", _conn);
+
+            _comandoSQL.Parameters.AddWithValue("@IdCliente", c.IdCliente);
+            _comandoSQL.Parameters.AddWithValue("@Numero_Pedido", c.NumeroPedido);
+            _comandoSQL.Parameters.AddWithValue("@Data", c.Data);
+            _comandoSQL.Parameters.AddWithValue("@Valor", c.Valor);
+            _comandoSQL.Parameters.AddWithValue("@Taxa", c.Taxa);
+            _comandoSQL.Parameters.AddWithValue("@Desconto", c.Desconto);
+            _comandoSQL.Parameters.AddWithValue("@IdCupom", c.IdCupom);
+            _comandoSQL.Parameters.AddWithValue("@IdTipoEntrega", c.IdTipoEntrega);
+            _comandoSQL.Parameters.AddWithValue("@IdDiaSemana", c.IdDiaSemana);
+            _comandoSQL.Parameters.AddWithValue("@IdHorario", c.IdHorario);
+            _comandoSQL.Parameters.AddWithValue("@IdEndereco", c.IdEndereco);
+            _comandoSQL.Parameters.AddWithValue("@IdCartao", c.IdCartao);
+            _comandoSQL.Parameters.AddWithValue("@IdFormaPagamento", c.IdFormaPagamento);
+            _comandoSQL.Parameters.AddWithValue("@QtdeParcela", c.QtdeParcela);
+            _comandoSQL.Parameters.AddWithValue("@Observacao", c.Observacao);
+
+            //_comandoSQL = new SqlCommand(
+            //   " INSERT INTO APP_PEDIDO_ITEM (IdProduto, NumeroPedido, QTDE, Valor) " +
+            //   " VALUES (@IdProduto, @NumeroPedido, @QTDE, @Valor) ", _conn);
+            //_comandoSQL.Parameters.AddWithValue("@IdProduto", c.IdCliente);
+            //_comandoSQL.Parameters.AddWithValue("@NumeroPedido", c.IdCliente);
+            //_comandoSQL.Parameters.AddWithValue("@QTDE", c.IdCliente);
+            //_comandoSQL.Parameters.AddWithValue("@Valor", c.IdCliente);
+
+            try
+            {
+                _conn.Open();
+                _comandoSQL.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                _conn.Close();
+            }
         }
 
         public void AvaliarPedido(int id, int nota, string observacao)

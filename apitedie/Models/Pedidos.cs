@@ -9,6 +9,13 @@ namespace apitedie.Models
     {
         public int Id { get; set; }
         public int IdCliente { get; set; }
+        public int IdTipoEntrega { get; set; }
+        public int IdHorario { get; set; }
+        public int IdCupom { get; set; }
+        public int IdCartao { get; set; }
+        public int IdFormaPagamento { get; set; }
+        public int IdDiaSemana { get; set; }
+        public int IdEndereco { get; set; }
         public string NumeroPedido { get; set; }
         public DateTime Data { get; set; }
         public double Valor { get; set; }

@@ -10,7 +10,7 @@ namespace apitedie.Controllers
 {
     public class PedidosController : ApiController
     {
-        static readonly IPedidoRepositorio repositorio = new PedidoRepositorio();
+        static readonly PedidoRepositorio repositorio = new PedidoRepositorio();
 
         public IEnumerable<Pedidos> GetAllProdutos()
         {
@@ -29,12 +29,15 @@ namespace apitedie.Controllers
 
         public HttpResponseMessage PostPedido(Pedidos item)
         {
-            item = repositorio.Add(item);
-            var response = Request.CreateResponse<Pedidos>(HttpStatusCode.Created, item);
-
-            string uri = Url.Link("DefaultApi", new { IdPedido = item.NumeroPedido });
-            response.Headers.Location = new Uri(uri);
-            return response;
+            try
+            {
+                repositorio.Insere(item);
+                return Request.CreateResponse(HttpStatusCode.Created);
+            }
+            catch (Exception e)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, new { error = e.Message });
+            }
         }
 
         [Route("api/Pedidos/Checkout")]
