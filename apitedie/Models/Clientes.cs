@@ -13,6 +13,7 @@ namespace apitedie.Models
         public string CPF { get; set; }
         public string Sexo { get; set; }
         public string Codigo_Indicacao { get; set; }
+        public string Senha { get; set; }
 
         // É preciso entender porque tem campo de endereço nessa tabela se já existe a tabela APP_ENDERECOS para isso.
         // Desta forma esse campos foram retirados por ora.

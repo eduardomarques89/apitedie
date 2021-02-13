@@ -8,6 +8,7 @@ namespace apitedie.Models
     public class Cupons
     {
         public int IdCupom { get; set; }
+        public int IdEmpresa { get; set; }
         public string Codigo { get; set; }
         public string NomeCupom { get; set; }
         public string Beneficio { get; set; }

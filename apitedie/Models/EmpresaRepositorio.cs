@@ -13,11 +13,15 @@ namespace apitedie.Models
         public EmpresaRepositorio()
         {
             using (IDataReader reader = DatabaseFactory.CreateDatabase("DefaultConnection").ExecuteReader(CommandType.Text,
-                @"select LG.CEP_INICIAL,LG.CEP_FINAL, E.IDEMPRESA, E.STATUS, E.NOME_FANTASIA, ENDERECO, BAIRRO, NUM, CIDADE, UF, LOGO, SCORE, LATITUDE, LONGITUDE, CEP, TIPOENTREGA from app_empresa e
-                    join APP_EMPRESA_TIPOENTREGA Etp on e.idempresa = Etp.IDEMPRESA AND ETP.STATUS = 'A'
-                    join APP_TIPOENTREGA TP ON TP.IDTIPOENTREGA = Etp.IDTIPOENTREGA AND TP.STATUS = 'A'
+                @"select LG.CEP_INICIAL,LG.CEP_FINAL, E.IDEMPRESA, E.STATUS, E.NOME_FANTASIA, ENDERECO, BAIRRO, NUM, 
+                    CIDADE, UF, LOGO, SCORE, LATITUDE, LONGITUDE, CEP from app_empresa e
                     LEFT JOIN APP_EMPRESA_LOGISTICA LG ON LG.IDEMPRESA = E.IDEMPRESA AND LG.STATUS = 'A'
                     ORDER BY SCORE DESC"))
+                //@"select LG.CEP_INICIAL,LG.CEP_FINAL, E.IDEMPRESA, E.STATUS, E.NOME_FANTASIA, ENDERECO, BAIRRO, NUM, CIDADE, UF, LOGO, SCORE, LATITUDE, LONGITUDE, CEP, TIPOENTREGA from app_empresa e
+                //    join APP_EMPRESA_TIPOENTREGA Etp on e.idempresa = Etp.IDEMPRESA AND ETP.STATUS = 'A'
+                //    join APP_TIPOENTREGA TP ON TP.IDTIPOENTREGA = Etp.IDTIPOENTREGA AND TP.STATUS = 'A'
+                //    LEFT JOIN APP_EMPRESA_LOGISTICA LG ON LG.IDEMPRESA = E.IDEMPRESA AND LG.STATUS = 'A'
+                //    ORDER BY SCORE DESC"))
             {
                 //se o colaborador selecionado existir no banco dados avaliacao_colaborador,
                 //dá uma mensagem de erro informando que o colaborador já está cadastrado
@@ -38,7 +42,7 @@ namespace apitedie.Models
                         Latitude = Convert.ToDouble(reader["latitude"].ToString()),
                         Status = reader["status"].ToString(),
                         Longitude = Convert.ToDouble(reader["longitude"].ToString()),
-                        TipoEntrega = reader["tipoentrega"].ToString(),
+                        //TipoEntrega = reader["tipoentrega"].ToString(),
                         CEPFinal = reader["cep_final"].ToString() == "" ? 0 : Convert.ToInt32(reader["cep_final"]),
                         CEPInicial = reader["cep_inicial"].ToString() == "" ? 0 : Convert.ToInt32(reader["cep_inicial"]),
                     });

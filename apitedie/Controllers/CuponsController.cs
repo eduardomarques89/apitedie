@@ -10,7 +10,7 @@ namespace apitedie.Controllers
 {
     public class CuponsController : ApiController
     {
-        static readonly ICupomRepositorio cupom = new CupomRepositorio();
+        static readonly CupomRepositorio cupom = new CupomRepositorio();
 
         public IEnumerable<Cupons> GetAllProdutos()
         {

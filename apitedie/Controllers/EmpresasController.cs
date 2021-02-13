@@ -12,7 +12,7 @@ namespace apitedie.Controllers
 {
     public class EmpresasController : ApiController
     {
-        static readonly IEmpresaRepositorio repositorio = new EmpresaRepositorio();
+        static readonly EmpresaRepositorio repositorio = new EmpresaRepositorio();
 
         public IEnumerable<Empresas> GetAllEmpresas()
         {

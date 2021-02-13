@@ -79,18 +79,19 @@ namespace apitedie.Models
         {
             SqlConnection _conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
             SqlCommand _comandoSQL = new SqlCommand("INSERT INTO APP_CLIENTE" +
-                " (nomecliente, apelido, datanasc, telefone1, email, " +
+                " (senha, nomecliente, apelido, datanasc, telefone1, email, " +
                 " cpf, sexo, codigo_indicacao) " +
-                " output INSERTED.IDCLIENTE VALUES (@nomecliente, @apelido, @datanasc, @telefone1, @email, " +
+                " output INSERTED.IDCLIENTE VALUES (@senha, @nomecliente, @apelido, @datanasc, @telefone1, @email, " +
                 " @cpf, @sexo, @codigo_indicacao)", _conn);
             _comandoSQL.Parameters.AddWithValue("@nomecliente", c.NomeCliente);
             _comandoSQL.Parameters.AddWithValue("@apelido", c.Apelido);
             _comandoSQL.Parameters.AddWithValue("@datanasc", c.datanasc);
-            _comandoSQL.Parameters.AddWithValue("@telefone1", c.Telefone);
+            _comandoSQL.Parameters.AddWithValue("@telefone1", c.Telefone ?? "");
             _comandoSQL.Parameters.AddWithValue("@email", c.Email);
             _comandoSQL.Parameters.AddWithValue("@cpf", c.CPF);
-            _comandoSQL.Parameters.AddWithValue("@sexo", c.Sexo);
-            _comandoSQL.Parameters.AddWithValue("@codigo_indicacao", c.Codigo_Indicacao);
+            _comandoSQL.Parameters.AddWithValue("@sexo", c.Sexo ?? "");
+            _comandoSQL.Parameters.AddWithValue("@codigo_indicacao", c.Codigo_Indicacao ?? "");
+            _comandoSQL.Parameters.AddWithValue("@senha", c.Senha);
             try
             {
                 _conn.Open();
@@ -98,35 +99,36 @@ namespace apitedie.Models
                 int idCliente = (int)_comandoSQL.ExecuteScalar();
                 if (idCliente > 0)
                 {
-                    foreach (var end in c.Enderecos)
-                    {
-                        _comandoSQL = new SqlCommand("INSERT INTO APP_ENDERECO " +
-                              " (idcliente, endereco, bairro, cidade, uf, num, complemento, cep, latitude, longitude, padrao) " +
-                              " output INSERTED.IDENDERECO VALUES (@idcliente, @endereco, @bairro, @cidade, @uf, @num," +
-                              " @complemento, @cep, @latitude, @longitude, @padrao)", _conn);
-                        _comandoSQL.Parameters.AddWithValue("@endereco", end.Endereco);
-                        _comandoSQL.Parameters.AddWithValue("@bairro", end.Bairro);
-                        _comandoSQL.Parameters.AddWithValue("@cidade", end.Cidade);
-                        _comandoSQL.Parameters.AddWithValue("@uf", end.UF);
-                        _comandoSQL.Parameters.AddWithValue("@num", end.Num);
-                        _comandoSQL.Parameters.AddWithValue("@complemento", end.Complemento);
-                        _comandoSQL.Parameters.AddWithValue("@cep", end.CEP);
-                        _comandoSQL.Parameters.AddWithValue("@latitude", end.Latitude);
-                        _comandoSQL.Parameters.AddWithValue("@longitude", end.Longitude);
-                        _comandoSQL.Parameters.AddWithValue("@padrao", end.Padrao);
-                        _comandoSQL.Parameters.AddWithValue("@idcliente", idCliente);
-                        int idEndereco = (int)_comandoSQL.ExecuteScalar();
-                        if (idEndereco < 0)
+                    if (c.Enderecos != null)
+                        foreach (var end in c.Enderecos)
                         {
-                            c.Enderecos.Remove(end);
-                            allAddressSaved = false;
+                            _comandoSQL = new SqlCommand("INSERT INTO APP_ENDERECO " +
+                                  " (idcliente, endereco, bairro, cidade, uf, num, complemento, cep, latitude, longitude, padrao) " +
+                                  " output INSERTED.IDENDERECO VALUES (@idcliente, @endereco, @bairro, @cidade, @uf, @num," +
+                                  " @complemento, @cep, @latitude, @longitude, @padrao)", _conn);
+                            _comandoSQL.Parameters.AddWithValue("@endereco", end.Endereco);
+                            _comandoSQL.Parameters.AddWithValue("@bairro", end.Bairro);
+                            _comandoSQL.Parameters.AddWithValue("@cidade", end.Cidade);
+                            _comandoSQL.Parameters.AddWithValue("@uf", end.UF);
+                            _comandoSQL.Parameters.AddWithValue("@num", end.Num);
+                            _comandoSQL.Parameters.AddWithValue("@complemento", end.Complemento);
+                            _comandoSQL.Parameters.AddWithValue("@cep", end.CEP);
+                            _comandoSQL.Parameters.AddWithValue("@latitude", end.Latitude);
+                            _comandoSQL.Parameters.AddWithValue("@longitude", end.Longitude);
+                            _comandoSQL.Parameters.AddWithValue("@padrao", end.Padrao);
+                            _comandoSQL.Parameters.AddWithValue("@idcliente", idCliente);
+                            int idEndereco = (int)_comandoSQL.ExecuteScalar();
+                            if (idEndereco < 0)
+                            {
+                                c.Enderecos.Remove(end);
+                                allAddressSaved = false;
+                            }
+                            else
+                            {
+                                end.IdEndereco = idEndereco;
+                                end.IdCliente = idCliente;
+                            }
                         }
-                        else
-                        {
-                            end.IdEndereco = idEndereco;
-                            end.IdCliente = idCliente;
-                        }
-                    }
                     c.IdCliente = idCliente;
                     Add(c);
                     if (!allAddressSaved)

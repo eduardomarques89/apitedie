@@ -11,7 +11,7 @@ namespace apitedie.Controllers
 {
     public class ClientesController : ApiController
     {
-        static readonly IClienteRepositorio repositorio = new ClienteRepositorio();
+        static readonly ClienteRepositorio repositorio = new ClienteRepositorio();
 
         public IEnumerable<Clientes> GetAllProdutos()
         {
