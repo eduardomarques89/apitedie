@@ -17,40 +17,63 @@ namespace apitedie.Models
                 @"select p.idcliente, p.numero_pedido, data, p.valor, desconto, taxa, c.descricao as cupom, te.TIPOENTREGA, ds.DIASEMANA, h.HORARIO, p.STATUS,
                     e.ENDERECO, e.BAIRRO, e.CIDADE, e.UF, e.cep, e.num, e.COMPLEMENTO, fp.FORMAPAGAMENTO, p.QTDEPARCELA, p.OBSERVACAO, sc.SCORE from APP_PEDIDO p
                     left join APP_CUPOM_CLIENTE cc on cc.IDCLIENTE = p.IDCLIENTE and cc.IDCUPOM = p.IDCUPOM
-                    join APP_CUPOM c on c.IDCUPOM = cc.IDCUPOM and c.IDEMPRESA = p.IDEMPRESA
+                    left join APP_CUPOM c on c.IDCUPOM = cc.IDCUPOM and c.IDEMPRESA = p.IDEMPRESA
                     join APP_TIPOENTREGA te on te.IDTIPOENTREGA = p.IDTIPOENTREGA
-                    join APP_DIASEMANA ds on ds.IDDIASEMANA = p.IDDIASEMANA
+                    left join APP_DIASEMANA ds on ds.IDDIASEMANA = p.IDDIASEMANA
                     join APP_HORARIO h on h.IDHORARIO = p.IDHORARIO
-                    join APP_ENDERECO e on e.IDCLIENTE = p.IDCLIENTE and e.IDENDERECO = p.IDENDERECO
-                    join APP_FORMAPAGAMENTO fp on fp.IDFORMAPAGAMENTO = p.IDFORMAPAGAMENTO
+                    left join APP_ENDERECO e on e.IDCLIENTE = p.IDCLIENTE and e.IDENDERECO = p.IDENDERECO
+                    left join APP_FORMAPAGAMENTO fp on fp.IDFORMAPAGAMENTO = p.IDFORMAPAGAMENTO
                     left join APP_SCORE sc on sc.NUMERO_PEDIDO = p.NUMERO_PEDIDO"))
             {
                 while (reader.Read())
                 {
+                    var IdCliente = Convert.ToInt32(reader["idcliente"].ToString());
+                    var NumeroPedido = reader["numero_pedido"].ToString();
+                    var Data = Convert.ToDateTime(reader["data"].ToString());
+                    var Valor = Convert.ToDouble(reader["valor"].ToString());
+                    var Taxa = Convert.ToDouble(reader["taxa"].ToString());
+                    var Desconto = Convert.ToDouble(reader["desconto"].ToString());
+                    var Cupom = reader["cupom"].ToString();
+                    var TipoEntrega = reader["tipoentrega"].ToString();
+                    var DiaSemana = reader["diasemana"].ToString();
+                    var Horario = reader["horario"].ToString();
+                    var Status = reader["status"].ToString();
+                    var Endereco = reader["endereco"].ToString();
+                    var Bairro = reader["bairro"].ToString();
+                    var CEP = reader["cep"].ToString();
+                    var Num = reader["num"].ToString();
+                    var Cidade = reader["cidade"].ToString();
+                    var UF = reader["uf"].ToString();
+                    var Complemento = reader["complemento"].ToString();
+                    var FormaPagamento = reader["formapagamento"].ToString();
+                    var QtdeParcela = Convert.ToInt16(reader["qtdeparcela"].ToString());
+                    var Observacao = reader["observacao"].ToString();
+                    var Score = reader["score"].ToString() == "" ? 0 : Convert.ToDouble(reader[""]);
+
                     Add(new Pedidos
                     {
-                        IdCliente = Convert.ToInt32(reader["idcliente"].ToString()),
-                        NumeroPedido = reader["numeropedido"].ToString(),
-                        Data = Convert.ToDateTime(reader["data"].ToString()),
-                        Valor = Convert.ToDouble(reader["valor"].ToString()),
-                        Taxa = Convert.ToDouble(reader["taxa"].ToString()),
-                        Desconto = Convert.ToDouble(reader["desconto"].ToString()),
-                        Cupom = reader["cupom"].ToString(),
-                        TipoEntrega = reader["tipoentrega"].ToString(),
-                        DiaSemana = reader["diasemana"].ToString(),
-                        Horario = reader["horario"].ToString(),
-                        Status = reader["status"].ToString(),
-                        Endereco = reader["endereco"].ToString(),
-                        Bairro = reader["bairro"].ToString(),
-                        CEP = reader["cep"].ToString(),
-                        Num = reader["num"].ToString(),
-                        Cidade = reader["cidade"].ToString(),
-                        UF = reader["uf"].ToString(),
-                        Complemento = reader["complemento"].ToString(),
-                        FormaPagamento = reader["formapagamento"].ToString(),
-                        QtdeParcela = Convert.ToInt16(reader["qtdeparcela"].ToString()),
-                        Observacao = reader["observacao"].ToString(),
-                        Score = Convert.ToDouble(reader["score"].ToString())
+                        IdCliente = IdCliente,
+                        NumeroPedido = NumeroPedido,
+                        Data = Data,
+                        Valor = Valor,
+                        Taxa = Taxa,
+                        Desconto = Desconto,
+                        Cupom = Cupom,
+                        TipoEntrega = TipoEntrega,
+                        DiaSemana = DiaSemana,
+                        Horario = Horario,
+                        Status = Status,
+                        Endereco = Endereco,
+                        Bairro = Bairro,
+                        CEP = CEP,
+                        Num = Num,
+                        Cidade = Cidade,
+                        UF = UF,
+                        Complemento = Complemento,
+                        FormaPagamento = FormaPagamento,
+                        QtdeParcela = QtdeParcela,
+                        Observacao = Observacao,
+                        Score = Score,
                     });
                 }
             }
@@ -103,6 +126,7 @@ namespace apitedie.Models
             {
                 _conn.Open();
                 _comandoSQL.ExecuteNonQuery();
+                Add(c);
             }
             catch (Exception ex)
             {
