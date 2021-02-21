@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net;
+using System.Text;
+using System.Web.Script.Serialization;
 using Microsoft.Practices.EnterpriseLibrary.Data;
 
 namespace apitedie.Models
@@ -136,6 +139,17 @@ namespace apitedie.Models
             {
                 _conn.Close();
             }
+        }
+        // TODO
+        public void UpdateTransacao()
+        {
+            return;
+                var token = "";
+                var url = "https://www.boletobancario.com/boletofacil/integration/api/v1/list-charges?token=7ACA5244C520E4641C6E636E11AE9F05B0747F870CD202891BAD9DD415D7DE53&beginPaymentDate=14/02/2021";
+                var client = new WebClient { Encoding = Encoding.UTF8 };
+                var requestResult = client.DownloadString(string.Format(url,token));
+                var jss = new JavaScriptSerializer();
+                var response = jss.Deserialize<object>(requestResult);
         }
 
         public void AvaliarPedido(int id, int nota, string observacao)

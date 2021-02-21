@@ -8,6 +8,7 @@ namespace apitedie.Models
     public class Pedidos
     {
         public int Id { get; set; }
+        public int codigo_transacao { get; set; }
         public int IdCliente { get; set; }
         public int IdTipoEntrega { get; set; }
         public int IdHorario { get; set; }
