@@ -70,7 +70,7 @@ namespace apitedie.Models
 
         public IEnumerable<Empresas> GetAll()
         {
-            return ForceGet()
+            return ForceGet();
             //return empresas;
         }
         
