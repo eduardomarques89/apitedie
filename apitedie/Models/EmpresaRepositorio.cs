@@ -1,7 +1,7 @@
-﻿using System;
+using Microsoft.Practices.EnterpriseLibrary.Data;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.Practices.EnterpriseLibrary.Data;
 
 namespace apitedie.Models
 {
@@ -64,7 +64,7 @@ namespace apitedie.Models
 
         public Empresas Get(int id)
         {
-            return ForceGet.Find(p => p.IdEmpresa == id);
+            return ForceGet().Find(p => p.IdEmpresa == id);
             //return empresas.Find(p => p.IdEmpresa == id);
         }
 
