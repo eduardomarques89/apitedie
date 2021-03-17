@@ -467,14 +467,14 @@ const Checkout = ({ navigation, route }) => {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity onPress={() => selecionaOpcaoPagamento("Picpay")}>
+            {/* <TouchableOpacity onPress={() => selecionaOpcaoPagamento("Picpay")}>
               <View style={styles.paymentMethodContainer}>
                 <RadioButton selected={selectedPayment === "Picpay"} />
                 <Typography size="small" color={theme.palette.dark}>
                   Picpay
                 </Typography>
               </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity onPress={() => selecionaOpcaoPagamento("Na retirada ou entrega")}>
               <View style={styles.paymentMethodContainer}>

@@ -40,9 +40,14 @@ const Home = ({ navigation }) => {
 
   const loadMarkets = async () => {
     setLoadingMarkets(true);
-    const response = await getMarketsByLocation(state.address);
-    setMarkets(response);
-    setLoadingMarkets(false);
+    try {
+      const response = await getMarketsByLocation(state.address);
+      setMarkets(response);
+    } catch {
+      setMarkets([]);
+    } finally {
+      setLoadingMarkets(false);
+    }
   };
 
   const loadProducts = async () => {
@@ -52,13 +57,15 @@ const Home = ({ navigation }) => {
       const response = await getProductsByCEP(local.CEP.replace('-', ''));
       setProducts(response);
     } else {
+      const cep = local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '';
+      console.log(cep);
+      if (!cep) {
+        return;
+      }
       try {
-        const cep = local.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '';
         const response = await getProductsByCEP(cep.replace('-', ''));
         setProducts(response);
       } catch (e) {
-        console.log(e);
-        debugger;
       }
     }
   };
@@ -112,9 +119,9 @@ const Home = ({ navigation }) => {
 
               <View style={styles.locationInfo}>
                 <Typography size="small" color="#000">
-                  {state.address
-                    ? (state.address?.results ? state.address.results[0].formatted_address : state.address.Beautify)
-                    : ''}
+                  {state?.address?.CEP
+                    ? (state.address?.results ? state?.address?.results[0]?.formatted_address : state.address.Beautify)
+                    : 'Selecione uma localização'}
                 </Typography>
               </View>
 
@@ -199,7 +206,7 @@ const Home = ({ navigation }) => {
           )
         }
         {
-          !loadingMarkets && markets.length > 0
+          !loadingMarkets && markets?.length > 0
           && (
           <FlatList
             data={markets}

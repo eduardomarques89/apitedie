@@ -67,7 +67,6 @@ function createAddress(state, action) {
   let local = action.payload;
   if (local && (local.CEP == undefined || local.CEP == '')) {
     const CEP = convergeCep(local);
-    console.log(CEP);
     local = { ...local, CEP };
   }
   return { ...state, address: local };
@@ -75,8 +74,8 @@ function createAddress(state, action) {
 
 function createSessao(state, action) {
   const { sessao } = action.payload;
-  // AsyncStorage.setItem("sessao", JSON.stringify(sessao))
-  return { ...state, sessao: { IdCliente: 54 } };
+  AsyncStorage.setItem('sessao', JSON.stringify(sessao));
+  return { ...state, sessao };
 }
 function deleteItem(state, action) {
   const newCarrinho = state.carrinho.filter(({ product }) => product.Id !== action.id);
@@ -113,7 +112,7 @@ function addQuantyItem(state, action) {
 
 export const convergeCep = (local) => {
   try {
-    return (local.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '').replace('-', '');
+    return (local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '').replace('-', '');
   } catch (e) {
     console.log(e);
     debugger;

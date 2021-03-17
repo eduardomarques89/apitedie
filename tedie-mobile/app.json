@@ -42,8 +42,9 @@
     },
     "android": {
       "package": "com.tedie.tedie",
-      "versionCode": 1,
-      "userInterfaceStyle": "light"
+      "versionCode": 3,
+      "userInterfaceStyle": "light",
+      "permissions":["ACCESS_COARSE_LOCATION"]
     },
     "description": "v2"
   }
