@@ -1,67 +1,71 @@
-import React, { useCallback, useState, useEffect,useContext } from 'react'
-import { StyleSheet, FlatList, View, TouchableOpacity } from 'react-native'
+import React, {
+  useCallback, useState, useEffect, useContext,
+} from 'react';
+import {
+  StyleSheet, FlatList, View, TouchableOpacity,
+} from 'react-native';
 // components
-import MainNavbar from '../components/MainNavbar'
-import Typography from '../components/Typography'
-import CategoryItem from '../components/CategoryItem'
+import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import MainNavbar from '../components/MainNavbar';
+import Typography from '../components/Typography';
+import CategoryItem from '../components/CategoryItem';
 // services
-import { getCategories } from '../services/categories'
-import Navbar from '../components/Navbar'
-import Avatar from '../components/Avatar'
+import { getCategories } from '../services/categories';
+import Navbar from '../components/Navbar';
+import Avatar from '../components/Avatar';
 // theme
-import theme from '../theme'
-import { Ionicons } from '@expo/vector-icons'
-import { AppContext } from '../contexts/AppContext'
+import theme from '../theme';
+import { AppContext } from '../contexts/AppContext';
 
 const Categories = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
-  const [categoriesLoader, setCategoriesLoader] = useState(false)
-  const [categories, setCategories] = useState([])
+  const [categoriesLoader, setCategoriesLoader] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const loadCategories = useCallback(async () => {
-    console.log(state.market.Logo)
-    setCategoriesLoader(true)
+    console.log(state.market.Logo);
+    setCategoriesLoader(true);
 
-    const categoriesResponse = await getCategories()
-    if(state?.market?.Logo){
-      console.log(state.market)
-      const categoriesByCompany = categoriesResponse.filter((categories) =>categories.IdEmpresa === state.market.IdEmpresa)
-      setCategories(categoriesByCompany)
-      return
+    const categoriesResponse = await getCategories();
+    if (state?.market?.Logo) {
+      console.log(state.market);
+      const categoriesByCompany = categoriesResponse.filter((categories) => categories.IdEmpresa === state.market.IdEmpresa);
+      setCategories(categoriesByCompany);
+      return;
     }
-    setCategories(categoriesResponse)
+    console.log(categoriesResponse);
+    setCategories(categoriesResponse);
 
-    setCategoriesLoader(false)
-  }, [setCategoriesLoader, setCategories, getCategories,state.market])
+    setCategoriesLoader(false);
+  }, [setCategoriesLoader, setCategories, getCategories, state.market]);
 
   useEffect(() => {
-    loadCategories()
-  }, [loadCategories])
+    loadCategories();
+  }, [loadCategories]);
 
   return (
-    <View style={styles.containerAll}>
-      {/* <MainNavbar navigation={navigation} /> */}
-
+    <>
       <Navbar
         left={
-          state.market &&
-          (
-          <React.Fragment>
+          state.market
+          && (
+          <>
             <Avatar
               size={35}
               color={theme.palette.secondary}
               image={state.market.Logo}
             />
             <Typography size="small" color="#fff">
-            {state.market.Nome}
-          </Typography>
-          </React.Fragment>
+              {state.market.Nome}
+            </Typography>
+          </>
 
           )
         }
 
-        right={
-          <React.Fragment>
+        right={(
+          <>
             <TouchableOpacity
               style={styles.navbarButton}
               hitSlop={theme.hitSlop}
@@ -73,55 +77,57 @@ const Categories = ({ navigation }) => {
             <TouchableOpacity
               style={styles.navbarButton}
               hitSlop={theme.hitSlop}
-              onPress={() => navigation.navigate('Produtos')
-              }
+              onPress={() => navigation.navigate('Produtos')}
             >
               <Ionicons name="md-search" size={30} color="#fff" />
             </TouchableOpacity>
-          </React.Fragment>
-        }
+          </>
+        )}
       />
+      <View style={styles.containerAll}>
+        {/* <MainNavbar navigation={navigation} /> */}
 
-      <View style={styles.container}>
-        <Typography size="medium" color="#000">
-          Categorias
-        </Typography>
+        <View style={styles.container}>
+          <Typography size="medium" color="#000">
+            Categorias
+          </Typography>
 
-        <FlatList
-          data={categories}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => navigation.navigate('Produtos', { categoriaId: item.IdCategoria,empresaId:item.IdEmpresa })} >
-              <CategoryItem
-                category={item}
-              />
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item, index) => index}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-        />
+          <FlatList
+            data={categories}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => navigation.navigate('Produtos', { categoriaId: item.IdCategoria, empresaId: item.IdEmpresa })}>
+                <CategoryItem
+                  category={item}
+                />
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item, index) => index}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+
       </View>
-
-    </View>
-  )
-}
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
-  containerAll:{
+  containerAll: {
     flex: 1,
-    backgroundColor:"#fff",
+    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor:"#fff",
+    backgroundColor: '#fff',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 16
+    marginVertical: 16,
   },
   navbarButton: {
-    marginHorizontal: 8
-  }
-})
+    marginHorizontal: 8,
+  },
+});
 
-export default Categories
+export default Categories;

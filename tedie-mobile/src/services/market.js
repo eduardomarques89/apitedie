@@ -28,7 +28,7 @@ export const getMarkets = async () => {
 export const getMarketsByLocation = async (local) => {
   const cep = local?.CEP || (local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? undefined);
   if (!cep) {
-    return;
+    return [];
   }
   const response = await Axios.get(
     `${urlApi}empresas/GetListaEmpresaByCEP?CEP=${cep.replace('-', '')}`,

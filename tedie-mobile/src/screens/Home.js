@@ -5,6 +5,7 @@ import {
   StyleSheet, View, StatusBar, ScrollView, SafeAreaView, FlatList, TouchableWithoutFeedback, Image, TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 // components
 import Swiper from 'react-native-swiper';
 import * as Location from 'expo-location';
@@ -93,6 +94,8 @@ const Home = ({ navigation }) => {
       loadProducts();
       const banners = await api.get('banner');
       const bannersFilter = banners.data.filter((value) => value.Destaque === 'S');
+      console.log('ifoioio');
+      console.log(bannersFilter);
       setBanners(bannersFilter);
     } else {
       askLocalizationPermission();
@@ -104,34 +107,35 @@ const Home = ({ navigation }) => {
   }, [state.address]);
 
   return (
-    <View style={styles.container}>
-
-      <StatusBar backgroundColor={theme.palette.primary} />
+    <>
       <MainNavbar navigation={navigation} />
+      <View style={styles.container}>
 
-      <CartFab />
+        <StatusBar backgroundColor={theme.palette.primary} />
 
-      <ScreenContainer>
-        <ContentContainer>
-          <TouchableWithoutFeedback onPress={() => navigation.navigate('Localização')}>
-            <View style={styles.locationContainer}>
-              <Ionicons name="md-locate" size={25} color={theme.palette.primary} />
+        <CartFab />
 
-              <View style={styles.locationInfo}>
-                <Typography size="small" color="#000">
-                  {state?.address?.CEP
-                    ? (state.address?.results ? state?.address?.results[0]?.formatted_address : state.address.Beautify)
-                    : 'Selecione uma localização'}
-                </Typography>
+        <ScreenContainer>
+          <ContentContainer>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('Localização')}>
+              <View style={styles.locationContainer}>
+                <Ionicons name="md-locate" size={25} color={theme.palette.primary} />
+
+                <View style={styles.locationInfo}>
+                  <Typography size="small" color="#000">
+                    {state?.address?.CEP
+                      ? (state.address?.results ? state?.address?.results[0]?.formatted_address : state.address.Beautify)
+                      : 'Selecione uma localização'}
+                  </Typography>
+                </View>
+
+                <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.primary} />
               </View>
+            </TouchableWithoutFeedback>
+          </ContentContainer>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.primary} />
-            </View>
-          </TouchableWithoutFeedback>
-        </ContentContainer>
-
-        <Swiper style={styles.swiper}>
-          {
+          <Swiper style={styles.swiper}>
+            {
             banners.map((banner) => (
               <TouchableOpacity
                 key={banner.IdBanner}
@@ -146,57 +150,57 @@ const Home = ({ navigation }) => {
               </TouchableOpacity>
             ))
           }
-        </Swiper>
+          </Swiper>
 
-        <Typography size="medium" color="#000">
-          Destaques
-        </Typography>
+          <Typography size="medium" color="#000">
+            Destaques
+          </Typography>
 
-        <ScrollView
-          contentContainerStyle={styles.horizontalList}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        >
-          {products.filter((p) => p.hasOffer).map((p, index) => (
-            <TouchableOpacity key={p.Id} onPress={() => navigation.navigate('Produto', { product: p, empresaId: p.IdEmpresa })}>
-              <ProductItem
-                product={p}
-                key={index}
-              />
+          <ScrollView
+            contentContainerStyle={styles.horizontalList}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          >
+            {products.filter((p) => p.hasOffer).map((p, index) => (
+              <TouchableOpacity key={p.Id} onPress={() => navigation.navigate('Produto', { product: p, empresaId: p.IdEmpresa })}>
+                <ProductItem
+                  product={p}
+                  key={index}
+                />
 
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-        <Typography size="medium" color="#000">
-          Perto de você
-        </Typography>
+          <Typography size="medium" color="#000">
+            Perto de você
+          </Typography>
 
-        <ScrollView
-          contentContainerStyle={styles.horizontalList}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        >
-          <Pill
-            selected={deliveryType === 'all'}
-            title="Todos"
-            onPress={() => setDeliveryType('all')}
-          />
+          <ScrollView
+            contentContainerStyle={styles.horizontalList}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          >
+            <Pill
+              selected={deliveryType === 'all'}
+              title="Todos"
+              onPress={() => setDeliveryType('all')}
+            />
 
-          <Pill
-            selected={deliveryType === 'delivery'}
-            title="Entrega"
-            onPress={() => setDeliveryType('delivery')}
-          />
+            <Pill
+              selected={deliveryType === 'delivery'}
+              title="Entrega"
+              onPress={() => setDeliveryType('delivery')}
+            />
 
-          <Pill
-            selected={deliveryType === 'pickup'}
-            title="Retirada"
-            onPress={() => setDeliveryType('pickup')}
-          />
-        </ScrollView>
+            <Pill
+              selected={deliveryType === 'pickup'}
+              title="Retirada"
+              onPress={() => setDeliveryType('pickup')}
+            />
+          </ScrollView>
 
-        {
+          {
           loadingMarkets && (
             <>
               <MarketItem skeleton />
@@ -205,7 +209,7 @@ const Home = ({ navigation }) => {
             </>
           )
         }
-        {
+          {
           !loadingMarkets && markets?.length > 0
           && (
           <FlatList
@@ -225,17 +229,19 @@ const Home = ({ navigation }) => {
           />
           )
         }
-      </ScreenContainer>
+        </ScreenContainer>
 
-      {/* </ScreenContainer> */}
+        {/* </ScreenContainer> */}
 
-    </View>
+      </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   navbarButton: {
     marginHorizontal: 8,
+    marginTop: 0,
   },
   container: {
     flex: 1,
