@@ -146,7 +146,7 @@ const Checkout = ({ navigation, route }) => {
         nomecliente: '',
         apelido: '',
         email: '',
-        cpf: '',
+        cpf: state?.cpf || '',
         senha: '',
         codigo_transacao,
         IdCliente: idCliente,

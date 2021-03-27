@@ -5,7 +5,7 @@ import {
   StyleSheet, View, StatusBar, ScrollView, SafeAreaView, FlatList, TouchableWithoutFeedback, Image, TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Constants from 'expo-constants';
+import { useFocusEffect } from '@react-navigation/native';
 // components
 import Swiper from 'react-native-swiper';
 import * as Location from 'expo-location';
@@ -69,7 +69,12 @@ const Home = ({ navigation }) => {
   };
 
   async function askLocalizationPermission() {
-    if (await AsyncStorage.getItem('Localization')) return;
+    const location = JSON.parse(await AsyncStorage.getItem('Localization'));
+    if (location && !state.address) {
+      const action = { type: 'createAddress', payload: location };
+      dispatch(action);
+      return;
+    }
     (async () => {
       const { status } = await Location.requestPermissionsAsync();
       if (status !== 'granted') {
@@ -99,9 +104,10 @@ const Home = ({ navigation }) => {
     }
   }
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
+    console.log('oioi');
     loadAll();
-  }, [state.address]);
+  }, [state.address]));
 
   return (
     <>
@@ -138,6 +144,9 @@ const Home = ({ navigation }) => {
                 key={banner.IdBanner}
                 onPress={() => {
                   const market = markets.find((market) => market.IdEmpresa === banner.IdEmpresa);
+                  if (!market) {
+                    return;
+                  }
 
                   dispatch({ type: 'addMarketSelect', market });
                   navigation.navigate('Mercado', { market });

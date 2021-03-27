@@ -3,6 +3,14 @@ import { createContext } from 'react';
 
 export const AppContext = createContext();
 
+export const initialState = {
+  token: undefined,
+  address: undefined,
+  carrinho: new Array(),
+  sessao: undefined,
+  market: {},
+};
+
 export const appReducer = (state, action) => {
   switch (action.type) {
     case 'createCarrinho':
@@ -25,17 +33,12 @@ export const appReducer = (state, action) => {
       return addMarketSelect(state, action);
     case 'addCpfOrCpnj':
       return addCpfOrCpnj(state, action);
+    case 'LOG_OUT':
+      AsyncStorage.removeItem('sessao');
+      return initialState;
     default:
       return state;
   }
-};
-
-export const initialState = {
-  token: undefined,
-  address: undefined,
-  carrinho: new Array(),
-  sessao: undefined,
-  market: {},
 };
 
 function addCpfOrCpnj(state, action) {

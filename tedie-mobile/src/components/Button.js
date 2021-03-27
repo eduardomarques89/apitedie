@@ -1,20 +1,22 @@
-import React from 'react'
-import { StyleSheet, View, TouchableOpacity } from 'react-native'
-import PropTypes from 'prop-types'
+import React from 'react';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import PropTypes from 'prop-types';
 // components
-import Typography from './Typography'
+import Typography from './Typography';
 
-const Button = ({ color, background, onPress, text, width }) => {
-  return (
-    <TouchableOpacity style={{ width: width }} onPress={onPress}>
-      <View style={[styles.button, { backgroundColor: background,  }]}>
-        <Typography size="small" color={color}>
-          { text }
-        </Typography>
-      </View>
-    </TouchableOpacity>
-  )
-}
+const Button = ({
+  color, background, onPress, text, width, customComponent,
+}) => (
+  <TouchableOpacity style={{ width }} onPress={onPress}>
+    <View style={[styles.button, { backgroundColor: background }]}>
+      {customComponent || (
+      <Typography size="small" color={color}>
+        { text }
+      </Typography>
+      )}
+    </View>
+  </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
   button: {
@@ -24,16 +26,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     marginVertical: 16,
-    borderRadius: 8
-  }
-})
+    borderRadius: 8,
+  },
+});
 
 Button.propTypes = {
   color: PropTypes.string,
   background: PropTypes.string,
   onPress: PropTypes.func,
-  text: PropTypes.string,
-  width: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
-}
+  width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};
 
-export default Button
+export default Button;

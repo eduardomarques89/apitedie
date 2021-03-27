@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import MainNavbar from '../../components/MainNavbar';
 import ScreenContainer from '../../components/ScreenContainer';
 import ContentContainer from '../../components/ContentContainer';
@@ -13,16 +13,25 @@ import Avatar from '../../components/Avatar';
 // theme
 import theme from '../../theme';
 import { AppContext } from '../../contexts/AppContext';
+import { CartContext } from '../../contexts/CartContext';
 
 const Account = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
+  const { cartDispatch } = useContext(CartContext);
   const navigate = useNavigation();
 
   async function logoff() {
-    debugger;
-    const action = { type: 'createSessao', payload: { sessao: undefined } };
+    const action = { type: 'LOG_OUT' };
+    const actionCart = { type: 'CLEAR_CART' };
     dispatch(action);
-    navigation.popToTop();
+    cartDispatch(actionCart);
+    const resetAction = CommonActions.reset({
+      index: 0,
+      routes: [
+        { name: 'tabs' },
+      ],
+    });
+    navigate.dispatch(resetAction);
   }
 
   useEffect(() => {

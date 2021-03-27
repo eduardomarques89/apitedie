@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import {
-  StyleSheet, View, Image, StatusBar,
+  StyleSheet, View, Image, StatusBar, ActivityIndicator,
 } from 'react-native';
 // theme
 import Toast from 'react-native-easy-toast';
@@ -18,15 +18,13 @@ const Login = ({ navigation }) => {
   const navigate = useNavigation();
   const [usuario, setUsuario] = useState('');
   const toastRef = useRef();
-
-  async function handleLogin() {
-    const response = await api.post(`auth/Telefone/?idclient=${94}&telefone=${usuario}`);
-    console.log(response);
-    navigate.navigate('Authenticate');
-  }
+  const [loading, setLoading] = useState(false);
 
   async function cadastrarUsuario() {
-    console.log('oioi');
+    if (usuario.length !== 11) {
+      return;
+    }
+    setLoading(true);
     try {
       const response = await axios.get('http://tedie.azurewebsites.net/api/Clientes');
       const existPhone = response.data.find((user) => user.Telefone === usuario);
@@ -45,8 +43,10 @@ const Login = ({ navigation }) => {
         Telefone: usuario,
       });
 
+      setLoading(false);
       navigate.navigate('Authenticate', { id: user.data.IdCliente });
     } catch (e) {
+      setLoading(false);
       console.log(e);
       toastRef.current?.show('Erro', 2000);
     }
@@ -70,7 +70,7 @@ const Login = ({ navigation }) => {
         <TextField
           width="100%"
           label="Telefone"
-          keyboardType="name-phone-pad"
+          keyboardType="decimal-pad"
           labelColor="#fff"
           borderColor={theme.palette.secondary}
           value={usuario}
@@ -82,7 +82,9 @@ const Login = ({ navigation }) => {
             color={theme.palette.primary}
             width="80%"
             text="Cadastrar"
-            onPress={cadastrarUsuario}
+
+            customComponent={loading && <ActivityIndicator size="large" color="#d70d0f" />}
+            onPress={() => (loading ? '' : cadastrarUsuario())}
           />
         </Box>
         <Box direction="row" justify="center" alignItems="center">

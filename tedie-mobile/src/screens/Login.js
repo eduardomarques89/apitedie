@@ -1,6 +1,7 @@
 import React, { useRef, useState, useContext } from 'react';
 import {
   StyleSheet, View, Image, StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 // theme
 import Toast from 'react-native-easy-toast';
@@ -18,13 +19,17 @@ import { AppContext } from '../contexts/AppContext';
 const Login = ({ navigation }) => {
   const navigate = useNavigation();
   const [usuario, setUsuario] = useState('');
+  const [loading, setLoading] = useState(false);
   const toastRef = useRef();
   const { state, dispatch } = useContext(AppContext);
 
   async function handleLogin() {
+    if (usuario.length !== 11) {
+      return;
+    }
+    setLoading(true);
     try {
       const user = await api.get('Clientes');
-      console.log('Oioio');
       const existPhone = user.data.find((usera) => usera.Telefone === usuario);
       if (!existPhone) {
         toastRef.current?.show('Telefone não existe', 2000);
@@ -33,15 +38,14 @@ const Login = ({ navigation }) => {
       const token = await api.get('Token/1');
       dispatch({ type: 'getToken', payload: token.CodigoToken });
 
-      const response = await api.post(`auth/Telefone/?idcliente=${existPhone.IdCliente}&telefone=${usuario}`);
+      const response = await api.post(`auth/Telefone/?idcliente=${existPhone.IdCliente}&telefone=55${usuario}`);
+      setLoading(false);
       navigate.navigate('Authenticate', { id: response.data.Id, telefone: usuario });
       return;
     } catch (e) {
+      setLoading(false);
       toastRef.current?.show('Erro', 2000);
     }
-  }
-
-  async function cadastrarUsuario() {
   }
 
   return (
@@ -61,7 +65,7 @@ const Login = ({ navigation }) => {
         <TextField
           width="100%"
           label="Telefone"
-          keyboardType="name-phone-pad"
+          keyboardType="decimal-pad"
           labelColor="#fff"
           borderColor={theme.palette.secondary}
           value={usuario}
@@ -73,7 +77,8 @@ const Login = ({ navigation }) => {
             color={theme.palette.primary}
             width="80%"
             text="Entrar"
-            onPress={() => handleLogin()}
+            customComponent={loading && <ActivityIndicator size="small" color="#d70d0f" />}
+            onPress={() => (loading ? '' : handleLogin())}
           />
         </Box>
         <Box direction="row" justify="center" alignItems="center">

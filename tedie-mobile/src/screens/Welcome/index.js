@@ -1,18 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useState, useContext, useCallback,
+} from 'react';
 import {
   StyleSheet, View, Image, StatusBar, TouchableOpacity, Text, Dimensions,
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
+import * as Location from 'expo-location';
 import theme from '../../theme';
 import Tela1 from '../../assets/tela1.png';
 import Tela2 from '../../assets/telaWelcome.png';
 import Tela3 from '../../assets/tela3.png';
+import { getLocationByLatLong } from '../../services/locations';
+import { AppContext } from '../../contexts/AppContext';
 
 const Welcome = ({ navigation }) => {
+  const { dispatch } = useContext(AppContext);
   const navigate = useNavigation();
   const [loading, setLoading] = useState(false);
+  const askLocalizationPermission = useCallback(async () => {
+    if (await AsyncStorage.getItem('Localization')) return;
+    const { status } = await Location.requestPermissionsAsync();
+    if (status !== 'granted') {
+      return;
+    }
+    const location = await Location.getCurrentPositionAsync({});
+    const local = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
+    await AsyncStorage.setItem('Localization', JSON.stringify(local));
+
+    const action = { type: 'createAddress', payload: local };
+    dispatch(action);
+  }, []);
+
   useEffect(() => {
     setLoading(true);
 
@@ -28,11 +48,12 @@ const Welcome = ({ navigation }) => {
         navigate.dispatch(resetAction);
         return;
       }
+      askLocalizationPermission();
       setLoading(false);
     }
 
     verifyWelcome();
-  }, []);
+  }, [askLocalizationPermission]);
   return (
     <>
       {loading ? <View style={styles.container} />

@@ -35,7 +35,6 @@ const AccountStackComponent = () => {
       <AccountStack.Screen name="Avaliar" component={Rating} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Tickets" component={Tickets} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Ticket" component={Ticket} options={{ ...TransitionPresets.SlideFromRightIOS }} />
-      <AccountStack.Screen name="Login" component={Login} options={{ ...TransitionPresets.SlideFromRightIOS }} />
     </AccountStack.Navigator>
   );
 };

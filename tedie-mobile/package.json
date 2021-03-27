@@ -30,6 +30,7 @@
     "react-native-calendars": "^1.1254.0",
     "react-native-easy-toast": "^2.0.0",
     "react-native-gesture-handler": "~1.6.0",
+    "react-native-juno-rn-card-hash": "^1.2.0",
     "react-native-modal-dropdown": "^1.0.0",
     "react-native-qrcode-svg": "^6.0.6",
     "react-native-ratings": "^7.3.0",
