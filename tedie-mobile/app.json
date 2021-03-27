@@ -35,14 +35,20 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "userInterfaceStyle": "light"
+      "userInterfaceStyle": "light",
+      "bundleIdentifier": "com.tedie.tedie",
+      "buildNumber": "2",
+      "infoPlist": {
+        "NSLocationAlwaysUsageDescription": "Vamos usar a localização para indicar os estabelecimentos próximos ao usuário",
+        "NSLocationWhenInUseUsageDescription": "Vamos utilizar quando o usuário acessar o app e também caso o usuário entre na tela de endereços"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "android": {
       "package": "com.tedie.tedie",
-      "versionCode": 3,
+      "versionCode": 4,
       "userInterfaceStyle": "light",
       "permissions":["ACCESS_COARSE_LOCATION"]
     },
