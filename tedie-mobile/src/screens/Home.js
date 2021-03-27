@@ -10,7 +10,6 @@ import Constants from 'expo-constants';
 import Swiper from 'react-native-swiper';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-community/async-storage';
-import { useSelector, useDispatch } from 'react-redux';
 import ScreenContainer from '../components/ScreenContainer';
 import ContentContainer from '../components/ContentContainer';
 import MainNavbar from '../components/MainNavbar';
@@ -27,7 +26,6 @@ import { getProductsByCEP } from '../services/products';
 import { getLocationByLatLong } from '../services/locations';
 import { AppContext } from '../contexts/AppContext';
 import api from '../services/axios';
-import cartActions from '../store';
 
 const Home = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
@@ -37,7 +35,6 @@ const Home = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [banners, setBanners] = useState([]);
   const toastRef = useRef();
-  const cart = useSelector((state) => state.cart);
 
   const loadMarkets = async () => {
     setLoadingMarkets(true);

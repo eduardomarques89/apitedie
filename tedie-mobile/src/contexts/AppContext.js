@@ -73,6 +73,7 @@ function createAddress(state, action) {
 }
 
 function createSessao(state, action) {
+  console.log(action);
   const { sessao } = action.payload;
   AsyncStorage.setItem('sessao', JSON.stringify(sessao));
   return { ...state, sessao };

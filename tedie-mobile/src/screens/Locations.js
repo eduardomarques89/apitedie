@@ -28,6 +28,7 @@ const Locations = ({ route, navigation }) => {
   const { state, dispatch } = useContext(AppContext);
   const [locationsLoader, setLocationsLoader] = useState(false);
   const [locations, setLocations] = useState([]);
+  const [address, setaddress] = useState([]);
   const [locationsInput, setLocationsInput] = useState([]);
   const [locationText, setLocationText] = useState('');
   const toastRef = useRef();
@@ -52,8 +53,8 @@ const Locations = ({ route, navigation }) => {
         navigation.pop();
       })();
     } else {
-      await AsyncStorage.setItem('Localization', JSON.stringify(local));
       const address = await getLocationByLatLong(local.Latitude, local.Longitude);
+      await AsyncStorage.setItem('Localization', JSON.stringify(address));
 
       const action = { type: 'createAddress', payload: address };
       dispatch(action);
@@ -66,9 +67,11 @@ const Locations = ({ route, navigation }) => {
     try {
       const { data } = await api.get(`Enderecos/Cliente/${state?.sessao?.IdCliente}`);
       setLocations(data);
+      setaddress(data);
       setLocationsLoader(false);
     } catch (e) {
       setLocations([]);
+      setaddress([]);
       setLocationsLoader(false);
     }
   }, []);
@@ -109,7 +112,7 @@ const Locations = ({ route, navigation }) => {
           IdEndereco: result.place_id,
         };
       });
-      setLocations(locations);
+      setLocations([...locations, ...address]);
       setLocationsLoader(false);
     }
     fetchLocation();

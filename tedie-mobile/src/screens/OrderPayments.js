@@ -1,118 +1,122 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, {
+  useContext, useEffect, useRef, useState, useCallback,
+} from 'react';
 import {
   StyleSheet,
   View,
-  TouchableOpacity
-} from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
-import BottomSheet from 'reanimated-bottom-sheet'
+  TouchableOpacity,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import BottomSheet from 'reanimated-bottom-sheet';
 // theme
-import theme from '../theme'
+import AsyncStorage from '@react-native-community/async-storage';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import theme from '../theme';
 // components
-import Navbar from '../components/Navbar'
-import Typography from '../components/Typography'
-import ScreenContainer from '../components/ScreenContainer'
-import ContentContainer from '../components/ContentContainer'
-import Divider from '../components/Divider'
-import Button from '../components/Button'
-import { getCard } from '../services/card'
-import AsyncStorage from '@react-native-community/async-storage'
-import { CheckoutContext } from '../contexts/CheckoutContext'
-import { CartContext } from '../contexts/CartContext'
-import {useNavigation} from '@react-navigation/native'
-import api from '../services/axios'
-import { AppContext } from '../contexts/AppContext'
+import Navbar from '../components/Navbar';
+import Typography from '../components/Typography';
+import ScreenContainer from '../components/ScreenContainer';
+import ContentContainer from '../components/ContentContainer';
+import Divider from '../components/Divider';
+import Button from '../components/Button';
+import { getCard } from '../services/card';
+import { CheckoutContext } from '../contexts/CheckoutContext';
+import { CartContext } from '../contexts/CartContext';
+import api from '../services/axios';
+import { AppContext } from '../contexts/AppContext';
 
 const OrderPayments = ({ navigation }) => {
-  const navigate = useNavigation()
-  const [meiosPag, setMeiosPag] = useState([])
+  const navigate = useNavigation();
+  const [meiosPag, setMeiosPag] = useState([]);
   const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
-  const {state} = useContext(AppContext)
+  const { state } = useContext(AppContext);
   const { cartState, cartDispatch } = useContext(CartContext);
-  
-  useEffect(() => {
-    loadMeiosPag()
-  }, [])
+
+  useFocusEffect(useCallback(() => {
+    loadMeiosPag();
+  }, []));
 
   async function loadMeiosPag() {
-    const sessao = JSON.parse(await AsyncStorage.getItem("sessao"))
-    const cartoes = await getCard(state.sessao.IdCliente)
-    console.log(cartoes)
-    setMeiosPag(cartoes)
+    const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
+    const cartoes = await getCard(state.sessao.IdCliente);
+    console.log(cartoes);
+    setMeiosPag(cartoes);
   }
 
   async function selecionaCartao(card) {
-    card.opcao = 'credit'
-    let he = { ...checkoutState.cartaoPorEstabelecimento }
-    he[`${0}`] = card
-    const action = { type: "setCartaoPorEstabelecimento", payload: { cartaoPorEstabelecimento: he } }
+    card.opcao = 'credit';
+    const he = { ...checkoutState.cartaoPorEstabelecimento };
+    he[`${0}`] = card;
+    console.log(he);
+    const action = { type: 'setCartaoPorEstabelecimento', payload: { cartaoPorEstabelecimento: he } };
     checkoutDispatch(action);
-    navigation.pop()
+    navigation.pop();
   }
 
-  const bottomSheetRef = useRef(null)
+  const bottomSheetRef = useRef(null);
 
   const openBottomSheet = (ref) => {
     ref.current.snapTo(150);
-  }
+  };
 
   const closeBottomSheet = (ref) => {
     ref.current.snapTo(0);
-  }
+  };
 
-  const BotomSheetContent = ({ sheetRef }) => {
-    return (
-      <React.Fragment>
-        <View style={styles.bottomSheetContainer}>
-          <TouchableOpacity hitSlop={theme.hitSlop} onPress={() => closeBottomSheet(sheetRef)}>
-            <View style={styles.bottomSheetHeader}>
-              <Ionicons name="md-close-circle" size={25} color={theme.palette.light} />
-              <Typography size="small" color={theme.palette.light}>
-                Fechar
+  const BotomSheetContent = ({ sheetRef }) => (
+    <>
+      <View style={styles.bottomSheetContainer}>
+        <TouchableOpacity hitSlop={theme.hitSlop} onPress={() => closeBottomSheet(sheetRef)}>
+          <View style={styles.bottomSheetHeader}>
+            <Ionicons name="md-close-circle" size={25} color={theme.palette.light} />
+            <Typography size="small" color={theme.palette.light}>
+              Fechar
+            </Typography>
+          </View>
+        </TouchableOpacity>
+
+        <View style={styles.bottomSheetActions}>
+          <TouchableOpacity>
+            <View style={styles.bottomSheetItem}>
+              <Ionicons name="md-create" size={25} color={theme.palette.primary} />
+              <Typography size="small" color={theme.palette.dark}>
+                Editar
               </Typography>
             </View>
           </TouchableOpacity>
-
-          <View style={styles.bottomSheetActions}>
-            <TouchableOpacity>
-              <View style={styles.bottomSheetItem}>
-                <Ionicons name="md-create" size={25} color={theme.palette.primary} />
-                <Typography size="small" color={theme.palette.dark}>
-                  Editar
-                </Typography>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <View style={styles.bottomSheetItem}>
-                <Ionicons name="md-trash" size={25} color={theme.palette.primary} />
-                <Typography size="small" color={theme.palette.dark}>
-                  Excluir
-                </Typography>
-              </View>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity>
+            <View style={styles.bottomSheetItem}>
+              <Ionicons name="md-trash" size={25} color={theme.palette.primary} />
+              <Typography size="small" color={theme.palette.dark}>
+                Excluir
+              </Typography>
+            </View>
+          </TouchableOpacity>
         </View>
-      </React.Fragment>
-    )
-  }
+      </View>
+    </>
+  );
 
   return (
-    <React.Fragment>
+    <>
       <Navbar
-        left={
-          <TouchableOpacity hitSlop={theme.hitSlop} onPress={() =>{
-            if(navigate.canGoBack()){
-              navigate.goBack()
-            }
-          }}>
+        left={(
+          <TouchableOpacity
+            hitSlop={theme.hitSlop}
+            onPress={() => {
+              if (navigate.canGoBack()) {
+                navigate.goBack();
+              }
+            }}
+          >
             <Ionicons name="md-arrow-back" size={25} color="#fff" />
           </TouchableOpacity>
-        }
-        title={
+        )}
+        title={(
           <Typography size="small" color="#fff">
             Pagamento
           </Typography>
-        }
+        )}
       />
 
       <ScreenContainer>
@@ -129,14 +133,16 @@ const OrderPayments = ({ navigation }) => {
             <Divider />
 
             {meiosPag.length > 0 && meiosPag.map((p, index) => (
-              <View style={styles.lineSpaceContainer} >
-                <TouchableOpacity onPress={() => selecionaCartao(p)} >
+              <View style={styles.lineSpaceContainer}>
+                <TouchableOpacity onPress={() => selecionaCartao(p)}>
                   <View style={styles.columnContainer}>
                     <Typography size="small" color={theme.palette.dark}>
                       Cartão de Crédito/Débito
-                  </Typography>
+                    </Typography>
                     <Typography size="caption" color={theme.palette.light}>
-                      {p.Bandeira} {p.Numero.split(" ").map((y, i) => { return i == 1 || i == 2 ? "****" : y }).join(" ")}
+                      {p.Bandeira}
+                      {' '}
+                      {p.Numero.split(' ').map((y, i) => (i == 1 || i == 2 ? '****' : y)).join(' ')}
                     </Typography>
                   </View>
                 </TouchableOpacity>
@@ -201,36 +207,36 @@ const OrderPayments = ({ navigation }) => {
         renderContent={() => (<BotomSheetContent sheetRef={bottomSheetRef} />)}
         ref={bottomSheetRef}
       />
-    </React.Fragment>
-  )
-}
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   lineContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   lineSpaceContainer: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 16
+    marginVertical: 16,
   },
   columnContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
   },
   editButton: {
-    marginLeft: 16
+    marginLeft: 16,
   },
   slope: {
     top: 25,
     left: 25,
     bottom: 25,
-    right: 25
+    right: 25,
   },
   bottomSheetContainer: {
     width: '100%',
@@ -238,7 +244,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     elevation: 4,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
   bottomSheetHeader: {
     width: '100%',
@@ -250,7 +256,7 @@ const styles = StyleSheet.create({
   bottomSheetActions: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   bottomSheetItem: {
     flexDirection: 'row',
@@ -260,8 +266,8 @@ const styles = StyleSheet.create({
     borderColor: theme.palette.primary,
     borderWidth: 2,
     borderRadius: 8,
-    marginHorizontal: 8
-  }
-})
+    marginHorizontal: 8,
+  },
+});
 
-export default OrderPayments
+export default OrderPayments;

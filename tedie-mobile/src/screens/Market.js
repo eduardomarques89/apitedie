@@ -8,7 +8,6 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-community/async-storage';
 // components
 import { useNavigation } from '@react-navigation/native';
-import { useSelector, useDispatch } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import theme from '../theme';
 import ScreenContainer from '../components/ScreenContainer';
@@ -33,7 +32,7 @@ const Market = ({ navigation, route }) => {
   const { market } = route.params;
 
   const loadMarketProducts = useCallback(async () => {
-    const token = await AsyncStorage.getItem('@tedie:devtoken');
+    const token = await AsyncStorage.getItem('token');
 
     setLoadingProducts(true);
     const [products, banners] = await Promise.all([api.get(`produtos/?token=${token}&Idempresa=${market.IdEmpresa}`), api.get('banner')]);

@@ -1,25 +1,27 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { StyleSheet, View, Image,TouchableOpacity,Text } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import React, { useContext, useEffect, useState } from 'react';
+import {
+  StyleSheet, View, Image, TouchableOpacity, Text,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 // components
-import ContentContainer from './ContentContainer'
-import Typography from './Typography'
-import ModalDropdown from 'react-native-modal-dropdown'
-import { CartContext } from '../contexts/CartContext'
-import { AppContext } from '../contexts/AppContext'
+import ModalDropdown from 'react-native-modal-dropdown';
+import ContentContainer from './ContentContainer';
+import Typography from './Typography';
+import { CartContext } from '../contexts/CartContext';
+import { AppContext } from '../contexts/AppContext';
 // theme
-import theme from '../theme'
+import theme from '../theme';
 
-const CartItem = ({ cartItem, valorCalculado,handleDeleteItem }) => {
+const CartItem = ({ cartItem, valorCalculado, handleDeleteItem }) => {
   const { cartState, cartDispatch } = useContext(CartContext);
   const { state, dispatch } = useContext(AppContext);
 
-  function handleValueDropdown(value){
-    if(value === 0){
-      handleDeleteItem()
+  function handleValueDropdown(value) {
+    if (value === 0) {
+      handleDeleteItem();
     }
   }
- 
+
   return (
     <View style={styles.container}>
       <ContentContainer>
@@ -39,9 +41,9 @@ const CartItem = ({ cartItem, valorCalculado,handleDeleteItem }) => {
           <Typography size="small" color="#000">
             {cartItem.product.Nome}
           </Typography>
-            <ModalDropdown  options={['Retirar item']} onSelect={(value) => handleValueDropdown(value)} dropdownStyle={{height:40}}>
-              <Ionicons name="md-more" size={30} color={theme.palette.primary} />
-            </ModalDropdown>
+          <ModalDropdown options={['Retirar item']} onSelect={(value) => handleValueDropdown(value)} dropdownStyle={{ height: 40 }}>
+            <Ionicons name="md-more" size={30} color={theme.palette.primary} />
+          </ModalDropdown>
         </View>
 
         <View style={styles.infoLine}>
@@ -59,13 +61,15 @@ const CartItem = ({ cartItem, valorCalculado,handleDeleteItem }) => {
           </Typography>
           <Typography size="small" color="#000">
             {/* {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorCalculado)} */}
-            R$ {Number.parseFloat(valorCalculado()).toFixed(2).replace('.', ',')} 
+            R$
+            {' '}
+            {Number.parseFloat(valorCalculado()).toFixed(2).replace('.', ',')}
           </Typography>
         </View>
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             hitSlop={theme.hitSlop}
-            onPress={() => dispatch({type:'deleteQuantyItem',id:cartItem.product.Id})}
+            onPress={() => dispatch({ type: 'deleteQuantyItem', id: cartItem.product.Id })}
           >
             <Ionicons name="md-remove" size={25} color={theme.palette.primary} />
           </TouchableOpacity>
@@ -74,28 +78,28 @@ const CartItem = ({ cartItem, valorCalculado,handleDeleteItem }) => {
 
           <TouchableOpacity
             hitSlop={theme.hitSlop}
-            onPress={() => dispatch({type:'addQuantyItem',id:cartItem.product.Id})}
+            onPress={() => dispatch({ type: 'addQuantyItem', id: cartItem.product.Id })}
           >
             <Ionicons name="md-add" size={25} color={theme.palette.primary} />
           </TouchableOpacity>
         </View>
       </View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
   },
 
   image: {
     width: 100,
     height: 100,
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
 
   infoContainer: {
@@ -105,7 +109,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     alignItems: 'flex-start',
     paddingTop: 16,
-    paddingLeft:8
+    paddingLeft: 8,
   },
 
   infoLine: {
@@ -113,7 +117,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: 16
+    paddingLeft: 16,
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -121,19 +125,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.palette.secondary,
     borderRadius: 8,
-    marginTop:8,
-    width:"100%",
+    marginTop: 8,
+    width: '100%',
     paddingVertical: 8,
     paddingHorizontal: 16,
     // position: 'absolute',
     // bottom: 0,
     // right: -16,
-    elevation: 2
+    elevation: 2,
   },
 
   quantity: {
-    paddingHorizontal: 8
+    paddingHorizontal: 8,
   },
-})
+});
 
-export default CartItem
+export default CartItem;

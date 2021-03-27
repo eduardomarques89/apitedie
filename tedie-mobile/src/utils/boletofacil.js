@@ -452,7 +452,7 @@ import Axios from 'axios';
 const tokenDoFavorecido = 'A05E02D738AD1205896FE65C044EB115692BD01ECB2067EF28962D4677A09E30';
 
 export function geraCheckoutAPI() {
-  const checkout = new DirectCheckout('D4A7297855842884869B6967597728FD773495F9DD3C3C760E45C6E22D7566F3A85A9CFBC5F99FDC'); /* Em sandbox utilizar o construtor new DirectCheckout('SEU TOKEN PUBLICO', false); */
+  const checkout = new DirectCheckout('7ACA5244C520E4641C6E636E11AE9F05B0747F870CD202891BAD9DD415D7DE53', false); /* Em sandbox utilizar o construtor new DirectCheckout('SEU TOKEN PUBLICO', false); */
   return checkout;
 }
 

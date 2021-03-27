@@ -1,9 +1,9 @@
-import Axios from 'axios'
+import Axios from 'axios';
 
 export const getTokenData = async () => {
   const response = await Axios.get(
-    'http://tedie.azurewebsites.net/api/token/?CredencialName=DEVTEDIE&Credencialkey=CAK23432KD0932DJ23D32IJD39'
-  )
+    'http://tedie.azurewebsites.net/api/token/1',
+  );
 
-  return response.data[0]
-}
+  return response.data[0];
+};

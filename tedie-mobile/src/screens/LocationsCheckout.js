@@ -29,6 +29,7 @@ const LocationsCheckout = ({ route, navigation }) => {
   const { state, dispatch } = useContext(AppContext);
   const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
   const { cartState, cartDispatch } = useContext(CartContext);
+  const [address, setAddress] = useState([]);
   const [locationsLoader, setLocationsLoader] = useState(false);
   const [locations, setLocations] = useState([]);
   const [locationText, setLocationText] = useState('');
@@ -39,6 +40,7 @@ const LocationsCheckout = ({ route, navigation }) => {
     try {
       const { data } = await api.get(`Enderecos/Cliente/${state?.sessao?.IdCliente}`);
       setLocations(data);
+      setAddress(data);
     } catch {
       setLocations([]);
     } finally {
@@ -57,7 +59,8 @@ const LocationsCheckout = ({ route, navigation }) => {
       return;
     }
     async function fetchLocation() {
-      const { data } = await api.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${locationText}+Brazil&key=AIzaSyCXoBOm61XlnQJkAFRiMF80ZGj0HLla36I`);
+      const { data } = await api.get(`https://maps.googleapis.com/maps/api/geocode/json?address=Brasil ${locationText}&key=AIzaSyCXoBOm61XlnQJkAFRiMF80ZGj0HLla36I`);
+      // console.log(data.results[0]);
 
       const locations = data.results.map((result) => {
         const UF = result.address_components.find((object) => object.types.includes('administrative_area_level_1'))?.short_name || '';
@@ -65,32 +68,77 @@ const LocationsCheckout = ({ route, navigation }) => {
         const Bairro = result.address_components.find((object) => object.types.includes('sublocality_level_1'))?.long_name || '';
         const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
         const Endereco = result.formatted_address || '';
-
+        const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
+        // const [, , cep] = result.formatted_address.split(',');
         return {
           Cidade,
           UF,
           Num,
           Bairro,
           Endereco,
-          latitude: result.geometry.location.lat,
-          longitude: result.geometry.location.lng,
+          CEP: cep,
+          Latitude: result.geometry.location.lat,
+          Longitude: result.geometry.location.lng,
           IdEndereco: result.place_id,
+          Padrao: 'N',
+          notExist: true,
         };
       });
-      setLocations(locations);
+      const locationsFilter = locations.filter((local) => {
+        const existAddress = address.find((localAdress) => local?.CEP.split('-').join('') !== localAdress.CEP);
+        if (existAddress) {
+          return false;
+        }
+        return true;
+      });
+      console.log(locations);
+      setLocations((props) => [...locations, ...address]);
       setLocationsLoader(false);
     }
     fetchLocation();
   }, [locationText]);
 
   async function setLocalization(local) {
-    let ee = { ...checkoutState.enderecoEntregaPorEstabelecimento };
-    ee = local;
-    const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: ee } };
-    checkoutDispatch(action);
+    console.log('oio');
+    if (local?.notExist) {
+      try {
+        const response = await api.post('Enderecos', {
+          IdCliente: state?.sessao?.IdCliente,
+          Endereco: local.Endereco,
+          Bairro: local.Bairro,
+          Cidade: local.Cidade,
+          UF: local.UF.toUpperCase(),
+          CEP: local.CEP.split('-').join(''),
+          Num: local.Num,
+          Complemento: '',
+          Latitude: local.latitude,
+          Longitude: local.longitude,
+          Padrao: local.Padrao,
+          Beautify: local.Endereco,
+        });
+        const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: response[0] } };
+        checkoutDispatch(action);
+        navigation.pop();
+        return;
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: local } };
+      checkoutDispatch(action);
+    }
 
     navigation.pop();
   }
+
+  // async function setLocalization(local) {
+  //   let ee = { ...checkoutState.enderecoEntregaPorEstabelecimento };
+  //   ee = local;
+  //   const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: ee } };
+  //   checkoutDispatch(action);
+
+  //   navigation.pop();
+  // }
 
   return (
     <>

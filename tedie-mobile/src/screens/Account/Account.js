@@ -1,306 +1,315 @@
-import React, { useContext } from 'react'
-import { StyleSheet, View, TouchableWithoutFeedback, TouchableOpacity,Text } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import React, { useContext, useEffect } from 'react';
+import {
+  StyleSheet, View, TouchableWithoutFeedback, TouchableOpacity, Text,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 // components
-import MainNavbar from '../../components/MainNavbar'
-import ScreenContainer from '../../components/ScreenContainer'
-import ContentContainer from '../../components/ContentContainer'
-import Typography from '../../components/Typography'
-import {useNavigation} from '@react-navigation/native'
-import Avatar from '../../components/Avatar'
+import { useNavigation } from '@react-navigation/native';
+import MainNavbar from '../../components/MainNavbar';
+import ScreenContainer from '../../components/ScreenContainer';
+import ContentContainer from '../../components/ContentContainer';
+import Typography from '../../components/Typography';
+import Avatar from '../../components/Avatar';
 // theme
-import theme from '../../theme'
-import { AppContext } from '../../contexts/AppContext'
+import theme from '../../theme';
+import { AppContext } from '../../contexts/AppContext';
 
 const Account = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
-  const navigate = useNavigation()
+  const navigate = useNavigation();
 
   async function logoff() {
-    debugger
-    const action = { type: "createSessao", payload: { sessao: undefined } };
+    debugger;
+    const action = { type: 'createSessao', payload: { sessao: undefined } };
     dispatch(action);
-    navigation.popToTop()
+    navigation.popToTop();
   }
 
-  return (
-    <React.Fragment>
-      <MainNavbar navigation={navigation}  left={
-        state.market &&
-        <React.Fragment>
-        <Avatar
-          size={35}
-          color={theme.palette.secondary}
-          image={state.market.Logo}
-        />
-        <Typography size="small" color="#fff">
-        {state.market.Nome}
-        </Typography>
-      </React.Fragment>
+  useEffect(() => {
+    console.log(state.sessao);
+  }, [state]);
 
-      }/>
+  return (
+    <>
+      <MainNavbar
+        navigation={navigation}
+        left={
+        state.market
+        && (
+        <>
+          <Avatar
+            size={35}
+            color={theme.palette.secondary}
+            image={state.market.Logo}
+          />
+          <Typography size="small" color="#fff">
+            {state.market.Nome}
+          </Typography>
+        </>
+        )
+
+      }
+      />
 
       <ScreenContainer>
         {
-          !state?.sessao?.IdCliente && (
+          !state?.sessao?.IdCliente ? (
 
-        <TouchableOpacity onPress={() => navigate.navigate('Login')}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="md-person" size={25} color={theme.palette.dark} />
+            <TouchableOpacity onPress={() => navigate.navigate('Login')}>
+              <ContentContainer>
+                <View style={styles.optionContainer}>
+                  <View style={styles.optionTextAndIcon}>
+                    <Ionicons name="md-person" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Acessar
-                  </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    <Text style={{color:theme.palette.primary}}>
-                      Entre
-                    </Text>
-                    <Text>
-                      {` ou `} 
-                    </Text>
-                    <Text style={{color:theme.palette.primary}}>
-                      cadastre-se
-                    </Text>
-                  </Typography>
+                    <View style={styles.optionTextContainer}>
+                      <Typography size="medium" color={theme.palette.dark}>
+                        Acessar
+                      </Typography>
+                      <Typography size="caption" color={theme.palette.light}>
+                        <Text style={{ color: theme.palette.primary }}>
+                          Entre
+                        </Text>
+                        <Text>
+                          {' ou '}
+                        </Text>
+                        <Text style={{ color: theme.palette.primary }}>
+                          cadastre-se
+                        </Text>
+                      </Typography>
+                    </View>
+                  </View>
+
+                  <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
                 </View>
-              </View>
-
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
+              </ContentContainer>
+            </TouchableOpacity>
           )
-        }
-        {
-          state?.sessao?.IdCliente &&(
-            <>
-        <TouchableOpacity onPress={() => navigate.navigate('Perfil')}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="md-person" size={25} color={theme.palette.dark} />
+            : (
+              <>
+                <TouchableOpacity onPress={() => navigate.navigate('Perfil')}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="md-person" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Perfil
-                  </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    Meus dados pessoais
-                  </Typography>
-                </View>
-              </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Perfil
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Meus dados pessoais
+                          </Typography>
+                        </View>
+                      </View>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Indicação')}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="md-gift" size={25} color={theme.palette.dark} />
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Indicação')}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="md-gift" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Indicação
-                  </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    Indique e ganhe benefícios!
-                  </Typography>
-                </View>
-              </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Indicação
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Indique e ganhe benefícios!
+                          </Typography>
+                        </View>
+                      </View>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Pedidos')}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="ios-list-box" size={25} color={theme.palette.dark} />
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Pedidos')}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="ios-list-box" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Pedidos
-                    </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    Meu histórico de pedidos
-                    </Typography>
-                </View>
-              </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Pedidos
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Meu histórico de pedidos
+                          </Typography>
+                        </View>
+                      </View>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
-        <ContentContainer>
-          <View style={styles.optionContainer}>
-            <View style={styles.optionTextAndIcon}>
-              <Ionicons name="md-notifications" size={25} color={theme.palette.dark} />
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
+                <ContentContainer>
+                  <View style={styles.optionContainer}>
+                    <View style={styles.optionTextAndIcon}>
+                      <Ionicons name="md-notifications" size={25} color={theme.palette.dark} />
 
-              <View style={styles.optionTextContainer}>
-                <Typography size="medium" color={theme.palette.dark}>
-                  Notificações
-                </Typography>
-                <Typography size="caption" color={theme.palette.light}>
-                  Minhas notificações recebidas
-                </Typography>
-              </View>
-            </View>
+                      <View style={styles.optionTextContainer}>
+                        <Typography size="medium" color={theme.palette.dark}>
+                          Notificações
+                        </Typography>
+                        <Typography size="caption" color={theme.palette.light}>
+                          Minhas notificações recebidas
+                        </Typography>
+                      </View>
+                    </View>
 
-            <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-          </View>
-        </ContentContainer>
-        <TouchableOpacity onPress={() => navigation.navigate('Cupons')}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="md-pricetag" size={25} color={theme.palette.dark} />
+                    <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                  </View>
+                </ContentContainer>
+                <TouchableOpacity onPress={() => navigation.navigate('Cupons')}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="md-pricetag" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Cupons
-                  </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    Meus cupons de desconto
-                  </Typography>
-                </View>
-              </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Cupons
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Meus cupons de desconto
+                          </Typography>
+                        </View>
+                      </View>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Localização')}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="md-pin" size={25} color={theme.palette.dark} />
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Localização')}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="md-pin" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Endereços
-                  </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    Meus locais para entrega
-                  </Typography>
-                </View>
-              </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Endereços
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Meus locais para entrega
+                          </Typography>
+                        </View>
+                      </View>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Pagamento')}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="md-card" size={25} color={theme.palette.dark} />
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Pagamento')}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="md-card" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Pagamento
-                  </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    Meus métodos de pagamento
-                  </Typography>
-                </View>
-              </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Pagamento
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Meus métodos de pagamento
+                          </Typography>
+                        </View>
+                      </View>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Tickets')}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="md-chatboxes" size={25} color={theme.palette.dark} />
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Tickets')}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="md-chatboxes" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Atendimento
-                  </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    Minhas conversas com estabelecimento
-                  </Typography>
-                </View>
-              </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Atendimento
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Minhas conversas com estabelecimento
+                          </Typography>
+                        </View>
+                      </View>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Ajuda')}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="md-help-circle" size={25} color={theme.palette.dark} />
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Ajuda')}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="md-help-circle" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Ajuda
-                  </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    Perguntas frequentes
-                  </Typography>
-                </View>
-              </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Ajuda
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Perguntas frequentes
+                          </Typography>
+                        </View>
+                      </View>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => logoff()}>
-          <ContentContainer>
-            <View style={styles.optionContainer}>
-              <View style={styles.optionTextAndIcon}>
-                <Ionicons name="md-power" size={25} color={theme.palette.dark} />
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => logoff()}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="md-power" size={25} color={theme.palette.dark} />
 
-                <View style={styles.optionTextContainer}>
-                  <Typography size="medium" color={theme.palette.dark}>
-                    Sair
-                  </Typography>
-                  <Typography size="caption" color={theme.palette.light}>
-                    Ir para tela de login
-                  </Typography>
-                </View>
-              </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Sair
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Ir para tela de login
+                          </Typography>
+                        </View>
+                      </View>
 
-              <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-            </View>
-          </ContentContainer>
-        </TouchableOpacity>
-        </>
-          )
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
+              </>
+            )
         }
       </ScreenContainer>
-    </React.Fragment>
-  )
-}
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   optionContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 8
+    padding: 8,
   },
   optionTextAndIcon: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   optionTextContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    padding: 8
-  }
-})
+    padding: 8,
+  },
+});
 
-export default Account
+export default Account;
