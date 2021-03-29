@@ -9,6 +9,8 @@ import {
   Text,
   ActivityIndicator,
 } from 'react-native';
+import '@expo/browser-polyfill';
+import JunoCardHash from 'react-native-juno-rn-card-hash';
 import { Ionicons } from '@expo/vector-icons';
 // theme
 import Toast from 'react-native-easy-toast';
@@ -27,10 +29,11 @@ import Box from '../components/Box';
 import { CartContext } from '../contexts/CartContext';
 import { CheckoutContext } from '../contexts/CheckoutContext';
 import { AppContext } from '../contexts/AppContext';
-import { postPedido } from '../services/products';
 import { geraCheckoutAPI, fazPagamentoJuno } from '../utils/boletofacil';
 import { getMarketsListByIds } from '../services/market';
 import api from '../services/axios';
+
+const Juno = new JunoCardHash('7ACA5244C520E4641C6E636E11AE9F05073D1B779B64825BD0F9DDFE44D9C954', 'sandbox');
 
 const Checkout = ({ navigation, route }) => {
   const navigate = useNavigation();
@@ -102,7 +105,6 @@ const Checkout = ({ navigation, route }) => {
   async function fazerPedido() {
     const codigo_transacao = (Math.random() * 1000000).toFixed(0);
     const idCliente = state?.sessao?.IdCliente;
-    const totalCompra = 0;
     if (!checkoutState?.enderecoEntregaPorEstabelecimento || !checkoutState?.enderecoEntregaPorEstabelecimento?.Endereco) {
       toastRef.current?.show('Selecione o endereço', 2000);
       return;
@@ -122,18 +124,19 @@ const Checkout = ({ navigation, route }) => {
       return;
     }
     const IdCartao = checkoutState.cartaoPorEstabelecimento[0]?.IdCartao;
-    if (selectedPayment === 'CREDIT_CARD') {
-      postPagamento(codigo_transacao, cartState.totalCompras, showEndereco);
-      return;
-    }
-    if (!IdCartao && selectedPayment === 'CREDIT_CARD') {
+    if (!IdCartao && selectedPayment.value === 'Cartão de crédito') {
       toastRef.current?.show('Selecione um cartão', 2000);
       return;
     }
 
+    setLoading(true);
+
+    let valorTotal = 0;
+
     const promises = cartState.markets.map((market) => {
       const Valor = cartState.totalComprasPorEstabelecimento[`"${market.IdEmpresa}"`]
         + (checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? (+checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2]) : 0);
+      valorTotal += Valor;
       const IdCupom = market.IdEmpresa == cupom?.IdEmpresa ? cupom.IdCupom : 0;
       const Desconto = market.IdEmpresa == cupom?.Valor ? cupom.IdCupom : 0;
       const IdTipoEntrega = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[3];
@@ -182,16 +185,15 @@ const Checkout = ({ navigation, route }) => {
       if (selectedPayment === 'CREDIT_CARD') {
         pedido.IdCartao = checkoutState.cartaoPorEstabelecimento[0].IdCartao;
       }
-      console.log('pedido');
-      console.log(pedido);
 
       return api.post('Pedidos', pedido);
     });
 
     try {
-      setLoading(true);
+      if (selectedPayment.value === 'Cartão de crédito') {
+        await postPagamento(codigo_transacao, valorTotal, checkoutState?.enderecoEntregaPorEstabelecimento);
+      }
       const response = await Promise.all(promises);
-      console.log(response);
       pedidoConfirmado();
     } catch (e) {
       console.log(e);
@@ -245,23 +247,38 @@ const Checkout = ({ navigation, route }) => {
       /* Erro - A variável error conterá o erro ocorrido ao obter o hash */
     });
   };
-
-  const errorAoPagar = (error) => {
-    console.log(error);
-  };
-
-  async function postPagamento(codigo_transacao, valor) {
-    console.log('OIioio');
+  async function postPagamento(codigo_transacao, valor, endereco) {
     const cartao = checkoutState.cartaoPorEstabelecimento[0];
     const cardData = {
-      cardNumber: cartao?.Numero?.split(' ').join('') || '',
-      holderName: cartao.Titular,
-      securityCode: cartao.CVV.trim(),
-      expirationMonth: cartao.Validade.split('/')[0],
-      expirationYear: cartao.Validade.split('/')[1],
+      cardNumber: '5207156147520886',
+      holderName: 'Foo bar',
+      securityCode: '265',
+      expirationMonth: '11',
+      expirationYear: '2021',
     };
-    console.log(cardData);
-    fazPagamento(cardData, codigo_transacao, valor);
+    // const cardData = {
+    //   cardNumber: cartao?.Numero?.split(' ').join('') || '',
+    //   holderName: cartao.Titular,
+    //   securityCode: cartao.CVV.trim(),
+    //   expirationMonth: cartao.Validade.split('/')[0],
+    //   expirationYear: cartao.Validade.split('/')[1],
+    // };
+    try {
+      console.log(endereco);
+      const cardHash = await Juno.getCardHash(cardData);
+      // console.log('cardHash');
+      // console.log(cardHash);
+      const cardId = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/card-tokenization?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&creditCardHash=${cardHash}`);
+      // console.log('cardId');
+      // console.log(cardId);
+      // console.log(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&description=${codigo_transacao}&amount=${valor}&payerName=${cartao.Titular}&payerCpfCnpj=${cartao.CPF}&creditCardStore=${false}&creditCardId=${cardId.data.data.creditCardId}billingAddressStreet=null&billingAddressNumber=${endereco.Num}&billingAddressNeighborhood=${endereco.Bairro}&billingAddressCity=${endereco.Cidade}&billingAddressState=${endereco.UF}&billingAddressPostcode=${endereco.CEP}&payerEmail=wi3147383@wi7h.com.br`);
+      const response = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&description=${codigo_transacao}&amount=${valor}&payerName=${cartao.Titular}&payerCpfCnpj=${cartao.CPF}&creditCardStore=${false}&creditCardId=${cardId.data.data.creditCardId}billingAddressStreet=null&billingAddressNumber=${endereco.Num}&billingAddressNeighborhood=${endereco.Bairro}&billingAddressCity=${endereco.Cidade}&billingAddressState=${endereco.UF}&billingAddressPostcode=${endereco.CEP}&payerEmail=wi3147383@wi7h.com.br`);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+
+    // fazPagamento(cardData, codigo_transacao, valor);
   }
 
   return (
@@ -432,7 +449,7 @@ const Checkout = ({ navigation, route }) => {
             <View style={styles.paymentMethodContainer}>
               <View style={styles.paymentContainer}>
                 <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => selecionaOpcaoPagamento({ value: 'Cartão de crédito', id: 1 })}>
-                  <RadioButton selected={selectedPayment === 'Cartão de crédito'} />
+                  <RadioButton selected={selectedPayment.value === 'Cartão de crédito'} />
                   <View>
                     <Typography size="small" color={theme.palette.dark}>
                       Cartão pelo TEDIE
@@ -443,7 +460,7 @@ const Checkout = ({ navigation, route }) => {
                         <>
                           {showCartao.Bandeira}
                           {' '}
-                          {showCartao.Numero.split(' ').map((y, i) => (i == 1 || i == 2 ? '****' : y)).join(' ')}
+                          {showCartao.Numero.split('').filter((index, i) => i < 4).join(' ')}
                         </>
                         )}
                     </Typography>

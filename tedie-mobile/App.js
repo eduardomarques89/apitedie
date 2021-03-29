@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { AppearanceProvider } from 'react-native-appearance';

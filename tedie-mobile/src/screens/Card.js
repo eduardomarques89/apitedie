@@ -6,7 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 // component
 import { func } from 'prop-types';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import Navbar from '../components/Navbar';
 import ScreenContainer from '../components/ScreenContainer';

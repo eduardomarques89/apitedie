@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 // components
 import Toast, { DURATION } from 'react-native-easy-toast';
 import * as Location from 'expo-location';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import ScreenContainer from '../components/ScreenContainer';

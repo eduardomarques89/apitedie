@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import * as Location from 'expo-location';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScreenContainer from '../components/ScreenContainer';
 import ContentContainer from '../components/ContentContainer';
 import Navbar from '../components/Navbar';

@@ -9,7 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import BottomSheet from 'reanimated-bottom-sheet';
 // theme
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import theme from '../theme';
 // components

@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext } from 'react';
 
 export const AppContext = createContext();
@@ -6,7 +6,7 @@ export const AppContext = createContext();
 export const initialState = {
   token: undefined,
   address: undefined,
-  carrinho: new Array(),
+  carrinho: [],
   sessao: undefined,
   market: {},
 };

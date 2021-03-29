@@ -5,7 +5,7 @@ import {
   StyleSheet, View, TouchableOpacity, ScrollView, Image, FlatList, SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // components
 import { useNavigation } from '@react-navigation/native';
 import Swiper from 'react-native-swiper';

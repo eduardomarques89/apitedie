@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { useNavigation, CommonActions } from '@react-navigation/native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import theme from '../../theme';
 import Tela1 from '../../assets/tela1.png';
