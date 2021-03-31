@@ -29,7 +29,6 @@ import Box from '../components/Box';
 import { CartContext } from '../contexts/CartContext';
 import { CheckoutContext } from '../contexts/CheckoutContext';
 import { AppContext } from '../contexts/AppContext';
-import { geraCheckoutAPI, fazPagamentoJuno } from '../utils/boletofacil';
 import { getMarketsListByIds } from '../services/market';
 import api from '../services/axios';
 
@@ -102,6 +101,47 @@ const Checkout = ({ navigation, route }) => {
     }
   }
 
+  async function carregaCarrinho() {
+    const selectedMarkets = getSelectedMarkets();
+    getMarketsListByIds(selectedMarkets)
+      .then((markets) => {
+        const action = { type: 'setMarkets', payload: { markets } };
+        cartDispatch(action);
+      });
+  }
+
+  async function pedidoConfirmado() {
+    const limpaCarrinho = () => {
+      const action = { type: 'createCarrinho', payload: new Array() };
+      const actionCart = { type: 'CLEAR_CART' };
+      dispatch(action);
+      cartDispatch(actionCart);
+    };
+    limpaCarrinho();
+    carregaCarrinho();
+    navigate.goBack();
+  }
+
+  async function postPagamento(codigo_transacao, valor, endereco) {
+    const cartao = checkoutState.cartaoPorEstabelecimento[0];
+    const cardData = {
+      cardNumber: cartao?.Numero?.split(' ').join('') || '',
+      holderName: cartao.Titular,
+      securityCode: cartao.CVV.trim(),
+      expirationMonth: cartao.Validade.split('/')[0],
+      expirationYear: cartao.Validade.split('/')[1],
+    };
+    try {
+      const cardHash = await Juno.getCardHash(cardData);
+      const cardId = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/card-tokenization?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&creditCardHash=${cardHash}`);
+
+      const { data } = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&description=${codigo_transacao}&amount=${valor}&payerName=${cartao.Titular}&payerCpfCnpj=${cartao.CPF}&creditCardStore=${false}&creditCardId=${cardId.data.data.creditCardId}&paymentTypes=CREDIT_CARD&billingAddressStreet=null&billingAddressNumber=${endereco.Num}&billingAddressNeighborhood=${endereco.Bairro}&billingAddressCity=${endereco.Cidade}&billingAddressState=${endereco.UF}&billingAddressPostcode=${endereco.CEP}&payerEmail=wi3147383@wi7h.com.br`);
+      return { code: data.data.charges[0].code, status: data.data.charges[0].payments[0].status };
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async function fazerPedido() {
     const codigo_transacao = (Math.random() * 1000000).toFixed(0);
     const idCliente = state?.sessao?.IdCliente;
@@ -128,72 +168,82 @@ const Checkout = ({ navigation, route }) => {
       toastRef.current?.show('Selecione um cartão', 2000);
       return;
     }
+    if (selectedPayment.value === 'Cartão de crédito' && !state?.cpf) {
+      toastRef.current?.show('Digite um cpf', 2000);
+      return;
+    }
 
     setLoading(true);
 
-    let valorTotal = 0;
-
-    const promises = cartState.markets.map((market) => {
-      const Valor = cartState.totalComprasPorEstabelecimento[`"${market.IdEmpresa}"`]
-        + (checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? (+checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2]) : 0);
-      valorTotal += Valor;
-      const IdCupom = market.IdEmpresa == cupom?.IdEmpresa ? cupom.IdCupom : 0;
-      const Desconto = market.IdEmpresa == cupom?.Valor ? cupom.IdCupom : 0;
-      const IdTipoEntrega = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[3];
-      const Taxa = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2];
-      const {
-        TipoEntrega, IdHorario, DiaSemana, Horario, IdDiaSemana, DataFinal,
-      } = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa];
-
-      const pedido = {
-        nomecliente: '',
-        apelido: '',
-        email: '',
-        cpf: state?.cpf || '',
-        senha: '',
-        codigo_transacao,
-        IdCliente: idCliente,
-        IdTipoEntrega,
-        IdHorario,
-        IdCupom,
-        idempresa: market.IdEmpresa,
-        IdFormaPagamento: selectedPayment.id,
-        IdDiaSemana,
-        idendereco: IdEndereco,
-        NumeroPedido: (Math.random() * 1000000).toFixed(0),
-        Data: new Date(),
-        Valor,
-        Desconto,
-        Taxa,
-        TipoEntrega,
-        DiaSemana,
-        Horario,
-        Endereco,
-        Bairro,
-        Cidade,
-        UF,
-        CEP,
-        Num,
-        Complemento,
-        FormaPagamento: selectedPayment.value,
-        QtdeParcela: 1,
-        Observacao: '',
-        status: 'aguardando pagamento',
-        DataFinal,
-      };
-
-      if (selectedPayment === 'CREDIT_CARD') {
-        pedido.IdCartao = checkoutState.cartaoPorEstabelecimento[0].IdCartao;
-      }
-
-      return api.post('Pedidos', pedido);
-    });
+    const valorTotal = cartState.markets.reduce((prev, market) => cartState.totalComprasPorEstabelecimento[`"${market.IdEmpresa}"`]
+      + (checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? (+checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2]) : 0), 0);
 
     try {
+      const junoValues = {};
       if (selectedPayment.value === 'Cartão de crédito') {
-        await postPagamento(codigo_transacao, valorTotal, checkoutState?.enderecoEntregaPorEstabelecimento);
+        const juno = await postPagamento(codigo_transacao, valorTotal, checkoutState?.enderecoEntregaPorEstabelecimento);
+        junoValues.status = juno.status;
+        junoValues.codeJuno = juno.code;
       }
-      const response = await Promise.all(promises);
+      const promises = cartState.markets.map((market) => {
+        const Valor = cartState.totalComprasPorEstabelecimento[`"${market.IdEmpresa}"`]
+          + (checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? (+checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2]) : 0);
+        const IdCupom = market.IdEmpresa == cupom?.IdEmpresa ? cupom.IdCupom : 0;
+        const Desconto = market.IdEmpresa == cupom?.Valor ? cupom.IdCupom : 0;
+        const IdTipoEntrega = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[3];
+        const Taxa = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2];
+        const {
+          TipoEntrega, IdHorario, DiaSemana, Horario, IdDiaSemana, DataFinal,
+        } = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa];
+
+        const pedido = {
+          nomecliente: '',
+          apelido: '',
+          email: '',
+          cpf: state?.cpf || '',
+          senha: '',
+          codigo_transacao,
+          IdCliente: idCliente,
+          IdTipoEntrega,
+          IdHorario,
+          IdCupom,
+          idempresa: market.IdEmpresa,
+          IdFormaPagamento: selectedPayment.id,
+          IdDiaSemana,
+          idendereco: IdEndereco,
+          NumeroPedido: (Math.random() * 1000000).toFixed(0),
+          Data: new Date(),
+          Valor,
+          Desconto,
+          Taxa,
+          TipoEntrega,
+          DiaSemana,
+          Horario,
+          Endereco,
+          Bairro,
+          Cidade,
+          UF,
+          CEP,
+          Num,
+          Complemento,
+          FormaPagamento: selectedPayment.value,
+          QtdeParcela: 1,
+          Observacao: '',
+          status: 'aguardando pagamento',
+          DataFinal,
+          codigoJuno: '',
+        };
+
+        if (selectedPayment.value === 'Cartão de crédito') {
+          pedido.IdCartao = checkoutState.cartaoPorEstabelecimento[0].IdCartao;
+          pedido.status = junoValues.status;
+          pedido.codigoJuno = junoValues.codeJuno;
+        }
+
+        return api.post('Pedidos', pedido);
+      });
+
+      await Promise.all(promises);
       pedidoConfirmado();
     } catch (e) {
       console.log(e);
@@ -207,78 +257,6 @@ const Checkout = ({ navigation, route }) => {
     return state.carrinho
       .filter((c, i, v) => v.findIndex((f) => f.product.IdEmpresa == c.product.IdEmpresa) == i)
       .map((c) => c.product.IdEmpresa);
-  }
-
-  async function carregaCarrinho() {
-    const selectedMarkets = getSelectedMarkets();
-    getMarketsListByIds(selectedMarkets)
-      .then((markets) => {
-        const action = { type: 'setMarkets', payload: { markets } };
-        cartDispatch(action);
-      });
-  }
-
-  async function pedidoConfirmado() {
-    const limpaCarrinho = () => {
-      const action = { type: 'createCarrinho', payload: new Array() };
-      const actionCart = { type: 'CLEAR_CART' };
-      dispatch(action);
-      cartDispatch(actionCart);
-    };
-    limpaCarrinho();
-    carregaCarrinho();
-    navigate.goBack();
-  }
-
-  const fazPagamento = (cartao, codigo_transacao, valor) => {
-    const paymentTypes = 'CREDIT_CARD';
-    const checkout = geraCheckoutAPI();
-    checkout.getCardHash(cartao, async (cardHash) => {
-      console.log(cardHash);
-      /* Sucesso - A variável cardHash conterá o hash do cartão de crédito */
-      const data = await fazPagamentoJuno(cardHash, codigo_transacao, valor, cartao.holderName, '10934429642', 'Timóteo', 'MG', '35182362', paymentTypes, 'Rua Equador', '279', 'otaviool@hotmail.com');
-      console.log(data);
-      if (data.charges[0].payments[0].status == 'CONFIRMED') {
-        pedidoConfirmado();
-      }
-    }, (error) => {
-      console.log('erros');
-      console.log(error.message);
-      /* Erro - A variável error conterá o erro ocorrido ao obter o hash */
-    });
-  };
-  async function postPagamento(codigo_transacao, valor, endereco) {
-    const cartao = checkoutState.cartaoPorEstabelecimento[0];
-    const cardData = {
-      cardNumber: '5207156147520886',
-      holderName: 'Foo bar',
-      securityCode: '265',
-      expirationMonth: '11',
-      expirationYear: '2021',
-    };
-    // const cardData = {
-    //   cardNumber: cartao?.Numero?.split(' ').join('') || '',
-    //   holderName: cartao.Titular,
-    //   securityCode: cartao.CVV.trim(),
-    //   expirationMonth: cartao.Validade.split('/')[0],
-    //   expirationYear: cartao.Validade.split('/')[1],
-    // };
-    try {
-      console.log(endereco);
-      const cardHash = await Juno.getCardHash(cardData);
-      // console.log('cardHash');
-      // console.log(cardHash);
-      const cardId = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/card-tokenization?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&creditCardHash=${cardHash}`);
-      // console.log('cardId');
-      // console.log(cardId);
-      // console.log(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&description=${codigo_transacao}&amount=${valor}&payerName=${cartao.Titular}&payerCpfCnpj=${cartao.CPF}&creditCardStore=${false}&creditCardId=${cardId.data.data.creditCardId}billingAddressStreet=null&billingAddressNumber=${endereco.Num}&billingAddressNeighborhood=${endereco.Bairro}&billingAddressCity=${endereco.Cidade}&billingAddressState=${endereco.UF}&billingAddressPostcode=${endereco.CEP}&payerEmail=wi3147383@wi7h.com.br`);
-      const response = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&description=${codigo_transacao}&amount=${valor}&payerName=${cartao.Titular}&payerCpfCnpj=${cartao.CPF}&creditCardStore=${false}&creditCardId=${cardId.data.data.creditCardId}billingAddressStreet=null&billingAddressNumber=${endereco.Num}&billingAddressNeighborhood=${endereco.Bairro}&billingAddressCity=${endereco.Cidade}&billingAddressState=${endereco.UF}&billingAddressPostcode=${endereco.CEP}&payerEmail=wi3147383@wi7h.com.br`);
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
-
-    // fazPagamento(cardData, codigo_transacao, valor);
   }
 
   return (

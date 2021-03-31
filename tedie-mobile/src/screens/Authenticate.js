@@ -39,7 +39,7 @@ const Login = ({ route }) => {
       setLoading(true);
       try {
         // console.log(code);
-        const response = await api.post(`http://tedie.azurewebsites.net/api/auth/Codigo/${id}/?codigo=${code.code0}${code.code1}${code.code2}${code.code3}${code.code4}${value[value.length - 1]}&telefone=55${telefone}`);
+        const response = await api.post(`http://tedie.azurewebsites.net/api/auth/Codigo/${id}?codigo=${code.code0}${code.code1}${code.code2}${code.code3}${code.code4}${value[value.length - 1]}&telefone=55${telefone}`);
         console.log(response);
         if (response.data.Status !== 'OK') {
           alert('erro,tente novamente');

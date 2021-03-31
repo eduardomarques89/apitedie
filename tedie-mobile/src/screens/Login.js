@@ -38,7 +38,7 @@ const Login = ({ navigation }) => {
       const token = await api.get('Token/1');
       dispatch({ type: 'getToken', payload: token.CodigoToken });
 
-      const response = await api.post(`auth/Telefone/?idcliente=${existPhone.IdCliente}&telefone=55${usuario}`);
+      const response = await api.post(`auth/Telefone?idcliente=${existPhone.IdCliente}&telefone=55${usuario}`);
       setLoading(false);
       navigate.navigate('Authenticate', { id: response.data.Id, telefone: usuario });
       return;

@@ -55,8 +55,9 @@ const Locations = ({ route, navigation }) => {
     } else {
       const address = await getLocationByLatLong(local.Latitude, local.Longitude);
       await AsyncStorage.setItem('Localization', JSON.stringify(address));
+      console.log(local);
 
-      const action = { type: 'createAddress', payload: address };
+      const action = { type: 'createAddress', payload: local };
       dispatch(action);
 
       navigation.pop();

@@ -1,100 +1,104 @@
-import React, { useState, useRef, useContext, useEffect, useCallback } from 'react'
+import React, {
+  useState, useRef, useContext, useEffect, useCallback,
+} from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableWithoutFeedback,
   Image,
-  Animated
-} from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+  Animated,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 // components
-import theme from '../theme'
-import { CartContext } from '../contexts/CartContext'
-import { CheckoutContext } from '../contexts/CheckoutContext'
-import { AppContext } from '../contexts/AppContext'
-import {useNavigation,useFocusEffect} from '@react-navigation/native'
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import theme from '../theme';
+import { CartContext } from '../contexts/CartContext';
+import { CheckoutContext } from '../contexts/CheckoutContext';
+import { AppContext } from '../contexts/AppContext';
 
 const CartFab = () => {
   const { cartState, cartDispatch } = useContext(CartContext);
   const { state, dispatch } = useContext(AppContext);
-  const [lista, setLista] = useState([])
-  const [isOpen, setOpen] = useState(false)
-  const openFabAnimation = useRef(new Animated.Value(0)).current
-  const navigate = useNavigation()
+  const [lista, setLista] = useState([]);
+  const [isOpen, setOpen] = useState(false);
+  const openFabAnimation = useRef(new Animated.Value(0)).current;
+  const navigate = useNavigation();
 
   async function handleSelectMarket(market) {
-    const action = { type: "select", payload: { IdEmpresa: market.IdEmpresa, Nome: market.Nome } }
+    const action = { type: 'select', payload: { IdEmpresa: market.IdEmpresa, Nome: market.Nome } };
     cartDispatch(action);
-    navigate.navigate("Carrinho")
+    navigate.navigate('Carrinho');
   }
 
   async function atualiza() {
-    let l = cartState.markets.map(market => {
-      const qtd = state.carrinho.filter(c => c.product.IdEmpresa == market.IdEmpresa).map(c => c.quantity).reduce((a, v) => { return a + v }, 0)
-      const obj = { market, qtd: qtd }
-      return obj
-    })
+    let l = cartState?.markets.map((market) => {
+      const qtd = state.carrinho.filter((c) => c.product.IdEmpresa == market.IdEmpresa).map((c) => c.quantity).reduce((a, v) => a + v, 0);
+      const obj = { market, qtd };
+      return obj;
+    });
 
-    l = l.filter(v => v.qtd > 0)
-    setLista(l)
+    l = l.filter((v) => v.qtd > 0);
+    setLista(l);
   }
 
   useFocusEffect(useCallback(() => {
-    atualiza()
-  }, [cartState.markets]))
+    atualiza();
+  }, [cartState.markets]));
 
   const openFab = () => {
     Animated.timing(openFabAnimation, {
       toValue: 1,
       duration: 250,
-      useNativeDriver: 'true'
-    }).start()
-  }
+      useNativeDriver: 'true',
+    }).start();
+  };
 
   const closeFab = () => {
     Animated.timing(openFabAnimation, {
       toValue: 0,
       duration: 250,
-      useNativeDriver: 'true'
-    }).start()
-  }
+      useNativeDriver: 'true',
+    }).start();
+  };
 
   const handleOpenFab = () => {
-    setOpen(!isOpen)
-    isOpen ? closeFab() : openFab()
-  }
+    setOpen(!isOpen);
+    isOpen ? closeFab() : openFab();
+  };
 
   return (
-    <React.Fragment>
+    <>
       {/* {isOpen && (
         <View style={styles.fabBackdrop} />
       )} */}
 
       <View style={styles.miniFabContainer}>
-        {lista.map(obj => {
-          return (
-            <TouchableWithoutFeedback key={obj.market.IdEmpresa} onPress={() =>handleSelectMarket(obj.market)}>
+        {lista.map((obj) => (
+          <TouchableWithoutFeedback key={obj.market.IdEmpresa} onPress={() => handleSelectMarket(obj.market)}>
 
-            <Animated.View key={Math.random(100)} style={[
-              styles.miniFab,
-              {
-                transform: [
-                  { scaleX: openFabAnimation },
-                  { scaleY: openFabAnimation }
-                ]
-              }
-            ]}>
+            <Animated.View
+              key={Math.random(100)}
+              style={[
+                styles.miniFab,
+                {
+                  transform: [
+                    { scaleX: openFabAnimation },
+                    { scaleY: openFabAnimation },
+                  ],
+                },
+              ]}
+            >
               <Animated.Image
                 style={[
                   styles.miniFabImage,
                   {
                     transform: [
                       { scaleX: 1 },
-                      { scaleY: 1 }
-                    ]
-                  }
+                      { scaleY: 1 },
+                    ],
+                  },
                 ]}
                 source={{
                   uri: `${obj.market.Logo}`,
@@ -105,12 +109,11 @@ const CartFab = () => {
                 <Text style={styles.quantityText}>{obj.qtd}</Text>
               </View>
             </Animated.View>
-            </TouchableWithoutFeedback>
-          )
-        })}
+          </TouchableWithoutFeedback>
+        ))}
       </View>
 
-      <TouchableWithoutFeedback  onPress={() => handleOpenFab()}>
+      <TouchableWithoutFeedback onPress={() => handleOpenFab()}>
         <View style={styles.fabContainer}>
           {!isOpen && (
             <Ionicons name="md-cart" size={25} color={theme.palette.dark} />
@@ -120,14 +123,14 @@ const CartFab = () => {
           )}
           <View style={styles.quantityContainer}>
             <Text style={styles.quantityText}>
-              {lista.reduce((a, v) => { return a + v.qtd }, 0)}
+              {lista.reduce((a, v) => a + v.qtd, 0)}
             </Text>
           </View>
         </View>
       </TouchableWithoutFeedback>
-    </React.Fragment>
-  )
-}
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   fabContainer: {
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
     margin: 16,
-    elevation: 4
+    elevation: 4,
   },
   quantityContainer: {
     height: 25,
@@ -160,7 +163,7 @@ const styles = StyleSheet.create({
     right: 0,
   },
   quantityText: {
-    color: '#fff'
+    color: '#fff',
   },
   miniFabContainer: {
     width: 70,
@@ -186,12 +189,12 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     zIndex: 9999,
     marginBottom: 16,
-    elevation: 4
+    elevation: 4,
   },
   miniFabImage: {
     height: 60,
     width: 60,
-     borderRadius: 100 
+    borderRadius: 100,
   },
   fabBackdrop: {
     width: '100%',
@@ -199,8 +202,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.palette.dark,
     opacity: 0.5,
     zIndex: 999,
-    position: 'absolute'
-  }
-})
+    position: 'absolute',
+  },
+});
 
-export default CartFab
+export default CartFab;

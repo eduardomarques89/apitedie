@@ -37,10 +37,10 @@
       "supportsTablet": true,
       "userInterfaceStyle": "light",
       "bundleIdentifier": "com.tedie.tedie",
-      "buildNumber": "2",
+      "buildNumber": "4",
       "infoPlist": {
-        "NSLocationAlwaysUsageDescription": "Vamos usar a localização para indicar os estabelecimentos próximos ao usuário",
-        "NSLocationWhenInUseUsageDescription": "Vamos utilizar quando o usuário acessar o app e também caso o usuário entre na tela de endereços"
+        "NSLocationAlwaysUsageDescription": "Permita o Tedie a utilizar sua localização para fornecer uma experiência completa do aplicativo e obter a sua localização para que a entrega seja realizada corretamente no seu endereço",
+        "NSLocationWhenInUseUsageDescription": "Permita o Tedie a utilizar sua localização para fornecer uma experiência completa do aplicativo e obter a sua localização para que a entrega seja realizada corretamente no seu endereço"
       }
     },
     "web": {
@@ -48,7 +48,7 @@
     },
     "android": {
       "package": "com.tedie.tedie",
-      "versionCode": 4,
+      "versionCode": 6,
       "userInterfaceStyle": "light",
       "permissions":["ACCESS_COARSE_LOCATION"]
     },

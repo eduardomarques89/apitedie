@@ -6,43 +6,43 @@ import {
 } from 'react-native';
 // components
 import { Ionicons } from '@expo/vector-icons';
-import Constants from 'expo-constants';
-import MainNavbar from '../components/MainNavbar';
+import { useFocusEffect } from '@react-navigation/native';
 import Typography from '../components/Typography';
 import CategoryItem from '../components/CategoryItem';
+import Loader from '../components/Loader';
 // services
-import { getCategories } from '../services/categories';
 import Navbar from '../components/Navbar';
 import Avatar from '../components/Avatar';
 // theme
 import theme from '../theme';
 import { AppContext } from '../contexts/AppContext';
+import api from '../services/axios';
 
 const Categories = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
   const [categoriesLoader, setCategoriesLoader] = useState(false);
   const [categories, setCategories] = useState([]);
 
-  const loadCategories = useCallback(async () => {
-    console.log(state.market.Logo);
-    setCategoriesLoader(true);
-
-    const categoriesResponse = await getCategories();
-    if (state?.market?.Logo) {
+  useFocusEffect(useCallback(() => {
+    async function fechData() {
+      setCategoriesLoader(true);
       console.log(state.market);
-      const categoriesByCompany = categoriesResponse.filter((categories) => categories.IdEmpresa === state.market.IdEmpresa);
-      setCategories(categoriesByCompany);
-      return;
+      try {
+        if (state?.market?.Logo) {
+          const { data } = await api.get(`empresas/categorias?id=${state?.market?.IdEmpresa}`);
+          setCategories(data);
+        } else {
+          const { data } = await api.get('categorias');
+          setCategories(data);
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setCategoriesLoader(false);
+      }
     }
-    console.log(categoriesResponse);
-    setCategories(categoriesResponse);
-
-    setCategoriesLoader(false);
-  }, [setCategoriesLoader, setCategories, getCategories, state.market]);
-
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
+    fechData();
+  }, [state.market]));
 
   return (
     <>
@@ -84,30 +84,36 @@ const Categories = ({ navigation }) => {
           </>
         )}
       />
-      <View style={styles.containerAll}>
-        {/* <MainNavbar navigation={navigation} /> */}
+      <Loader show={categoriesLoader} />
+      {
+        !categoriesLoader && (
 
-        <View style={styles.container}>
-          <Typography size="medium" color="#000">
-            Categorias
-          </Typography>
+        <View style={styles.containerAll}>
+          {/* <MainNavbar navigation={navigation} /> */}
 
-          <FlatList
-            data={categories}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => navigation.navigate('Produtos', { categoriaId: item.IdCategoria, empresaId: item.IdEmpresa })}>
-                <CategoryItem
-                  category={item}
-                />
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item, index) => index}
-            numColumns={2}
-            showsVerticalScrollIndicator={false}
-          />
+          <View style={styles.container}>
+            <Typography size="medium" color="#000">
+              Categorias
+            </Typography>
+
+            <FlatList
+              data={categories}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => navigation.navigate('Produtos', { categoriaId: item.IdCategoria })}>
+                  <CategoryItem
+                    category={item}
+                  />
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item, index) => index}
+              numColumns={2}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+
         </View>
-
-      </View>
+        )
+      }
     </>
   );
 };
