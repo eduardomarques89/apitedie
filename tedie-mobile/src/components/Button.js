@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Typography from './Typography';
 
 const Button = ({
-  color, background, onPress, text, width, customComponent,
+  color, background, onPress, text, width, customComponent = false,
 }) => (
   <TouchableOpacity style={{ width }} onPress={onPress}>
     <View style={[styles.button, { backgroundColor: background }]}>

@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
   input: {
     alignSelf: 'center',
     margin: 8,
+    color: '#fff',
   },
   label: {
     color: '#aaa',
