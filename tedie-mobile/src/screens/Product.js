@@ -170,7 +170,7 @@ const Product = ({ navigation, route }) => {
         <Button
           background={theme.palette.secondary}
           color={theme.palette.primary}
-          width="60%"
+          width="50%"
           text={`Adicionar R$${productTotal.toFixed(2).toString().replace('.', ',')}`}
           onPress={addProduct}
         />
@@ -211,11 +211,11 @@ const styles = StyleSheet.create({
 
   bottomContainer: {
     width: '100%',
-    height: 90,
+    height: 100,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 6,
+    padding: 8,
     backgroundColor: '#fff',
     position: 'absolute',
     bottom: 0,
@@ -226,19 +226,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 16,
     borderWidth: 2,
     borderColor: theme.palette.primary,
-  },
-  button: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
-    marginVertical: 10,
-    borderRadius: 8,
   },
 
   quantity: {

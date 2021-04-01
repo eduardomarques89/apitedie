@@ -73,8 +73,8 @@ const DeliveryType = ({ navigation, route }) => {
     return event;
   };
   useEffect(() => {
-    setDataFormat(`${date.getDay()}/${date.getMonth()}/${date.getFullYear()}`);
-    setDataFormatFinal(`${dateFinal.getDay()}/${dateFinal.getMonth()}/${dateFinal.getFullYear()}`);
+    setDataFormat(`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`);
+    setDataFormatFinal(`${dateFinal.getDate()}/${dateFinal.getMonth()}/${dateFinal.getFullYear()}`);
   }, [date, dateFinal]);
   useEffect(() => {
     buscaHorariosEstabelecimento();

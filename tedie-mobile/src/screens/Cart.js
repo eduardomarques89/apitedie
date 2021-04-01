@@ -182,7 +182,7 @@ const Cart = ({ navigation }) => {
           <Typography size="small" color="#000">
             {/* Total soma  {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
             .format(cartState.totalCompras)} */}
-            Total soma R$
+            Total R$
             {' '}
             {Number.parseFloat(cartState.totalCompras).toFixed(2).replace('.', ',')}
           </Typography>
@@ -232,17 +232,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 10,
+    paddingVertical: 14,
+    marginVertical: 16,
     borderRadius: 8,
   },
 
   bottomContainer: {
     width: '100%',
-    height: 70,
+    height: 90,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 2,
+    padding: 8,
     // marginBottom:50,
     backgroundColor: '#fff',
     // position: 'absolute',
