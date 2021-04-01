@@ -1,13 +1,15 @@
 import React, { useRef, useState } from 'react';
 import {
-  StyleSheet, View, Image, StatusBar, ActivityIndicator, TouchableOpacity, Text,
+  StyleSheet, View, Image, StatusBar, ActivityIndicator, TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 // theme
 import Toast from 'react-native-easy-toast';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import theme from '../theme';
-
+import Navbar from '../components/Navbar';
+import Typography from '../components/Typography';
 import Box from '../components/Box';
 import TextField from '../components/TextField';
 import Button from '../components/Button';
@@ -21,7 +23,7 @@ const Login = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   async function cadastrarUsuario() {
-    if (usuario.length > 11 || usuario.length < 10) {
+    if (usuario.length !== 11) {
       return;
     }
     setLoading(true);
@@ -31,7 +33,6 @@ const Login = ({ navigation }) => {
 
       if (existPhone) {
         toastRef.current?.show('Telefone já existe', 2000);
-        setLoading(false);
         return;
       }
       const user = await api.post('api/Clientes', {
@@ -68,12 +69,15 @@ const Login = ({ navigation }) => {
         <Box direction="column" justify="center" alignItems="center">
           <Image source={logo} style={{ width: 140, height: 200, resizeMode: 'contain' }} />
         </Box>
+        <Box direction="column" justify="center" alignItems="center">
+          <Typography size="small" color="#fff">
+            Digite seu telefone com ddd
+          </Typography>
+        </Box>
         <TextField
-          width="100%"
-          label="Telefone"
+          width="80%"
           keyboardType="decimal-pad"
-          labelColor="#fff"
-          borderColor={theme.palette.secondary}
+          labelColor="#ffffff"
           value={usuario}
           setValue={setUsuario}
         />
@@ -89,11 +93,10 @@ const Login = ({ navigation }) => {
           />
         </Box>
         <Box direction="row" justify="center" alignItems="center">
-          <TouchableOpacity
-            style={{ width: '80%' }}
-            onPress={() => navigate.navigate('Login')}
-          >
-            <Text style={{ color: '#fff', textAlign: 'right' }}>Já sou Cadastrado</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Typography size="small" color="#fff">
+              Já sou cadastrado
+            </Typography>
           </TouchableOpacity>
         </Box>
       </View>

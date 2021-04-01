@@ -186,8 +186,22 @@ const Cart = ({ navigation }) => {
             {' '}
             {Number.parseFloat(cartState.totalCompras).toFixed(2).replace('.', ',')}
           </Typography>
+          <TouchableOpacity
+            style={{ width: '50%' }}
+            onPress={() => {
+              if (state.carrinho.length > 0) {
+                navigation.navigate('Checkout');
+              }
+            }}
+          >
+            <View style={[styles.button, { backgroundColor: background }]}>
+              <Text style={{ color: theme.palette.primary }}>
+                Checkout
 
-          <Button
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {/* <Button
             background={theme.palette.secondary}
             color={theme.palette.primary}
             width="50%"
@@ -197,7 +211,7 @@ const Cart = ({ navigation }) => {
                 navigation.navigate('Checkout');
               }
             }}
-          />
+          /> */}
         </View>
       </View>
 
@@ -212,6 +226,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     // paddingBottom: 96
+  },
+  button: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 14,
+    marginVertical: 16,
+    borderRadius: 8,
   },
 
   bottomContainer: {

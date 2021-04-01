@@ -1,21 +1,21 @@
 import React, { useRef, useState, useContext } from 'react';
 import {
-  StyleSheet, View, Image, StatusBar, Text,
+  StyleSheet, View, Image, StatusBar,
   ActivityIndicator, TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 // theme
 import Toast from 'react-native-easy-toast';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import theme from '../theme';
-
+import Typography from '../components/Typography';
 import Box from '../components/Box';
 import TextField from '../components/TextField';
 import Button from '../components/Button';
 import logo from '../assets/logo_amarelo_grande.png';
 import api from '../services/axios';
 import { AppContext } from '../contexts/AppContext';
-import Typography from '../components/Typography';
 
 const Login = ({ navigation }) => {
   const navigate = useNavigation();
@@ -25,7 +25,7 @@ const Login = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
 
   async function handleLogin() {
-    if (usuario.length > 11 || usuario.length < 10) {
+    if (usuario.length !== 11) {
       return;
     }
     setLoading(true);
@@ -63,15 +63,19 @@ const Login = ({ navigation }) => {
         <Box direction="column" justify="center" alignItems="center">
           <Image source={logo} style={{ width: 140, height: 200, resizeMode: 'contain' }} />
         </Box>
+        <Box direction="column" justify="center" alignItems="center">
+          <Typography size="small" color="#fff">
+            Digite seu telefone com ddd
+          </Typography>
+        </Box>
         <TextField
-          width="100%"
-          label="Telefone"
+          width="80%"
           keyboardType="decimal-pad"
-          labelColor="#fff"
-          borderColor={theme.palette.secondary}
+          color="#ffffff"
           value={usuario}
           setValue={setUsuario}
         />
+
         <Box direction="row" justify="center" alignItems="center">
           <Button
             background="#fff"
@@ -82,12 +86,11 @@ const Login = ({ navigation }) => {
             onPress={() => (loading ? '' : handleLogin())}
           />
         </Box>
-        <Box direction="row" justify="center" alignItems="flex-end">
-          <TouchableOpacity
-            style={{ width: '80%' }}
-            onPress={() => navigate.navigate('Register')}
-          >
-            <Text style={{ color: '#fff', textAlign: 'right' }}>Não sou Cadastrado</Text>
+        <Box direction="row" justify="center" alignItems="center">
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Typography size="small" color="#fff">
+              Quero me cadastrar
+            </Typography>
           </TouchableOpacity>
         </Box>
       </View>

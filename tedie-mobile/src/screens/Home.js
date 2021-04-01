@@ -70,6 +70,8 @@ const Home = ({ navigation }) => {
 
   async function askLocalizationPermission() {
     const location = JSON.parse(await AsyncStorage.getItem('Localization'));
+    console.log('location');
+    console.log(location);
     if (location && !state.address) {
       const action = { type: 'createAddress', payload: location };
       dispatch(action);
@@ -84,7 +86,7 @@ const Home = ({ navigation }) => {
       const location = await Location.getCurrentPositionAsync({});
       const local = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
       await AsyncStorage.setItem('Localization', JSON.stringify(local));
-
+      console.log('locationsadsd');
       const action = { type: 'createAddress', payload: local };
       dispatch(action);
     })();
@@ -97,6 +99,7 @@ const Home = ({ navigation }) => {
       const banners = await api.get('banner');
       const bannersFilter = banners.data.filter((value) => value.Destaque === 'S');
       console.log('ifoioio');
+      console.log(state.address);
       console.log(bannersFilter);
       setBanners(bannersFilter);
     } else {
