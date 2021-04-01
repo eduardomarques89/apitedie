@@ -25,7 +25,7 @@ const Login = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
 
   async function handleLogin() {
-    if (usuario.length !== 11) {
+    if (usuario.length > 11 || usuario.length < 10) {
       return;
     }
     setLoading(true);

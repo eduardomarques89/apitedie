@@ -33,6 +33,7 @@ const Home = ({ navigation }) => {
   const [loadingMarkets, setLoadingMarkets] = useState(false);
   const [markets, setMarkets] = useState([]);
   const [products, setProducts] = useState([]);
+  const [productsDestaque, setProductsDestaque] = useState([]);
   const [banners, setBanners] = useState([]);
   const toastRef = useRef();
 
@@ -54,6 +55,8 @@ const Home = ({ navigation }) => {
     if (local.CEP != undefined && local.CEP != '') {
       const response = await getProductsByCEP(local.CEP.replace('-', ''));
       setProducts(response);
+      const productsDestaque = response.filter((product) => product.Destaque === 'S');
+      setProductsDestaque(productsDestaque);
     } else {
       const cep = local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '';
       console.log(cep);
@@ -170,7 +173,7 @@ const Home = ({ navigation }) => {
             horizontal
             showsHorizontalScrollIndicator={false}
           >
-            {products.filter((p) => p.hasOffer).map((p, index) => (
+            {productsDestaque.map((p, index) => (
               <TouchableOpacity key={p.Id} onPress={() => navigation.navigate('Produto', { product: p, empresaId: p.IdEmpresa })}>
                 <ProductItem
                   product={p}

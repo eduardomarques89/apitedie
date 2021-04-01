@@ -1,74 +1,77 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import React, { useContext, useEffect, useState } from 'react';
+import {
+  StyleSheet, View, Text, TouchableOpacity, Image,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 // components
-import ContentContainer from './ContentContainer'
-import Typography from './Typography'
+import ContentContainer from './ContentContainer';
+import Typography from './Typography';
 // theme
-import theme from '../theme'
-import { AppContext } from '../contexts/AppContext'
-import { useQuantity } from '../hooks/useQuantity'
-import { CartContext } from '../contexts/CartContext'
-import { getMarketsListByIds } from '../services/market'
+import theme from '../theme';
+import { AppContext } from '../contexts/AppContext';
+import { useQuantity } from '../hooks/useQuantity';
+import { CartContext } from '../contexts/CartContext';
+import { getMarketsListByIds } from '../services/market';
 
 const ProductItem = ({ product, skeleton }) => {
   const { state, dispatch } = useContext(AppContext);
   const { cartState, cartDispatch } = useContext(CartContext);
-  const { quantity } = useQuantity(product)
+  const { quantity } = useQuantity(product);
 
   const handleRemove = (quantity) => {
-    if (quantity - 1 < 0) return
-    const payload = { product: product, quantity: (quantity - 1) }
-    let action = { type: 'createCarrinho', payload: payload }
-    dispatch(action)
+    if (quantity - 1 < 0) return;
+    const payload = { product, quantity: (quantity - 1) };
+    let action = { type: 'createCarrinho', payload };
+    dispatch(action);
 
-    action = { type: "setTotalCompras", payload: { totalCompras: 0 } }
-    cartDispatch(action)
+    action = { type: 'setTotalCompras', payload: { totalCompras: 0 } };
+    cartDispatch(action);
 
-    action = { type: "setSomaParcial", payload: { somaParcial: [] } }
-    cartDispatch(action)
+    action = { type: 'setSomaParcial', payload: { somaParcial: [] } };
+    cartDispatch(action);
 
-    carregaCarrinho() 
+    carregaCarrinho();
 
-    action = { type: "setTotalComprasPorEstabelecimento", payload: { totalComprasPorEstabelecimento: [] } }
-    cartDispatch(action)
+    action = { type: 'setTotalComprasPorEstabelecimento', payload: { totalComprasPorEstabelecimento: [] } };
+    cartDispatch(action);
 
     if (quantity - 1 == 0) {
-      action = { type: "select", payload: { selected: undefined, selectedNome: undefined } }
-      cartDispatch(action)
+      action = { type: 'select', payload: { selected: undefined, selectedNome: undefined } };
+      cartDispatch(action);
     }
-  }
+  };
 
   const handleAdd = (quantity) => {
-    const payload = { product: product, quantity: (quantity + 1) }
-    let action = { type: 'createCarrinho', payload: payload }
-    dispatch(action)
+    const payload = { product, quantity: (quantity + 1) };
+    let action = { type: 'createCarrinho', payload };
+    dispatch(action);
 
-    action = { type: "setTotalCompras", payload: { totalCompras: 0 } }
-    cartDispatch(action)
+    action = { type: 'setTotalCompras', payload: { totalCompras: 0 } };
+    cartDispatch(action);
 
-    action = { type: "setSomaParcial", payload: { somaParcial: [] } }
-    cartDispatch(action)
+    action = { type: 'setSomaParcial', payload: { somaParcial: [] } };
+    cartDispatch(action);
+    console.log('oiio');
 
-    carregaCarrinho() 
+    carregaCarrinho();
 
-    action = { type: "setTotalComprasPorEstabelecimento", payload: { totalComprasPorEstabelecimento: [] } }
-    cartDispatch(action)
-  }
+    action = { type: 'setTotalComprasPorEstabelecimento', payload: { totalComprasPorEstabelecimento: [] } };
+    cartDispatch(action);
+  };
 
   function getSelectedMarkets() {
     return state.carrinho
       .filter((c, i, v) => v.findIndex((f) => f.product.IdEmpresa == c.product.IdEmpresa) == i)
-      .map(c => c.product.IdEmpresa)
+      .map((c) => c.product.IdEmpresa);
   }
 
   async function carregaCarrinho() {
-    const selectedMarkets = getSelectedMarkets()
+    const selectedMarkets = getSelectedMarkets();
     getMarketsListByIds(selectedMarkets)
-      .then(markets => {
-        const action = { type: "setMarkets", payload: { markets: markets } }
+      .then((markets) => {
+        const action = { type: 'setMarkets', payload: { markets } };
         cartDispatch(action);
-      })
+      });
   }
 
   return (
@@ -99,7 +102,7 @@ const ProductItem = ({ product, skeleton }) => {
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             hitSlop={theme.hitSlop}
-            onPress={(e) => { e.preventDefault(); handleRemove(quantity) }}
+            onPress={(e) => { e.preventDefault(); handleRemove(quantity); }}
           >
             <Ionicons name="md-remove" size={25} color={theme.palette.primary} />
           </TouchableOpacity>
@@ -108,7 +111,7 @@ const ProductItem = ({ product, skeleton }) => {
 
           <TouchableOpacity
             hitSlop={theme.hitSlop}
-            onPress={(e) => { e.preventDefault(); handleAdd(quantity) }}
+            onPress={(e) => { e.preventDefault(); handleAdd(quantity); }}
           >
             <Ionicons name="md-add" size={25} color={theme.palette.primary} />
           </TouchableOpacity>
@@ -126,11 +129,13 @@ const ProductItem = ({ product, skeleton }) => {
       </Typography> */}
 
       <Typography size="small" color="#000">
-        R$ {(product.Preco_Por ? product.Preco_Por : product.Preco_De ?? 0).toFixed(2).toString().replace('.', ',')}
+        R$
+        {' '}
+        {(product.Preco_Por ? product.Preco_Por : product.Preco_De ?? 0).toFixed(2).toString().replace('.', ',')}
       </Typography>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -138,12 +143,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 16
+    marginHorizontal: 16,
   },
 
   image: {
     width: 100,
-    height: 100
+    height: 100,
   },
 
   quantityContainer: {
@@ -157,11 +162,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: -16,
-    elevation: 2
+    elevation: 2,
   },
 
   quantity: {
-    paddingHorizontal: 8
+    paddingHorizontal: 8,
   },
 
   offerContainer: {
@@ -172,13 +177,13 @@ const styles = StyleSheet.create({
     top: 0,
     left: -16,
     elevation: 2,
-    zIndex: 5
+    zIndex: 5,
   },
 
   textContainer: {
     width: 120,
-    alignSelf: 'center'
-  }
-})
+    alignSelf: 'center',
+  },
+});
 
-export default ProductItem
+export default ProductItem;

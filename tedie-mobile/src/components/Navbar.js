@@ -24,7 +24,7 @@ const Navbar = ({ title, left, right }) => (
 const styles = StyleSheet.create({
   container: {
 
-    marginTop: Platform.OS === 'ios' ? Constants.statusBarHeight : 0,
+    marginTop: 0,
     height: 56,
     flexDirection: 'row',
     justifyContent: 'space-between',

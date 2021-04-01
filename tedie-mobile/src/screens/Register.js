@@ -23,7 +23,7 @@ const Login = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   async function cadastrarUsuario() {
-    if (usuario.length !== 11) {
+    if (usuario.length > 11 || usuario.length < 10) {
       return;
     }
     setLoading(true);
@@ -46,7 +46,7 @@ const Login = ({ navigation }) => {
       });
 
       setLoading(false);
-      navigate.navigate('Authenticate', { id: user.data.IdCliente });
+      navigate.navigate('Authenticate', { id: user.data.IdCliente, telefone: usuario });
     } catch (e) {
       setLoading(false);
       console.log(e);

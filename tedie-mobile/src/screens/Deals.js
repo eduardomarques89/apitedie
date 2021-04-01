@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useRef, useState,
+  useContext, useEffect, useRef, useState, useCallback,
 } from 'react';
 import {
   StyleSheet, FlatList, View, TouchableOpacity, TextInput, StatusBar,
@@ -25,20 +25,18 @@ const Deals = ({ navigation }) => {
   const [productsFilter, setProductsFilter] = useState([]);
   const [filter, setFilter] = useState('');
   const fetchProducts = async (cep) => {
-    const value = await api.get(`produtos/Ofertas?CEP=${cep}&offset=${0}&limite=${999}&searchQuery=${filter}`);
+    const value = await api.get(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=${0}&limite=${999}&searchQuery=${filter}`);
+    const productsOferta = value.data.filter((product) => product.Oferta === 'S');
     if (!state.market?.IdEmpresa) {
-      setProducts(value.data);
-      setProductsFilter(value.data);
+      setProductsFilter(productsOferta);
       return;
     }
 
-    const FilterValues = value.data.filter((value) => value.IdEmpresa === state.market.IdEmpresa);
-    setProducts(FilterValues);
+    const FilterValues = productsOferta.filter((value) => value.IdEmpresa === state.market.IdEmpresa);
     setProductsFilter(FilterValues);
   };
 
   const loadProducts = async () => {
-    console.log(state);
     const local = state.address;
 
     // carrega produtos com localizacao do localstorage
@@ -55,9 +53,9 @@ const Deals = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     loadProducts();
-  }, [state.address, state.market.IdEmpresa, filter]);
+  }, [state.address, state.market.IdEmpresa, filter]));
 
   return (
     <>

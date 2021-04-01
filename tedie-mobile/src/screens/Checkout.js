@@ -415,16 +415,20 @@ const Checkout = ({ navigation, route }) => {
                   </Typography>
                 </View>
               </View>
-            </ContentContainer>
-
-            <ContentContainer>
+              <Divider />
+              <Typography size="small" color={theme.palette.dark}>
+                Dados da Entrega/Retirada
+              </Typography>
               <TouchableOpacity onPress={() => navigation.navigate('Entrega', { IdEmpresa: market.IdEmpresa })}>
                 <Box direction="row" justify="space-between" alignItems="center">
                   <Box direction="column" justify="center" alignItems="flex-start">
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? changeHorario(market.IdEmpresa)?.split('-')[0] : 'Tipo de entrega'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? changeHorario(market.IdEmpresa)?.split('-')[0] : 'Tipo'}
                     </Typography>
-                    <Typography size="small" color={theme.palette.dark}>
+                    <Typography size="small" color={theme.palette.light}>
+                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? changeHorario(market.IdEmpresa)?.split('-')[1] : 'Data'}
+                    </Typography>
+                    <Typography size="small" color={theme.palette.light}>
                       {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? changeHorario(market.IdEmpresa)?.split('-')[1] : 'Horário'}
                     </Typography>
                   </Box>
@@ -473,7 +477,7 @@ const Checkout = ({ navigation, route }) => {
                   <RadioButton selected={selectedPayment.value === 'Cartão de crédito'} />
                   <View>
                     <Typography size="small" color={theme.palette.dark}>
-                      Cartão pelo TEDIE
+                      Pagar Agora
                     </Typography>
                     <Typography size="small" color={theme.palette.light}>
                       {showCartao
@@ -504,14 +508,18 @@ const Checkout = ({ navigation, route }) => {
               </View>
             </TouchableOpacity> */}
 
-            <TouchableOpacity onPress={() => selecionaOpcaoPagamento({ value: 'Na retirada ou entrega', id: 2 })}>
-              <View style={styles.paymentMethodContainer}>
-                <RadioButton selected={selectedPayment.value === 'Na retirada ou entrega'} />
-                <Typography size="small" color={theme.palette.dark}>
-                  Pagar na entrega ou retirada
-                </Typography>
+            <View style={styles.paymentMethodContainer}>
+              <View style={styles.paymentContainer}>
+                <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => selecionaOpcaoPagamento({ value: 'Na retirada ou entrega', id: 2 })}>
+
+                  <RadioButton selected={selectedPayment.value === 'Na retirada ou entrega'} />
+                  <Typography size="small" color={theme.palette.dark}>
+                    Pagar na entrega ou retirada
+                  </Typography>
+
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
+            </View>
 
             <Divider />
             {
@@ -660,7 +668,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: 6,
   },
   centeredView: {
     flex: 1,

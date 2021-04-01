@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet, View, TouchableOpacity, Text, ScrollView, Image, StatusBar,
 } from 'react-native';
@@ -10,11 +10,15 @@ import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import ProductItem from '../components/ProductItem';
 import api from '../services/axios';
+import { AppContext } from '../contexts/AppContext';
+import { CartContext } from '../contexts/CartContext';
 // theme
 import theme from '../theme';
 import Avatar from '../components/Avatar';
 
 const Product = ({ navigation, route }) => {
+  const { state, dispatch } = useContext(AppContext);
+  const { cartState, cartDispatch } = useContext(CartContext);
   const [quantity, setQuantity] = useState(1);
   const [productValue, setProductValue] = useState(0);
   const [productTotal, setProductTotal] = useState(0);
@@ -27,7 +31,6 @@ const Product = ({ navigation, route }) => {
 
     async function fetch() {
       const empresa = await api.get(`Empresas/${empresaId}`);
-      console.log(empresa.data);
       setEmpresa(empresa.data);
     }
 
@@ -51,6 +54,24 @@ const Product = ({ navigation, route }) => {
   const handleAdd = (quantity) => {
     setQuantity(quantity + 1);
   };
+
+  async function addProduct() {
+    const payload = { product, quantity: (quantity + 1) };
+    const action = { type: 'createCarrinho', payload };
+    dispatch(action);
+    // console.log('product');
+    // console.log(product);
+    if (!cartState.markets.find((market) => market.IdEmpresa === product.IdEmpresa)) {
+      const { data } = await api.post(`api/Empresas/${product.IdEmpresa}`);
+      const action = { type: 'setMarkets', payload: { markets: [...cartState.markets, data] } };
+      cartDispatch(action);
+    }
+  }
+
+  useEffect(() => {
+    const products = state.carrinho.find((value) => value.product.Id === product.Id);
+    setQuantity(products.quantity);
+  }, []);
 
   return (
     <>
@@ -149,6 +170,7 @@ const Product = ({ navigation, route }) => {
           color={theme.palette.primary}
           width="50%"
           text={`Adicionar R$${productTotal.toFixed(2).toString().replace('.', ',')}`}
+          onPress={addProduct}
         />
       </View>
     </>

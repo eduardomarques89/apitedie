@@ -52,10 +52,17 @@ const Locations = ({ route, navigation }) => {
 
         navigation.pop();
       })();
-    } else {
+    } else if (!local.IdCliente) {
       const address = await getLocationByLatLong(local.Latitude, local.Longitude);
-      await AsyncStorage.setItem('Localization', JSON.stringify(address));
       console.log(local);
+      await AsyncStorage.setItem('Localization', JSON.stringify(address));
+
+      const action = { type: 'createAddress', payload: address };
+      dispatch(action);
+
+      navigation.pop();
+    } else {
+      await AsyncStorage.setItem('Localization', JSON.stringify(local));
 
       const action = { type: 'createAddress', payload: local };
       dispatch(action);
