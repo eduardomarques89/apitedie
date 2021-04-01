@@ -41,8 +41,7 @@ const DeliveryType = ({ navigation, route }) => {
   const [showFinal, setShowFinal] = useState(false);
   const [week, setWeek] = useState(weekDay[date.getDay()]);
   const [horario, setHorario] = useState({});
-  const [dataFormat, setDataFormat] = useState(`${date.getDay()}/${date.getMonth()}/${date.getFullYear()}`);
-  const [dataFormatFinal, setDataFormatFinal] = useState(`${dateFinal.getDay()}/${dateFinal.getMonth()}/${dateFinal.getFullYear()}`);
+  const [dataFormat, setDataFormat] = useState(`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`);
   const [type, setType] = useState({ label: 'Entrega', id: 1 });
   const typesDelivery = [{
     label: 'Entrega',
@@ -174,14 +173,14 @@ const DeliveryType = ({ navigation, route }) => {
       />
 
       <ScreenContainer>
-        <Text style={styles.dataLabel}>Data Inicial</Text>
+        <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data Inicial</Typography>
         <View style={styles.dataInputContainer}>
           <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
           <TouchableOpacity onPress={() => setShow(true)}>
             <EvilIcons name="calendar" size={32} color="black" />
           </TouchableOpacity>
         </View>
-        <Text style={styles.dataLabel}>Entrega</Text>
+        <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Entrega</Typography>
         <View style={{
           borderWidth: 1,
           margin: 8,
