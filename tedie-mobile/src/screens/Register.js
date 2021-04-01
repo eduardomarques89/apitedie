@@ -33,6 +33,7 @@ const Login = ({ navigation }) => {
 
       if (existPhone) {
         toastRef.current?.show('Telefone já existe', 2000);
+        setLoading(false);
         return;
       }
       const user = await api.post('api/Clientes', {

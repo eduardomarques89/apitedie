@@ -40,7 +40,7 @@ const Market = ({ navigation, route }) => {
     setBanners(bannerEmpresa);
     console.log(products.data);
     setMarketProducts([...products.data]);
-    setMarketProductsFilter(products.data.filter((p) => p.hasOffer));
+    setMarketProductsFilter(products.data.filter((p) => p.Destaque === 'S'));
     setLoadingProducts(false);
   }, [setLoadingProducts, getProducts, setMarketProducts]);
 
@@ -98,26 +98,61 @@ const Market = ({ navigation, route }) => {
 
       {/* <View style={styles.containerItem}> */}
       <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView>
 
-        <View>
+          <View style={{ padding: 16 }}>
 
-          <FlatList
-            data={marketProducts}
-            keyExtractor={(item) => item.Id}
+            <Swiper style={styles.swiper} showsPagination={false}>
+              {banners.map((banner) => (
+                <Image key={banner.IdBanner} source={{ uri: banner.Imagem }} style={styles.banner} />
+              ))}
+            </Swiper>
+
+            <Typography size="large" color={theme.palette.dark}>
+              Destaques
+            </Typography>
+
+            <FlatList
+              horizontal
+              keyExtractor={(item) => item.Id}
+              data={marketProductsFilter}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Produto', { product: { ...item, imagem: item.Imagem }, empresaId: item.IdEmpresa })}
+                >
+                  <ProductItem
+                    product={{ ...item, imagem: item.Imagem }}
+                  />
+                </TouchableOpacity>
+              )}
+            />
+
+            <Typography size="large" color={theme.palette.dark}>
+              Produtos
+            </Typography>
+            <FlatList
+              style={{ paddingBottom: 50 }}
+              data={marketProducts}
+              numColumns={2}
+              keyExtractor={(item) => item.Id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Produto', { product: { ...item, imagem: item.Imagem }, empresaId: item.IdEmpresa })}
+                >
+                  <ProductItem
+                    product={{ ...item, imagem: item.Imagem }}
+                  />
+                </TouchableOpacity>
+              )}
+            />
+            {/* <FlatList
             style={{
               padding: 16, paddingBottom: 90,
             }}
             // contentContainerStyle={}
             ListHeaderComponent={(
               <>
-                <Swiper style={styles.swiper} showsPagination={false}>
-                  {banners.map((banner) => (
-                    <Image key={banner.IdBanner} source={{ uri: banner.Imagem }} style={styles.banner} />
-                  ))}
-                </Swiper>
-                <Typography size="large" color={theme.palette.dark}>
-                  Destaques
-                </Typography>
+
               </>
               )}
             ListFooterComponent={(
@@ -150,18 +185,12 @@ const Market = ({ navigation, route }) => {
                 </View>
               </>
               )}
-            numColumns={2}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Produto', { product: { ...item, imagem: item.Imagem }, empresaId: item.IdEmpresa })}
-              >
-                <ProductItem
-                  product={{ ...item, imagem: item.Imagem }}
-                />
-              </TouchableOpacity>
-            )}
-          />
-        </View>
+            horizontal
+            // numColumns={2}
+
+          /> */}
+          </View>
+        </ScrollView>
 
       </SafeAreaView>
     </>

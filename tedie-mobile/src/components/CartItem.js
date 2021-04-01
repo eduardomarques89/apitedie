@@ -25,12 +25,12 @@ const CartItem = ({ cartItem, valorCalculado, handleDeleteItem }) => {
   return (
     <View style={styles.container}>
       <ContentContainer>
-        {cartItem.product.imagem && (
+        {cartItem.product.Imagem && (
           <Image
             style={styles.image}
             resizeMode="contain"
             source={{
-              uri: cartItem.product.imagem,
+              uri: cartItem.product.Imagem,
             }}
           />
         )}

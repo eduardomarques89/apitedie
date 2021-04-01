@@ -85,16 +85,16 @@ const ProductItem = ({ product, skeleton }) => {
           </View>
         )}
 
-        {!product.imagem && (
+        {!product.Imagem && (
           <View style={styles.image} />
         )}
 
-        {product.imagem && (
+        {product.Imagem && (
           <Image
             style={styles.image}
             resizeMode="contain"
             source={{
-              uri: product.imagem,
+              uri: product.Imagem,
             }}
           />
         )}

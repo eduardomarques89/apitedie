@@ -34,6 +34,8 @@ const Login = ({ navigation }) => {
       const existPhone = user.data.find((usera) => usera.Telefone === usuario);
       if (!existPhone) {
         toastRef.current?.show('Telefone não existe', 2000);
+        alert('Telefone não existe');
+        setLoading(false);
         return;
       }
       const token = await api.get('Token/1');

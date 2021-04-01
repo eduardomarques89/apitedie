@@ -105,7 +105,7 @@ const Deals = ({ navigation }) => {
               data={productsFilter}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => navigation.navigate('Produto', { product: item, empresaId: item.IdEmpresa })}>
-                  <ProductItem product={{ ...item, imagem: item.Imagem }} />
+                  <ProductItem product={{ ...item }} />
                 </TouchableOpacity>
               )}
               keyExtractor={(item, index) => `${item.Id + index}`}

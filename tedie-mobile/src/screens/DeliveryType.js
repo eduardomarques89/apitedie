@@ -1,7 +1,7 @@
 import React, {
   useContext, useEffect, useState, useRef,
 } from 'react';
-import { TouchableOpacity, StatusBar } from 'react-native';
+import { TouchableOpacity, StatusBar, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -19,6 +19,7 @@ import theme from '../theme';
 import { CheckoutContext } from '../contexts/CheckoutContext';
 import { CartContext } from '../contexts/CartContext';
 import { buscaHorarios } from '../services/market';
+// import {} from '@expo/vector-icons'
 
 const weekDay = ['DOMINGO', 'SEGUNDA-FEIRA', 'TERÇA-FEIRA', 'QUARTA-FEIRA', 'QUINTA-FEIRA', 'SEXTA-FEIRA', 'SABADO'];
 
@@ -37,10 +38,14 @@ const DeliveryType = ({ navigation, route }) => {
   const [showFinal, setShowFinal] = useState(false);
   const [week, setWeek] = useState('');
   const [horario, setHorario] = useState({});
+  const [dataFormat, setDataFormat] = useState('');
+  const [dataFormatFinal, setDataFormatFinal] = useState('');
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setDate(currentDate);
+
+    setDataFormat(`${currentDate.getDay()}/${currentDate.getMonth()}/${currentDate.getFullYear()}`);
 
     setShow(false);
 
@@ -54,6 +59,7 @@ const DeliveryType = ({ navigation, route }) => {
     setDateFinal(currentDate);
 
     const he = horario;
+    setDataFormatFinal(`${currentDate.getDay()}/${currentDate.getMonth()}/${currentDate.getFullYear()}`);
     he[`${IdEmpresa}`].DataFinal = currentDate;
     console.log(he);
 
@@ -170,6 +176,7 @@ const DeliveryType = ({ navigation, route }) => {
       />
 
       <ScreenContainer>
+        <TextInput value={dataFormat} onChangeText={setDataFormat} />
         {filterHorario.map((h, index) => (
           <ContentContainer key={`${h.identrega}-${h.horacod}`}>
             <Box direction="column" justify="center" alignContent="flex-start">

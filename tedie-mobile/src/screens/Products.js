@@ -19,11 +19,14 @@ import { getProductsByCEP } from '../services/products';
 import { AppContext } from '../contexts/AppContext';
 import ContentContainer from '../components/ContentContainer';
 import api from '../services/axios';
+import Loader from '../components/Loader';
 
 const Products = ({ navigation, route }) => {
   const navigate = useNavigation();
   const { state, dispatch } = useContext(AppContext);
   const [products, setProducts] = useState([]);
+  const [loading,
+    setLoading] = useState(false);
   const [productsFilter, setProductsFilter] = useState([]);
   const [empresa, setEmpresa] = useState({});
   const [filter, setFilter] = useState('');
@@ -54,6 +57,7 @@ const Products = ({ navigation, route }) => {
 
   useFocusEffect(useCallback(() => {
     async function fechData() {
+      setLoading(true);
       try {
         if (state?.market?.logo) {
           const { data } = await api.get(`Produtos?idempresa=${state.market.IdEmpresa}&categoria=${categoriaId}`);
@@ -71,6 +75,8 @@ const Products = ({ navigation, route }) => {
       } catch (e) {
         console.log(e);
       }
+
+      setLoading(false);
     }
     fechData();
   }, []));
@@ -130,24 +136,27 @@ const Products = ({ navigation, route }) => {
           </>
         )}
       />
-
       <ScreenContainer style={{ padding: 16 }}>
 
-        <ContentContainer>
-          <View style={styles.searchContainer}>
-            <Ionicons name="md-search" size={30} color={theme.palette.primary} />
+        <Loader show={loading} />
+        {!loading && (
+          <>
 
-            <TextInput
-              style={styles.textInput}
-              value={filter}
-              onChangeText={(value) => filtrar(value)}
-              placeholder="Digite um produto"
-            />
-          </View>
-        </ContentContainer>
+            <ContentContainer>
+              <View style={styles.searchContainer}>
+                <Ionicons name="md-search" size={30} color={theme.palette.primary} />
 
-        <View style={styles.container}>
-          {categoriaId
+                <TextInput
+                  style={styles.textInput}
+                  value={filter}
+                  onChangeText={(value) => filtrar(value)}
+                  placeholder="Digite um produto"
+                />
+              </View>
+            </ContentContainer>
+
+            <View style={styles.container}>
+              {categoriaId
             && (
             <FlatList
               data={productsFilter}
@@ -161,7 +170,7 @@ const Products = ({ navigation, route }) => {
               showsVerticalScrollIndicator={false}
             />
             )}
-          {!categoriaId && onlyOffer
+              {!categoriaId && onlyOffer
             && (
             <FlatList
               data={productsFilter}
@@ -175,7 +184,7 @@ const Products = ({ navigation, route }) => {
               showsVerticalScrollIndicator={false}
             />
             )}
-          {!categoriaId && !onlyOffer
+              {!categoriaId && !onlyOffer
             && (
             <FlatList
               data={productsFilter}
@@ -189,7 +198,9 @@ const Products = ({ navigation, route }) => {
               showsVerticalScrollIndicator={false}
             />
             )}
-        </View>
+            </View>
+          </>
+        )}
 
       </ScreenContainer>
     </>

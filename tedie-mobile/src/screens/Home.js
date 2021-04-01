@@ -168,21 +168,19 @@ const Home = ({ navigation }) => {
             Destaques
           </Typography>
 
-          <ScrollView
-            contentContainerStyle={styles.horizontalList}
+          <FlatList
+            data={productsDestaque}
+            keyExtractor={(item) => `${item.Id}`}
             horizontal
-            showsHorizontalScrollIndicator={false}
-          >
-            {productsDestaque.map((p, index) => (
-              <TouchableOpacity key={p.Id} onPress={() => navigation.navigate('Produto', { product: p, empresaId: p.IdEmpresa })}>
+            renderItem={({ item }) => (
+              <TouchableOpacity key={item.Id} onPress={() => navigation.navigate('Produto', { product: item, empresaId: item.IdEmpresa })}>
                 <ProductItem
-                  product={p}
-                  key={index}
+                  product={item}
                 />
 
               </TouchableOpacity>
-            ))}
-          </ScrollView>
+            )}
+          />
 
           <Typography size="medium" color="#000">
             Perto de você

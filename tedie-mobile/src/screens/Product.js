@@ -70,7 +70,9 @@ const Product = ({ navigation, route }) => {
 
   useEffect(() => {
     const products = state.carrinho.find((value) => value.product.Id === product.Id);
-    setQuantity(products.quantity);
+    if (products) {
+      setQuantity(products?.quantity);
+    }
   }, []);
 
   return (
@@ -209,11 +211,11 @@ const styles = StyleSheet.create({
 
   bottomContainer: {
     width: '100%',
-    height: 80,
+    height: 100,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: 8,
     backgroundColor: '#fff',
     position: 'absolute',
     bottom: 0,

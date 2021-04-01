@@ -25,10 +25,11 @@ const styles = StyleSheet.create({
   container: {
 
     marginTop: 0,
-    height: 56,
+    height: 76,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 26,
     paddingVertical: 8,
     paddingHorizontal: 16,
     backgroundColor: theme.palette.primary,
