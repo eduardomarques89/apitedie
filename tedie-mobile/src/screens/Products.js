@@ -136,9 +136,9 @@ const Products = ({ navigation, route }) => {
           </>
         )}
       />
+      <Loader show={loading} />
       <ScreenContainer style={{ padding: 16 }}>
 
-        <Loader show={loading} />
         {!loading && (
           <>
 

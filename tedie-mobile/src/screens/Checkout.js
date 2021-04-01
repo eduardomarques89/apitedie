@@ -423,13 +423,13 @@ const Checkout = ({ navigation, route }) => {
                 <Box direction="row" justify="space-between" alignItems="center">
                   <Box direction="column" justify="center" alignItems="flex-start">
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? changeHorario(market.IdEmpresa)?.split('-')[0] : 'Tipo'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.TIPOENTREGA || 'Tipo'}
                     </Typography>
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? changeHorario(market.IdEmpresa)?.split('-')[1] : 'Data'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.Data ? `${checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.Data.getDay()}/${checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.Data.getMonth()}/${checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.Data.getFullYear()}` : 'Data'}
                     </Typography>
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? changeHorario(market.IdEmpresa)?.split('-')[1] : 'Horário'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.horario || 'Horário'}
                     </Typography>
                   </Box>
 

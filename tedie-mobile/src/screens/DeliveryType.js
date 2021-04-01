@@ -1,8 +1,11 @@
 import React, {
   useContext, useEffect, useState, useRef,
 } from 'react';
-import { TouchableOpacity, StatusBar, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  TouchableOpacity, StatusBar, TextInput, View, StyleSheet, Text,
+} from 'react-native';
+import { Ionicons, EvilIcons } from '@expo/vector-icons';
+
 // components
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
@@ -34,42 +37,48 @@ const DeliveryType = ({ navigation, route }) => {
   const { IdEmpresa } = route.params;
   const [date, setDate] = useState(new Date());
   const [dateFinal, setDateFinal] = useState(new Date());
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
   const [showFinal, setShowFinal] = useState(false);
   const [week, setWeek] = useState('');
   const [horario, setHorario] = useState({});
-  const [dataFormat, setDataFormat] = useState('');
-  const [dataFormatFinal, setDataFormatFinal] = useState('');
+  const [dataFormat, setDataFormat] = useState(`${date.getDay()}/${date.getMonth()}/${date.getFullYear()}`);
+  const [dataFormatFinal, setDataFormatFinal] = useState(`${dateFinal.getDay()}/${dateFinal.getMonth()}/${dateFinal.getFullYear()}`);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
-    setDate(currentDate);
 
-    setDataFormat(`${currentDate.getDay()}/${currentDate.getMonth()}/${currentDate.getFullYear()}`);
+    const he = horario;
+    he[`${IdEmpresa}`].Data = currentDate;
+    // console.log(he);
+
+    const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
 
     setShow(false);
+    setDate(currentDate);
 
     return event;
   };
-  useEffect(() => {
-    buscaHorariosEstabelecimento();
-  }, []);
+
   const onChangeFinal = (event, selectedDate) => {
     const currentDate = selectedDate || dateFinal;
-    setDateFinal(currentDate);
 
+    setShowFinal(false);
+    setDateFinal(currentDate);
     const he = horario;
-    setDataFormatFinal(`${currentDate.getDay()}/${currentDate.getMonth()}/${currentDate.getFullYear()}`);
     he[`${IdEmpresa}`].DataFinal = currentDate;
     console.log(he);
 
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
     checkoutDispatch(action);
-    setShowFinal(false);
-
-    navigation.pop();
     return event;
   };
+  useEffect(() => {
+    setDataFormat(`${date.getDay()}/${date.getMonth()}/${date.getFullYear()}`);
+    setDataFormatFinal(`${dateFinal.getDay()}/${dateFinal.getMonth()}/${dateFinal.getFullYear()}`);
+  }, [date, dateFinal]);
+  useEffect(() => {
+    buscaHorariosEstabelecimento();
+  }, []);
   useEffect(() => {
     buscaHorariosEstabelecimento();
   }, []);
@@ -105,8 +114,8 @@ const DeliveryType = ({ navigation, route }) => {
     setSelectedType(horarioEntrega);
 
     const he = { ...checkoutState.horarioEntregaPorEstabelecimento };
-    console.log(horario);
     he[`${IdEmpresa}`] = {
+      ...he[`${IdEmpresa}`],
       title: horarioEntrega,
       IdTipoEntrega: horario.identrega,
       IdHorario: horario.horacod,
@@ -114,12 +123,24 @@ const DeliveryType = ({ navigation, route }) => {
       DiaSemana: horario.diasemana,
       Horario: horario.horario,
       IdDiaSemana: horario.iddiasemana,
-    };
-    setHorario(he);
-    // console.log(he)
-    setShowFinal(true);
 
-    toastRef.current?.show('Selecione o horário de entrega final', 2000);
+    };
+    console.log(he[`${IdEmpresa}`]);
+    const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
+    checkoutDispatch(action);
+    setHorario(he);
+  }
+
+  function formatDate(value, setValue) {
+    let newValue = value.match(/\d+/g)?.join('') || '';
+    const { length } = newValue;
+    newValue = newValue.replace(/\D/g, '');
+    newValue = newValue.replace(/^(\d{2})(\d)/g, '$1/$2');
+    newValue = newValue.replace(/(\d{2})\/(\d{2})(\d)/g, '$1/$2/$3');
+    if (length > 8) {
+      return;
+    }
+    setValue(newValue);
   }
 
   return (
@@ -176,7 +197,21 @@ const DeliveryType = ({ navigation, route }) => {
       />
 
       <ScreenContainer>
-        <TextInput value={dataFormat} onChangeText={setDataFormat} />
+        <Text style={styles.dataLabel}>Data Inicial</Text>
+        <View style={styles.dataInputContainer}>
+          <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
+          <TouchableOpacity onPress={() => setShow(true)}>
+            <EvilIcons name="calendar" size={32} color="black" />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.dataLabel}>Data Final</Text>
+        <View style={styles.dataInputContainer}>
+          <TextInput value={dataFormatFinal} onChangeText={(e) => formatDate(e, setDataFormatFinal)} style={styles.dataInput} />
+          <TouchableOpacity onPress={() => setShowFinal(true)}>
+            <EvilIcons name="calendar" size={32} color="black" />
+          </TouchableOpacity>
+        </View>
         {filterHorario.map((h, index) => (
           <ContentContainer key={`${h.identrega}-${h.horacod}`}>
             <Box direction="column" justify="center" alignContent="flex-start">
@@ -203,5 +238,22 @@ const DeliveryType = ({ navigation, route }) => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  dataInput: {
+    fontSize: 24,
+  },
+  dataLabel: {
+    fontSize: 24,
+  },
+  dataInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    borderWidth: 1,
+    paddingVertical: 8,
+    margin: 8,
+  },
+});
 
 export default DeliveryType;
