@@ -21,7 +21,7 @@ const Login = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   async function cadastrarUsuario() {
-    if (usuario.length !== 11) {
+    if (usuario.length > 11 && usuario.length < 10) {
       return;
     }
     setLoading(true);

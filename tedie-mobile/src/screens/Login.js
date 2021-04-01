@@ -1,7 +1,7 @@
 import React, { useRef, useState, useContext } from 'react';
 import {
   StyleSheet, View, Image, StatusBar,
-  ActivityIndicator,
+  ActivityIndicator, TouchableOpacity,
 } from 'react-native';
 // theme
 import Toast from 'react-native-easy-toast';
@@ -15,6 +15,7 @@ import Button from '../components/Button';
 import logo from '../assets/logo_amarelo_grande.png';
 import api from '../services/axios';
 import { AppContext } from '../contexts/AppContext';
+import Typography from '../components/Typography';
 
 const Login = ({ navigation }) => {
   const navigate = useNavigation();
@@ -24,7 +25,7 @@ const Login = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
 
   async function handleLogin() {
-    if (usuario.length !== 11) {
+    if (usuario.length > 11 && usuario.length < 10) {
       return;
     }
     setLoading(true);

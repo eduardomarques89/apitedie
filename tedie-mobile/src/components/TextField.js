@@ -55,6 +55,7 @@ const TextField = ({
       onEndEditing={() => {}}
       // value={date ? maskDate(inputValue) : password ? inputValue.split("").reduce((a, v) => { return (a += "*") }, "") : inputValue}
       value={inputValue}
+      inputStyle={{ color: '#fff' }}
       onChangeText={(value) => { setInfo(value); }}
     />
   );
