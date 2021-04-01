@@ -187,14 +187,14 @@ const Cart = ({ navigation }) => {
             {Number.parseFloat(cartState.totalCompras).toFixed(2).replace('.', ',')}
           </Typography>
           <TouchableOpacity
-            style={{ width: '50%' }}
+            style={{ marginRight: 32 }}
             onPress={() => {
               if (state.carrinho.length > 0) {
                 navigation.navigate('Checkout');
               }
             }}
           >
-            <View style={[styles.button, { backgroundColor: background }]}>
+            <View style={[styles.button, { backgroundColor: theme.palette.secondary, width: '100%' }]}>
               <Text style={{ color: theme.palette.primary }}>
                 Checkout
 

@@ -1,8 +1,8 @@
 import React, {
-  useCallback, useState, useEffect, useContext, StatusBar,
+  useCallback, useState, useEffect, useContext,
 } from 'react';
 import {
-  StyleSheet, FlatList, View, TouchableOpacity,
+  StyleSheet, FlatList, View, TouchableOpacity, StatusBar,
 } from 'react-native';
 // components
 import { Ionicons } from '@expo/vector-icons';

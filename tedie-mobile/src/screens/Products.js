@@ -59,8 +59,12 @@ const Products = ({ navigation, route }) => {
           const { data } = await api.get(`Produtos?idempresa=${state.market.IdEmpresa}&categoria=${categoriaId}`);
           setProducts(data);
           setProductsFilter(data);
-        } else {
+        } else if (categoriaId) {
           const { data } = await api.get(`Produtos?categoria=${categoriaId}`);
+          setProducts(data);
+          setProductsFilter(data);
+        } else {
+          const { data } = await api.get('Produtos');
           setProducts(data);
           setProductsFilter(data);
         }
