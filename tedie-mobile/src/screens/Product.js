@@ -121,7 +121,7 @@ const Product = ({ navigation, route }) => {
               resizeMode="center" //
               style={{ width: '100%', height: '100%' }}
               source={{
-                uri: product.imagem,
+                uri: product.Imagem,
               }}
             />
           </View>
@@ -170,7 +170,7 @@ const Product = ({ navigation, route }) => {
         <Button
           background={theme.palette.secondary}
           color={theme.palette.primary}
-          width="50%"
+          width="60%"
           text={`Adicionar R$${productTotal.toFixed(2).toString().replace('.', ',')}`}
           onPress={addProduct}
         />
@@ -211,11 +211,11 @@ const styles = StyleSheet.create({
 
   bottomContainer: {
     width: '100%',
-    height: 100,
+    height: 90,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 8,
+    padding: 6,
     backgroundColor: '#fff',
     position: 'absolute',
     bottom: 0,
@@ -226,10 +226,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    paddingVertical: 8,
+    paddingVertical: 6,
     paddingHorizontal: 16,
     borderWidth: 2,
     borderColor: theme.palette.primary,
+  },
+  button: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+    marginVertical: 10,
+    borderRadius: 8,
   },
 
   quantity: {

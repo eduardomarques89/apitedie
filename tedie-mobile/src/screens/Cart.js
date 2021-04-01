@@ -196,7 +196,7 @@ const Cart = ({ navigation }) => {
           >
             <View style={[styles.button, { backgroundColor: theme.palette.secondary, width: '100%' }]}>
               <Text style={{ color: theme.palette.primary }}>
-                Checkout
+                Finalizar
 
               </Text>
             </View>
@@ -232,8 +232,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 14,
-    marginVertical: 16,
+    marginVertical: 10,
     borderRadius: 8,
   },
 
@@ -243,7 +242,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: 2,
     // marginBottom:50,
     backgroundColor: '#fff',
     // position: 'absolute',
