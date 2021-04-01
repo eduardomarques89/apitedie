@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, TouchableOpacity, StatusBars } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
 import { useNavigation } from '@react-navigation/native';
@@ -27,7 +27,6 @@ const Cards = ({ navigation }) => {
   }, []);
   return (
     <>
-      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
         left={(
           <TouchableOpacity

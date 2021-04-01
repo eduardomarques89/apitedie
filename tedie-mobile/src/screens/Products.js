@@ -59,7 +59,8 @@ const Products = ({ navigation, route }) => {
     async function fechData() {
       setLoading(true);
       try {
-        if (state?.market?.logo) {
+        console.log(state.market);
+        if (state?.market?.Logo) {
           const { data } = await api.get(`Produtos?idempresa=${state.market.IdEmpresa}&categoria=${nameCategory}`);
           setProducts(data);
           setProductsFilter(data);

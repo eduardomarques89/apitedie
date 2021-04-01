@@ -202,7 +202,7 @@ const LocationsCheckout = ({ route, navigation }) => {
                 <LocationItem
                   location={item}
                   onPressEdit={() => navigation.navigate('Localização', { location: item })}
-                  setLocalization={setLocalization}
+                  setLocalization={() => setLocalization(item)}
                 />
               )}
 

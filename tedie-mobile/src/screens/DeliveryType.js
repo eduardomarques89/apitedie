@@ -1,14 +1,14 @@
 import React, {
-  useContext, useEffect, useState, useRef,
+  useContext, useEffect, useState, useRef, useCallback,
 } from 'react';
 import {
-  TouchableOpacity, StatusBar, TextInput, View, StyleSheet, Text,
+  TouchableOpacity, StatusBar, TextInput, View, StyleSheet, Text, FlatList,
 } from 'react-native';
 import { Ionicons, EvilIcons } from '@expo/vector-icons';
-
+import { Picker } from '@react-native-picker/picker';
 // components
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-easy-toast';
 import Navbar from '../components/Navbar';
 import Typography from '../components/Typography';
@@ -29,29 +29,37 @@ const weekDay = ['DOMINGO', 'SEGUNDA-FEIRA', 'TERÇA-FEIRA', 'QUARTA-FEIRA', 'QU
 const DeliveryType = ({ navigation, route }) => {
   const toastRef = useRef();
   const navigate = useNavigation();
-  const [selectedType, setSelectedType] = useState(0);
+  // const [selectedType, setSelectedType] = useState(0);
   const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
   const { cartState, cartDispatch } = useContext(CartContext);
   const [horarios, setHorarios] = useState([]);
-  const [filterHorario, seFilterHorario] = useState([]);
   const { IdEmpresa } = route.params;
   const [date, setDate] = useState(new Date());
+  const [filterHorario, seFilterHorario] = useState([]);
   const [dateFinal, setDateFinal] = useState(new Date());
   const [show, setShow] = useState(false);
   const [showFinal, setShowFinal] = useState(false);
-  const [week, setWeek] = useState('');
+  const [week, setWeek] = useState(weekDay[date.getDay()]);
   const [horario, setHorario] = useState({});
   const [dataFormat, setDataFormat] = useState(`${date.getDay()}/${date.getMonth()}/${date.getFullYear()}`);
   const [dataFormatFinal, setDataFormatFinal] = useState(`${dateFinal.getDay()}/${dateFinal.getMonth()}/${dateFinal.getFullYear()}`);
+  const [type, setType] = useState({ label: 'Entrega', id: 1 });
+  const typesDelivery = [{
+    label: 'Entrega',
+    id: 1,
+  }, {
+    label: 'Retirada',
+    id: 2,
+  }];
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
 
-    const he = horario;
-    he[`${IdEmpresa}`].Data = currentDate;
+    // const he = horario;
+    // he[`${IdEmpresa}`].Data = currentDate;
     // console.log(he);
 
-    const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
+    // const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
 
     setShow(false);
     setDate(currentDate);
@@ -59,59 +67,46 @@ const DeliveryType = ({ navigation, route }) => {
     return event;
   };
 
-  const onChangeFinal = (event, selectedDate) => {
-    const currentDate = selectedDate || dateFinal;
-
-    setShowFinal(false);
-    setDateFinal(currentDate);
-    const he = horario;
-    he[`${IdEmpresa}`].DataFinal = currentDate;
-    console.log(he);
-
-    const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
-    checkoutDispatch(action);
-    return event;
-  };
   useEffect(() => {
     setDataFormat(`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`);
-    setDataFormatFinal(`${dateFinal.getDate()}/${dateFinal.getMonth()}/${dateFinal.getFullYear()}`);
   }, [date, dateFinal]);
-  useEffect(() => {
+
+  useFocusEffect(useCallback(() => {
     buscaHorariosEstabelecimento();
-  }, []);
-  useEffect(() => {
-    buscaHorariosEstabelecimento();
-  }, []);
+  }, []));
 
   useEffect(() => {
     const week = weekDay[date.getDay()];
     setWeek(week);
   }, [date]);
-  useEffect(() => {
-    const newHorarios = horarios.filter((horario) => horario.diasemana == week);
-    seFilterHorario(newHorarios);
-  }, [week, horarios]);
 
+  // useEffect(() => {
+  //   if (horarios.length > 0) {
+  //     setSelectedIndexSaved();
+  //   }
+  // }, [horarios]);
   useEffect(() => {
-    if (horarios.length > 0) {
-      setSelectedIndexSaved();
+    if (horario.length > 0) {
+      const newHorario = horarios.filter((horario) => horario.identrega === type.id || horario.identrega > 2 && horario.diasemana === week);
+      seFilterHorario(newHorario);
     }
-  }, [horarios]);
+  }, [type, horario, week]);
 
-  async function setSelectedIndexSaved() {
-    const horarioEntrega = checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa];
-    setSelectedType(horarioEntrega);
-  }
+  // async function setSelectedIndexSaved() {
+  //   const horarioEntrega = checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa];
+  //   setSelectedType(horarioEntrega);
+  // }
 
   async function buscaHorariosEstabelecimento() {
+    console.log('carregando horarios');
     const horarios = await buscaHorarios(IdEmpresa);
+    console.log(horarios);
     setHorarios(horarios);
-    seFilterHorario(horarios);
   }
 
   async function setSelectedHorario(horario) {
     const horarioEntrega = `${horario.TIPOENTREGA}-${horario.horario}-${horario.TAXA}-${horario.identrega}-${horario.horacod}`;
-    setSelectedType(horarioEntrega);
+    // setSelectedType(horarioEntrega);
 
     const he = { ...checkoutState.horarioEntregaPorEstabelecimento };
     he[`${IdEmpresa}`] = {
@@ -164,18 +159,6 @@ const DeliveryType = ({ navigation, route }) => {
 
         />
       )}
-      {showFinal && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={dateFinal}
-          mode="date"
-          minimumDate={date}
-          is24Hour
-          display="default"
-          onChange={onChangeFinal}
-
-        />
-      )}
       <Navbar
         left={(
           <TouchableOpacity
@@ -204,36 +187,56 @@ const DeliveryType = ({ navigation, route }) => {
             <EvilIcons name="calendar" size={32} color="black" />
           </TouchableOpacity>
         </View>
+        <Text style={styles.dataLabel}>Entrega</Text>
+        <View style={{
+          borderWidth: 1,
+          margin: 8,
+        }}
+        >
+          <Picker
+            style={{
+              height: 50,
+            }}
+            selectedValue={type}
+            onValueChange={(itemValue, itemIndex) => setType(itemValue)}
+          >
+            {
+            typesDelivery.map((value) => (
 
-        <Text style={styles.dataLabel}>Data Final</Text>
-        <View style={styles.dataInputContainer}>
-          <TextInput value={dataFormatFinal} onChangeText={(e) => formatDate(e, setDataFormatFinal)} style={styles.dataInput} />
-          <TouchableOpacity onPress={() => setShowFinal(true)}>
-            <EvilIcons name="calendar" size={32} color="black" />
-          </TouchableOpacity>
+              <Picker.Item key={value.id} label={value.label} value={value} />
+            ))
+          }
+          </Picker>
         </View>
-        {filterHorario.map((h, index) => (
-          <ContentContainer key={`${h.identrega}-${h.horacod}`}>
-            <Box direction="column" justify="center" alignContent="flex-start">
-              <Typography size="large" color={theme.palette.dark}>
-                {h.TIPOENTREGA}
-              </Typography>
 
-              <Divider />
-              {filterHorario.filter((t) => t.identrega == h.identrega)
-                .map((th, index) => (
-                  <TouchableOpacity key={`${th.identrega}-${th.horacod}`} onPress={() => setSelectedHorario(th)}>
-                    <Box direction="row" justify="space-between" alignItems="center" fullwidth>
-                      <Typography size="small" color={theme.palette.light}>
-                        {th.horario}
-                      </Typography>
-                      <RadioButton selected={selectedType === `${th.TIPOENTREGA}-${th.horario}-${th.TAXA}`} />
-                    </Box>
-                  </TouchableOpacity>
-                ))}
-            </Box>
-          </ContentContainer>
-        ))}
+        <ContentContainer>
+          <Box direction="column" justify="center" alignContent="flex-start">
+            <Typography size="large" color={theme.palette.dark}>
+              {type.label}
+            </Typography>
+
+            <Divider />
+            <FlatList
+              data={filterHorario}
+              keyExtractor={(item) => `${item.horacod}`}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => setSelectedHorario(item)}>
+                  <Box direction="row" justify="space-between" alignItems="center" fullwidth>
+                    <Typography size="small" color={theme.palette.light}>
+                      {item.horario}
+                    </Typography>
+                    <RadioButton selected={horario.horacode === item.horacode} />
+                  </Box>
+                </TouchableOpacity>
+
+              )}
+            />
+            {/* {filterHorario.map((th, index) => (
+              ))} */}
+          </Box>
+        </ContentContainer>
+        {/* {filterHorario.map((h, index) => (
+        ))} */}
       </ScreenContainer>
     </>
   );
