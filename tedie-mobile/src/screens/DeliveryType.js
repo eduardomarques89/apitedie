@@ -2,7 +2,7 @@ import React, {
   useContext, useEffect, useState, useRef, useCallback,
 } from 'react';
 import {
-  TouchableOpacity, StatusBar, TextInput, View, StyleSheet, Text, FlatList,
+  TouchableOpacity, StatusBar, TextInput, View, StyleSheet, Text, FlatList, Platform,
 } from 'react-native';
 import { Ionicons, EvilIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
@@ -42,7 +42,7 @@ const DeliveryType = ({ navigation, route }) => {
   const [week, setWeek] = useState(weekDay[date.getDay()]);
   const [horario, setHorario] = useState({});
   const [dataFormat, setDataFormat] = useState(`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`);
-  const [type, setType] = useState({ label: 'Entrega', id: 1 });
+  const [type, setType] = useState(1);
   const typesDelivery = [{
     label: 'Entrega',
     id: 1,
@@ -60,7 +60,7 @@ const DeliveryType = ({ navigation, route }) => {
 
     // const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
 
-    setShow(false);
+    setShow(Platform.OS === 'ios');
     setDate(currentDate);
 
     return event;
@@ -85,14 +85,18 @@ const DeliveryType = ({ navigation, route }) => {
   //   }
   // }, [horarios]);
   useEffect(() => {
+    console.log(week);
     if (horarios.length > 0) {
-      const newHorario = horarios.filter((horario) => horario.identrega === String(type.id) || horario.identrega > 2 && horario.diasemana === week);
+      const newHorario = horarios.filter((horario) => (horario.identrega === String(type) || horario.identrega > 2) && horario.diasemana === week);
       seFilterHorario(newHorario);
+      console.log(newHorario);
     }
   }, [type, horarios, week]);
 
   async function buscaHorariosEstabelecimento() {
+    console.log('carreando horarios');
     const horarios = await buscaHorarios(IdEmpresa);
+    console.log(horarios);
     setHorarios(horarios);
   }
 
@@ -141,17 +145,6 @@ const DeliveryType = ({ navigation, route }) => {
         opacity={0.8}
         textStyle={{ color: 'white' }}
       />
-      {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="date"
-          is24Hour
-          display="default"
-          onChange={onChange}
-
-        />
-      )}
       <Navbar
         left={(
           <TouchableOpacity
@@ -173,6 +166,21 @@ const DeliveryType = ({ navigation, route }) => {
       />
 
       <ScreenContainer>
+        {show && (
+          <View style={{ position: 'relative' }}>
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode="date"
+              is24Hour
+              style={{ display: show ? 'flex' : 'none' }}
+              display="default"
+              onChange={onChange}
+
+            />
+
+          </View>
+        )}
         <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data Inicial</Typography>
         <View style={styles.dataInputContainer}>
           <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
@@ -196,7 +204,7 @@ const DeliveryType = ({ navigation, route }) => {
             {
             typesDelivery.map((value) => (
 
-              <Picker.Item key={value.id} label={value.label} value={value} />
+              <Picker.Item key={value.id} label={value.label} value={value.id} />
             ))
           }
           </Picker>
@@ -205,7 +213,7 @@ const DeliveryType = ({ navigation, route }) => {
         <ContentContainer>
           <Box direction="column" justify="center" alignContent="flex-start">
             <Typography size="large" color={theme.palette.dark}>
-              {type.label}
+              {typesDelivery[type - 1].label}
             </Typography>
 
             <Divider />

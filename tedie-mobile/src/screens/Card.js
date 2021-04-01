@@ -5,46 +5,104 @@ import {
 // import {Picker } from 'react-native-community/picker'
 import { Ionicons } from '@expo/vector-icons';
 // component
-import { func } from 'prop-types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { useFormik } from 'formik';
 import Navbar from '../components/Navbar';
 import ScreenContainer from '../components/ScreenContainer';
 import Typography from '../components/Typography';
 import Button from '../components/Button';
+import formatCPFOrCNPJ from '../utils/formatCPFOrCNPJ';
 // theme
 import theme from '../theme';
 import { postCard } from '../services/card';
 import api from '../services/axios';
+import addCardSchema from '../validations/addCardSchema';
 
+const initialValues = {
+  Numero: '',
+  Titular: '',
+  CPF: '',
+  Validade: '',
+  CVV: '',
+  NOMECARTAO: '',
+};
 const Card = ({ navigation }) => {
   const navigate = useNavigation();
-  const [CVV, setCVV] = useState('');
-  const [Numero, setNumero] = useState('');
-  const [Validade, setValidade] = useState('');
-  const [CPF, setCPF] = useState('');
-  const [Titular, setTitular] = useState('');
-  const [IdBandeira, setIdBandeira] = useState('1');
+  const formik = useFormik({
+    initialValues,
+    onSubmit(values, { resetForm }) {
+      console.log(values);
+
+      async function fech() {
+        const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
+        const cartao = {
+          IdCliente: sessao.IdCliente,
+          Numero: values.Numero,
+          Validade: values.Validade,
+          CPF: values.CPF,
+          Titular: values.Titular,
+          CVV: values.CVV,
+        };
+
+        try {
+          await api.post('clientes/PostCartao', cartao);
+          resetForm();
+          navigation.pop();
+        } catch (e) {
+          console.log(e);
+          alert('cartao indisponivel');
+        }
+      }
+      fech();
+    },
+    validationSchema: addCardSchema,
+  });
 
   async function salvarCartao() {
     const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
     const cartao = {
       IdCliente: sessao.IdCliente,
-      Numero,
-      Validade,
-      CPF,
-      Titular,
-      CVV,
-      IdBandeira,
+      Numero: formik.values.Numero,
+      Validade: formik.values.Validade,
+      CPF: formik.values.CPF,
+      Titular: formik.values.Titular,
+      CVV: formik.values.CVV,
     };
 
     try {
       await api.post('clientes/PostCartao', cartao);
+
+      alert('cartao salvo');
     } catch (e) {
       alert('cartao indisponivel');
     }
+  }
 
-    navigation.pop();
+  function formatDate(value) {
+    let newValue = value.match(/\d+/g)?.join('') || '';
+    if (newValue.length > 6) {
+      return;
+    }
+    newValue = newValue.replace(/\D/g, '');
+    newValue = newValue.replace(/^(\d{2})(\d+)/g, '$1/$2');
+    formik.setFieldValue('Validade', newValue);
+  }
+
+  function formatCardNumber(value) {
+    let newValue = value.match(/\d+/g)?.join('') || '';
+    if (newValue.length > 16) {
+      return;
+    }
+    newValue = newValue.replace(/\D/g, '');
+    newValue = newValue.replace(/^(\d{4})(\d)/g, '$1 $2');
+    newValue = newValue.replace(/^(\d{4})\s(\d{4})(\d)/g, '$1 $2 $3');
+    newValue = newValue.replace(
+      /^(\d{4})\s(\d{4})\s(\d{4})(\d)/g,
+      '$1 $2 $3 $4',
+    );
+
+    formik.setFieldValue('Numero', newValue);
   }
 
   return (
@@ -72,50 +130,63 @@ const Card = ({ navigation }) => {
       />
 
       <ScreenContainer>
-        <TextInput
-          style={styles.textInput}
-          value={Numero}
-          onChangeText={(text) => setNumero(text)}
-          placeholder="Número do Cartão"
-        />
+        <View style={styles.paymentMethodContainer}>
+          <View style={styles.paymentContainer}>
+            <Typography size="small" color="#b5b5b5">
+              Informe os dados
+            </Typography>
+            <TextInput
+              style={styles.textInput}
+              keyboardType="decimal-pad"
+              value={formik.values.Numero}
+              onChangeText={(value) => formatCardNumber(value)}
+              placeholder="Número do Cartão"
+            />
 
-        <TextInput
-          style={styles.textInput}
-          onChangeText={(text) => setValidade(text)}
-          value={Validade}
-          placeholder="Validade"
-        />
+            <TextInput
+              style={styles.textInput}
+              keyboardType="decimal-pad"
+              placeholder="Validade"
+              value={formik.values.Validade}
+              onChangeText={formatDate}
+            />
 
-        <TextInput
-          style={styles.textInput}
-          onChangeText={(text) => setCVV(text)}
-          value={CVV}
-          placeholder="CVV"
-        />
+            <TextInput
+              style={styles.textInput}
+              value={formik.values.CVV}
+              placeholder="CVV"
+              keyboardType="decimal-pad"
+              onChangeText={(e) => {
+                if (e.length > 3) {
+                  return;
+                }
+                formik.setFieldValue('CVV', e);
+              }}
+            />
 
-        <TextInput
-          style={styles.textInput}
-          onChangeText={(text) => setTitular(text)}
-          value={Titular}
-          placeholder="Nome do Titular"
-        />
+            <TextInput
+              style={styles.textInput}
+              onChangeText={(e) => formik.setFieldValue('Titular', e)}
+              value={formik.values.Titular}
+              placeholder="Nome do Titular"
 
-        <TextInput
-          style={styles.textInput}
-          onChangeText={(text) => setCPF(text)}
-          value={CPF}
-          placeholder="CPF / CNPJ"
-        />
+            />
 
-        <Picker
-          selectedValue={IdBandeira}
-          style={styles.textInput}
-          // style={{ height: 50, width: 150 }}
-          onValueChange={(itemValue, itemIndex) => setIdBandeira(itemValue)}
-        >
-          <Picker.Item label="Visa" value="1" />
-          <Picker.Item label="Mastercard" value="2" />
-        </Picker>
+            <TextInput
+              style={styles.textInput}
+              value={formik.values.CPF}
+              keyboardType="decimal-pad"
+              placeholder="CPF / CNPJ"
+              onChangeText={(e) => {
+                formik.setFieldValue(
+                  'CPF',
+                  formatCPFOrCNPJ(e, formik.values.CPF),
+                );
+              }}
+            />
+          </View>
+
+        </View>
 
         <View style={styles.confirmButton}>
           <Button
@@ -125,21 +196,24 @@ const Card = ({ navigation }) => {
             text="Salvar"
             onPress={salvarCartao}
           />
+
         </View>
       </ScreenContainer>
     </>
   );
 };
 
+export default Card;
+
 const styles = StyleSheet.create({
   textInput: {
-    width: '100%',
+    width: '90%',
     paddingHorizontal: 16,
     paddingVertical: 8,
     backgroundColor: '#fafafa',
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: theme.palette.primary,
+    borderRadius: 1,
+    borderWidth: 1,
+    borderColor: '#b5b5b5',
     marginVertical: 8,
   },
 
@@ -149,6 +223,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
+  paymentContainer: {
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  paymentMethodContainer: {
+    width: '100%',
+    marginVertical: 16,
+  },
 });
-
-export default Card;
