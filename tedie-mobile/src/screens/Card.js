@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  StyleSheet, TouchableOpacity, TextInput, View, Picker,
+  StyleSheet, TouchableOpacity, TextInput, View, Picker, StatusBar,
 } from 'react-native';
 // import {Picker } from 'react-native-community/picker'
 import { Ionicons } from '@expo/vector-icons';
@@ -49,6 +49,8 @@ const Card = ({ navigation }) => {
 
   return (
     <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
         left={(
           <TouchableOpacity

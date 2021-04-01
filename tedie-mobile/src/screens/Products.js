@@ -2,7 +2,7 @@ import React, {
   useCallback, useContext, useEffect, useRef, useState,
 } from 'react';
 import {
-  StyleSheet, FlatList, View, TouchableOpacity, TextInput,
+  StyleSheet, FlatList, View, TouchableOpacity, TextInput, StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
@@ -82,6 +82,8 @@ const Products = ({ navigation, route }) => {
 
   return (
     <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
         left={(
           <TouchableOpacity

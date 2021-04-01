@@ -1,38 +1,45 @@
-import React from 'react'
-import { StyleSheet, TouchableOpacity, TextInput, View } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import React from 'react';
+import {
+  StyleSheet, TouchableOpacity, TextInput, View, StatusBar,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 // component
-import Navbar from '../components/Navbar'
-import ScreenContainer from '../components/ScreenContainer'
-import Typography from '../components/Typography'
-import Button from '../components/Button'
-import TextField from '../components/TextField'
-import Box from '../components/Box'
-import {useNavigation} from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native';
+import Navbar from '../components/Navbar';
+import ScreenContainer from '../components/ScreenContainer';
+import Typography from '../components/Typography';
+import Button from '../components/Button';
+import TextField from '../components/TextField';
+import Box from '../components/Box';
 // theme
-import theme from '../theme'
+import theme from '../theme';
 
 const Location = ({ navigation, route }) => {
-  const navigate = useNavigation()
-  const { location } = route.params
+  const navigate = useNavigation();
+  const { location } = route.params;
 
   return (
-    <React.Fragment>
+    <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
-        left={
-          <TouchableOpacity hitSlop={theme.hitSlop} onPress={() => {
-            if(navigate.canGoBack()){
-              navigate.goBack()
-            }
-          }}>
+        left={(
+          <TouchableOpacity
+            hitSlop={theme.hitSlop}
+            onPress={() => {
+              if (navigate.canGoBack()) {
+                navigate.goBack();
+              }
+            }}
+          >
             <Ionicons name="md-arrow-back" size={25} color="#fff" />
           </TouchableOpacity>
-        }
-        title={
+        )}
+        title={(
           <Typography size="small" color="#fff">
             Localização
           </Typography>
-        }
+        )}
       />
 
       <ScreenContainer>
@@ -44,9 +51,9 @@ const Location = ({ navigation, route }) => {
           value={location.CEP}
         />
 
-        <Box 
-          direction="row" 
-          justify="center" 
+        <Box
+          direction="row"
+          justify="center"
           alignItems="center"
         >
           <TextField
@@ -82,7 +89,7 @@ const Location = ({ navigation, route }) => {
         />
 
         <View style={styles.confirmButton}>
-          <Button 
+          <Button
             background={theme.palette.secondary}
             color={theme.palette.primary}
             width="50%"
@@ -90,9 +97,9 @@ const Location = ({ navigation, route }) => {
           />
         </View>
       </ScreenContainer>
-    </React.Fragment>
-  )
-}
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   textInput: {
@@ -103,15 +110,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 2,
     borderColor: theme.palette.primary,
-    marginVertical: 8
+    marginVertical: 8,
   },
 
   confirmButton: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    alignItems: 'center'
-  }
-})
+    alignItems: 'center',
+  },
+});
 
-export default Location
+export default Location;

@@ -8,8 +8,11 @@ import {
   TouchableWithoutFeedback,
   Text,
   ActivityIndicator,
+  StatusBar,
 } from 'react-native';
 import '@expo/browser-polyfill';
+
+import * as Location from 'expo-location';
 import JunoCardHash from 'react-native-juno-rn-card-hash';
 import { Ionicons } from '@expo/vector-icons';
 // theme
@@ -17,6 +20,7 @@ import Toast from 'react-native-easy-toast';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import theme from '../theme';
+import { getLocationByLatLong } from '../services/locations';
 // components
 import Navbar from '../components/Navbar';
 import Typography from '../components/Typography';
@@ -63,6 +67,44 @@ const Checkout = ({ navigation, route }) => {
   useEffect(() => {
     changeCartao();
   }, [checkoutState.cartaoPorEstabelecimento]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const { status } = await Location.requestPermissionsAsync();
+      if (status !== 'granted') {
+        toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
+        return;
+      }
+      const location = await Location.getCurrentPositionAsync({});
+      const local = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
+      const locations = local.results.map((result) => {
+        const UF = result.address_components.find((object) => object.types.includes('administrative_area_level_1'))?.short_name || '';
+        const Cidade = result.address_components.find((object) => object.types.includes('administrative_area_level_2'))?.long_name || '';
+        const Bairro = result.address_components.find((object) => object.types.includes('sublocality_level_1'))?.long_name || '';
+        const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
+        const Endereco = result.formatted_address || '';
+        const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
+        // const [, , cep] = result.formatted_address.split(',');
+        return {
+          Cidade,
+          UF,
+          Num,
+          Bairro,
+          Endereco,
+          CEP: cep,
+          Latitude: result.geometry.location.lat,
+          Longitude: result.geometry.location.lng,
+          IdEndereco: result.place_id,
+          Padrao: 'N',
+          notExist: true,
+        };
+      });
+      console.log(locations);
+      const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: locations[0] } };
+      checkoutDispatch(action);
+    }
+    fetchData();
+  }, []);
 
   async function changeAddress() {
     if (!checkoutState?.enderecoEntregaPorEstabelecimento) return;
@@ -274,6 +316,7 @@ const Checkout = ({ navigation, route }) => {
         textStyle={{ color: 'white' }}
       />
 
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
         left={(
           <TouchableOpacity

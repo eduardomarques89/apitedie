@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useState, useEffect, useContext,
+  useCallback, useState, useEffect, useContext, StatusBar,
 } from 'react';
 import {
   StyleSheet, FlatList, View, TouchableOpacity,
@@ -84,6 +84,8 @@ const Categories = ({ navigation }) => {
           </>
         )}
       />
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Loader show={categoriesLoader} />
       {
         !categoriesLoader && (

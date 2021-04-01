@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import {
-  StyleSheet, View, TouchableWithoutFeedback, TouchableOpacity, Text,
+  StyleSheet, View, TouchableWithoutFeedback, TouchableOpacity, Text, StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
@@ -40,6 +40,8 @@ const Account = ({ navigation }) => {
 
   return (
     <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <MainNavbar
         navigation={navigation}
         left={

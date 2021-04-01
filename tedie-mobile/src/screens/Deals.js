@@ -2,7 +2,7 @@ import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
 import {
-  StyleSheet, FlatList, View, TouchableOpacity, TextInput,
+  StyleSheet, FlatList, View, TouchableOpacity, TextInput, StatusBar,
 } from 'react-native';
 // components
 import { Ionicons } from '@expo/vector-icons';
@@ -61,6 +61,8 @@ const Deals = ({ navigation }) => {
 
   return (
     <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <MainNavbar
         navigation={navigation}
         left={

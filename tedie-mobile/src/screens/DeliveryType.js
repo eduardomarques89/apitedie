@@ -1,7 +1,7 @@
 import React, {
   useContext, useEffect, useState, useRef,
 } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -118,6 +118,8 @@ const DeliveryType = ({ navigation, route }) => {
 
   return (
     <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Toast
         ref={toastRef}
         style={{ backgroundColor: 'black' }}

@@ -1,38 +1,45 @@
-import React from 'react'
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
-import { AirbnbRating } from 'react-native-ratings'
+import React from 'react';
+import {
+  StyleSheet, Text, View, TouchableOpacity, StatusBar,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AirbnbRating } from 'react-native-ratings';
 // components
-import theme from '../theme'
-import Navbar from '../components/Navbar'
-import Typography from '../components/Typography'
-import ScreenContainer from '../components/ScreenContainer'
-import ContentContainer from '../components/ContentContainer'
-import TextField from '../components/TextField'
-import Button from '../components/Button'
-import {useNavigation} from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native';
+import theme from '../theme';
+import Navbar from '../components/Navbar';
+import Typography from '../components/Typography';
+import ScreenContainer from '../components/ScreenContainer';
+import ContentContainer from '../components/ContentContainer';
+import TextField from '../components/TextField';
+import Button from '../components/Button';
 
 const Rating = ({ navigation, route }) => {
-  const navigate = useNavigation()
-  const { review } = route.params
+  const navigate = useNavigation();
+  const { review } = route.params;
 
   return (
-    <React.Fragment>
+    <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
-        left={
-          <TouchableOpacity hitSlop={theme.hitSlop} onPress={() => {
-            if(navigate.canGoBack()){
-              navigate.goBack()
-            }
-          }}>
+        left={(
+          <TouchableOpacity
+            hitSlop={theme.hitSlop}
+            onPress={() => {
+              if (navigate.canGoBack()) {
+                navigate.goBack();
+              }
+            }}
+          >
             <Ionicons name="md-arrow-back" size={25} color="#fff" />
           </TouchableOpacity>
-        }
-        title={
+        )}
+        title={(
           <Typography size="small" color="#fff">
             Avaliar
           </Typography>
-        }
+        )}
       />
 
       {!review && (
@@ -47,7 +54,7 @@ const Rating = ({ navigation, route }) => {
             </Typography>
 
             <AirbnbRating
-              reviews={["Péssimo", "Ruim", "Ok", "Bom", "Incrível!"]} 
+              reviews={['Péssimo', 'Ruim', 'Ok', 'Bom', 'Incrível!']}
             />
           </ContentContainer>
 
@@ -86,7 +93,7 @@ const Rating = ({ navigation, route }) => {
 
             <AirbnbRating
               defaultRating={review.nota}
-              reviews={["Péssimo", "Ruim", "Ok", "Bom", "Incrível!"]} 
+              reviews={['Péssimo', 'Ruim', 'Ok', 'Bom', 'Incrível!']}
               isDisabled
             />
           </ContentContainer>
@@ -97,13 +104,15 @@ const Rating = ({ navigation, route }) => {
             </Typography>
 
             <Typography size="small" color={theme.palette.dark}>
-              "{review.message}"
+              "
+              {review.message}
+              "
             </Typography>
           </ContentContainer>
         </ScreenContainer>
       )}
-    </React.Fragment>
-  )
-}
+    </>
+  );
+};
 
-export default Rating
+export default Rating;

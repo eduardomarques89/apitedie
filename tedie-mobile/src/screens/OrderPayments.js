@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useRef, useState, useCallback,
+  useContext, useEffect, useRef, useState, useCallback, StatusBar,
 } from 'react';
 import {
   StyleSheet,
@@ -65,6 +65,8 @@ const OrderPayments = ({ navigation }) => {
 
   const BotomSheetContent = ({ sheetRef }) => (
     <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <View style={styles.bottomSheetContainer}>
         <TouchableOpacity hitSlop={theme.hitSlop} onPress={() => closeBottomSheet(sheetRef)}>
           <View style={styles.bottomSheetHeader}>
@@ -119,10 +121,9 @@ const OrderPayments = ({ navigation }) => {
         )}
       />
 
+      <StatusBar backgroundColor={theme.palette.primary} />
+
       <ScreenContainer>
-        <Typography size="small" color={theme.palette.dark}>
-          Estas são as opções de pagamento para esse estabelecimento
-        </Typography>
 
         <ContentContainer>
           <View style={styles.columnContainer}>

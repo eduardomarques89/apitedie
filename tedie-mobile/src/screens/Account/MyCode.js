@@ -1,37 +1,44 @@
-import React from 'react'
-import { StyleSheet, TouchableOpacity, Dimensions } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import React from 'react';
+import {
+  StyleSheet, TouchableOpacity, Dimensions, StatusBar,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 // components
-import Navbar from '../../components/Navbar'
-import Typography from '../../components/Typography'
-import ScreenContainer from '../../components/ScreenContainer'
-import ContentContainer from '../../components/ContentContainer'
-import {useNavigation} from '@react-navigation/native'
-import Box from '../../components/Box'
-// theme
-import theme from '../../theme'
-// qrcode
+import { useNavigation } from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
+import Navbar from '../../components/Navbar';
+import Typography from '../../components/Typography';
+import ScreenContainer from '../../components/ScreenContainer';
+import ContentContainer from '../../components/ContentContainer';
+import Box from '../../components/Box';
+// theme
+import theme from '../../theme';
+// qrcode
 
 const MyCode = ({ navigation }) => {
-  const navigate = useNavigation()
+  const navigate = useNavigation();
   return (
-    <React.Fragment>
+    <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
-        left={
-          <TouchableOpacity hitSlop={theme.hitSlop} onPress={() =>{
-            if(navigate.canGoBack()){
-              navigate.goBack()
-            }
-          }}>
+        left={(
+          <TouchableOpacity
+            hitSlop={theme.hitSlop}
+            onPress={() => {
+              if (navigate.canGoBack()) {
+                navigate.goBack();
+              }
+            }}
+          >
             <Ionicons name="md-arrow-back" size={25} color="#fff" />
           </TouchableOpacity>
-        }
-        title={
+        )}
+        title={(
           <Typography size="small" color="#fff">
             Indicação
           </Typography>
-        }
+        )}
       />
 
       <ScreenContainer>
@@ -54,10 +61,10 @@ const MyCode = ({ navigation }) => {
           </TouchableOpacity>
         </Box>
       </ScreenContainer>
-    </React.Fragment>
-  )
-}
+    </>
+  );
+};
 
-export default MyCode
+export default MyCode;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useContext } from 'react';
 import {
-  StyleSheet, View, Image, StatusBar,
+  StyleSheet, View, Image, StatusBar, Text,
   ActivityIndicator, TouchableOpacity,
 } from 'react-native';
 // theme
@@ -25,7 +25,7 @@ const Login = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
 
   async function handleLogin() {
-    if (usuario.length > 11 && usuario.length < 10) {
+    if (usuario.length > 11 || usuario.length < 10) {
       return;
     }
     setLoading(true);
@@ -82,14 +82,13 @@ const Login = ({ navigation }) => {
             onPress={() => (loading ? '' : handleLogin())}
           />
         </Box>
-        <Box direction="row" justify="center" alignItems="center">
-          <Button
-            background="#fff"
-            color={theme.palette.primary}
-            width="80%"
-            text="Cadastrar"
+        <Box direction="row" justify="center" alignItems="flex-end">
+          <TouchableOpacity
+            style={{ width: '80%' }}
             onPress={() => navigate.navigate('Register')}
-          />
+          >
+            <Text style={{ color: '#fff', textAlign: 'right' }}>Não sou Cadastrado</Text>
+          </TouchableOpacity>
         </Box>
       </View>
 

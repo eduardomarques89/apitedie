@@ -1,39 +1,46 @@
-import React from 'react'
-import { StyleSheet, View, TouchableOpacity } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import React from 'react';
+import {
+  StyleSheet, View, TouchableOpacity, StatusBar,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 // components
-import Navbar from '../../components/Navbar'
-import ScreenContainer from '../../components/ScreenContainer'
-import ContentContainer from '../../components/ContentContainer'
-import Typography from '../../components/Typography'
-import Divider from '../../components/Divider'
-import Box from '../../components/Box'
-import Button from '../../components/Button'
-import {useNavigation} from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native';
+import Navbar from '../../components/Navbar';
+import ScreenContainer from '../../components/ScreenContainer';
+import ContentContainer from '../../components/ContentContainer';
+import Typography from '../../components/Typography';
+import Divider from '../../components/Divider';
+import Box from '../../components/Box';
+import Button from '../../components/Button';
 // theme
-import theme from '../../theme'
+import theme from '../../theme';
 
 const Order = ({ navigation, route }) => {
-  const navigate = useNavigation()
-  const { order } = route.params
+  const navigate = useNavigation();
+  const { order } = route.params;
 
   return (
-    <React.Fragment>
+    <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
-        left={
-          <TouchableOpacity hitSlop={theme.hitSlop} onPress={() => {
-            if(navigate.canGoBack()){
-              navigate.goBack()
-            }
-          }}>
+        left={(
+          <TouchableOpacity
+            hitSlop={theme.hitSlop}
+            onPress={() => {
+              if (navigate.canGoBack()) {
+                navigate.goBack();
+              }
+            }}
+          >
             <Ionicons name="md-arrow-back" size={25} color="#fff" />
           </TouchableOpacity>
-        }
-        title={
+        )}
+        title={(
           <Typography size="small" color="#fff">
             Detalhes do pedido
           </Typography>
-        }
+        )}
       />
 
       <ScreenContainer>
@@ -93,7 +100,7 @@ const Order = ({ navigation, route }) => {
             </Typography>
           </View>
 
-          {order.status === "finished" && (
+          {order.status === 'finished' && (
             <TouchableOpacity>
               <Typography size="small" color={theme.palette.primary}>
                 Refazer Pedido!
@@ -244,40 +251,38 @@ const Order = ({ navigation, route }) => {
           </View>
         </ContentContainer>
       </ScreenContainer>
-    </React.Fragment>
-  )
-}
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   lineContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   lineSpaceContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   lineSpaceContainerMargin: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 8
+    marginVertical: 8,
   },
   columnContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
   },
   orderMarketIcon: {
     width: 40,
     height: 40,
     backgroundColor: theme.palette.secondary,
-    borderRadius: 100
-  }
-})
+    borderRadius: 100,
+  },
+});
 
-export default Order
-
-
+export default Order;

@@ -2,7 +2,7 @@ import React, {
   useState, useEffect, useCallback, useContext,
 } from 'react';
 import {
-  StyleSheet, View, TouchableOpacity, ScrollView, Image, FlatList, SafeAreaView,
+  StyleSheet, View, TouchableOpacity, ScrollView, Image, FlatList, SafeAreaView, StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -50,6 +50,8 @@ const Market = ({ navigation, route }) => {
 
   return (
     <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
         left={(
           <>

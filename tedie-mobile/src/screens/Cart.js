@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
-  StyleSheet, View, ScrollView, Text, FlatList,
+  StyleSheet, View, ScrollView, Text, FlatList, StatusBar,
 } from 'react-native';
 // components
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -126,6 +126,8 @@ const Cart = ({ navigation }) => {
 
   return (
     <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <MainNavbar navigation={navigation} />
       <View style={styles.cartsContainer}>
         <Box direction="row" justify="flex-start" alignItems="center">

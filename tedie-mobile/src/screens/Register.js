@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import {
-  StyleSheet, View, Image, StatusBar, ActivityIndicator,
+  StyleSheet, View, Image, StatusBar, ActivityIndicator, TouchableOpacity, Text,
 } from 'react-native';
 // theme
 import Toast from 'react-native-easy-toast';
@@ -21,7 +21,7 @@ const Login = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   async function cadastrarUsuario() {
-    if (usuario.length > 11 && usuario.length < 10) {
+    if (usuario.length > 11 || usuario.length < 10) {
       return;
     }
     setLoading(true);
@@ -31,6 +31,7 @@ const Login = ({ navigation }) => {
 
       if (existPhone) {
         toastRef.current?.show('Telefone já existe', 2000);
+        setLoading(false);
         return;
       }
       const user = await api.post('api/Clientes', {
@@ -88,13 +89,12 @@ const Login = ({ navigation }) => {
           />
         </Box>
         <Box direction="row" justify="center" alignItems="center">
-          <Button
-            background="#fff"
-            color={theme.palette.primary}
-            width="80%"
-            text="Entrar"
+          <TouchableOpacity
+            style={{ width: '80%' }}
             onPress={() => navigate.navigate('Login')}
-          />
+          >
+            <Text style={{ color: '#fff', textAlign: 'right' }}>Já sou Cadastrado</Text>
+          </TouchableOpacity>
         </Box>
       </View>
 

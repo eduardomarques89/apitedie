@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, View, TouchableOpacity, Text, ScrollView, Image,
+  StyleSheet, View, TouchableOpacity, Text, ScrollView, Image, StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
@@ -54,6 +54,8 @@ const Product = ({ navigation, route }) => {
 
   return (
     <>
+
+      <StatusBar backgroundColor={theme.palette.primary} />
       <Navbar
         left={(
           <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} hitSlop={theme.hitSlop} onPress={() => navigation.pop()}>
