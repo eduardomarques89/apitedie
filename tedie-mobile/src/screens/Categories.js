@@ -101,7 +101,7 @@ const Categories = ({ navigation }) => {
             <FlatList
               data={categories}
               renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => navigation.navigate('Produtos', { categoriaId: item.NomeCategoria })}>
+                <TouchableOpacity onPress={() => navigation.navigate('Produtos', { nameCategory: item.NomeCategoria })}>
                   <CategoryItem
                     category={item}
                   />

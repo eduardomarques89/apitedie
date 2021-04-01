@@ -30,7 +30,7 @@ const Products = ({ navigation, route }) => {
   const [productsFilter, setProductsFilter] = useState([]);
   const [empresa, setEmpresa] = useState({});
   const [filter, setFilter] = useState('');
-  const { categoriaId, onlyOffer } = route.params ?? {};
+  const { nameCategory, onlyOffer } = route.params ?? {};
 
   const loadProducts = async () => {
     const local = state.address;
@@ -60,11 +60,11 @@ const Products = ({ navigation, route }) => {
       setLoading(true);
       try {
         if (state?.market?.logo) {
-          const { data } = await api.get(`Produtos?idempresa=${state.market.IdEmpresa}&categoria=${categoriaId}`);
+          const { data } = await api.get(`Produtos?idempresa=${state.market.IdEmpresa}&categoria=${nameCategory}`);
           setProducts(data);
           setProductsFilter(data);
-        } else if (categoriaId) {
-          const { data } = await api.get(`Produtos?categoria=${categoriaId}`);
+        } else if (nameCategory) {
+          const { data } = await api.get(`Produtos?categoria=${nameCategory}`);
           setProducts(data);
           setProductsFilter(data);
         } else {
@@ -156,7 +156,7 @@ const Products = ({ navigation, route }) => {
             </ContentContainer>
 
             <View style={styles.container}>
-              {categoriaId
+              {nameCategory
             && (
             <FlatList
               data={productsFilter}
@@ -170,7 +170,7 @@ const Products = ({ navigation, route }) => {
               showsVerticalScrollIndicator={false}
             />
             )}
-              {!categoriaId && onlyOffer
+              {!nameCategory && onlyOffer
             && (
             <FlatList
               data={productsFilter}
@@ -184,7 +184,7 @@ const Products = ({ navigation, route }) => {
               showsVerticalScrollIndicator={false}
             />
             )}
-              {!categoriaId && !onlyOffer
+              {!nameCategory && !onlyOffer
             && (
             <FlatList
               data={productsFilter}
