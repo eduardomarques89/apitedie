@@ -68,13 +68,16 @@ const Card = ({ navigation }) => {
       CPF: formik.values.CPF,
       Titular: formik.values.Titular,
       CVV: formik.values.CVV,
+      IdBandeira: '',
     };
+    console.log(cartao);
 
     try {
       await api.post('clientes/PostCartao', cartao);
 
       alert('cartao salvo');
     } catch (e) {
+      console.log(e);
       alert('cartao indisponivel');
     }
   }
