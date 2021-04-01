@@ -86,21 +86,14 @@ const DeliveryType = ({ navigation, route }) => {
   //   }
   // }, [horarios]);
   useEffect(() => {
-    if (horario.length > 0) {
-      const newHorario = horarios.filter((horario) => horario.identrega === type.id || horario.identrega > 2 && horario.diasemana === week);
+    if (horarios.length > 0) {
+      const newHorario = horarios.filter((horario) => horario.identrega === String(type.id) || horario.identrega > 2 && horario.diasemana === week);
       seFilterHorario(newHorario);
     }
-  }, [type, horario, week]);
-
-  // async function setSelectedIndexSaved() {
-  //   const horarioEntrega = checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa];
-  //   setSelectedType(horarioEntrega);
-  // }
+  }, [type, horarios, week]);
 
   async function buscaHorariosEstabelecimento() {
-    console.log('carregando horarios');
     const horarios = await buscaHorarios(IdEmpresa);
-    console.log(horarios);
     setHorarios(horarios);
   }
 
@@ -118,12 +111,13 @@ const DeliveryType = ({ navigation, route }) => {
       DiaSemana: horario.diasemana,
       Horario: horario.horario,
       IdDiaSemana: horario.iddiasemana,
-
+      Data: date,
     };
     console.log(he[`${IdEmpresa}`]);
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
     checkoutDispatch(action);
     setHorario(he);
+    navigation.pop();
   }
 
   function formatDate(value, setValue) {
