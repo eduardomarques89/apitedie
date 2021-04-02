@@ -2,15 +2,14 @@ import React from 'react';
 // navigator
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 // screens
-import Cart from '../screens/Cart';
-import Checkout from '../screens/Checkout';
+import Cart from '../screens/Cart/Cart';
+import Checkout from '../screens/Cart/Checkout';
 import Coupons from '../screens/Coupons';
 import OrderPayments from '../screens/OrderPayments';
 import Card from '../screens/Card';
-import Locations from '../screens/Locations';
 import Document from '../screens/Document';
 import DeliveryType from '../screens/DeliveryType';
-import LocationsCheckout from '../screens/LocationsCheckout';
+import LocationsCheckout from '../screens/Locations';
 import ModalConfirmed from '../screens/ModalConfirmed';
 import Login from './Login';
 

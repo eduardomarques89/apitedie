@@ -19,22 +19,22 @@ import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-easy-toast';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import theme from '../theme';
-import { getLocationByLatLong } from '../services/locations';
+import theme from '../../theme';
+import { getLocationByLatLong } from '../../services/locations';
 // components
-import Navbar from '../components/Navbar';
-import Typography from '../components/Typography';
-import ScreenContainer from '../components/ScreenContainer';
-import ContentContainer from '../components/ContentContainer';
-import Divider from '../components/Divider';
-import Button from '../components/Button';
-import RadioButton from '../components/RadioButton';
-import Box from '../components/Box';
-import { CartContext } from '../contexts/CartContext';
-import { CheckoutContext } from '../contexts/CheckoutContext';
-import { AppContext } from '../contexts/AppContext';
-import { getMarketsListByIds } from '../services/market';
-import api from '../services/axios';
+import Navbar from '../../components/Navbar';
+import Typography from '../../components/Typography';
+import ScreenContainer from '../../components/ScreenContainer';
+import ContentContainer from '../../components/ContentContainer';
+import Divider from '../../components/Divider';
+import Button from '../../components/Button';
+import RadioButton from '../../components/RadioButton';
+import Box from '../../components/Box';
+import { CartContext } from '../../contexts/CartContext';
+import { CheckoutContext } from '../../contexts/CheckoutContext';
+import { AppContext } from '../../contexts/AppContext';
+import { getMarketsListByIds } from '../../services/market';
+import api from '../../services/axios';
 
 const Juno = new JunoCardHash('7ACA5244C520E4641C6E636E11AE9F05073D1B779B64825BD0F9DDFE44D9C954', 'sandbox');
 

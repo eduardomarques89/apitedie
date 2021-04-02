@@ -4,19 +4,18 @@ import {
 } from 'react-native';
 // components
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import MainNavbar from '../components/MainNavbar';
-import ScreenContainer from '../components/ScreenContainer';
-import Typography from '../components/Typography';
-import CartItem from '../components/CartItem';
-import Button from '../components/Button';
-import Box from '../components/Box';
-import Avatar from '../components/Avatar';
+import MainNavbar from '../../components/MainNavbar';
+import ScreenContainer from '../../components/ScreenContainer';
+import Typography from '../../components/Typography';
+import CartItem from '../../components/CartItem';
+import Button from '../../components/Button';
+import Box from '../../components/Box';
+import Avatar from '../../components/Avatar';
 // theme
-import theme from '../theme';
-import { AppContext } from '../contexts/AppContext';
-import { CartContext } from '../contexts/CartContext';
-import { getMarketsListByIds } from '../services/market';
-import { getProductsAtacadoByCEP } from '../services/products';
+import theme from '../../theme';
+import { AppContext } from '../../contexts/AppContext';
+import { CartContext } from '../../contexts/CartContext';
+import { getProductsAtacadoByCEP } from '../../services/products';
 
 const Cart = ({ navigation }) => {
   const { cartState, cartDispatch } = useContext(CartContext);
@@ -26,18 +25,18 @@ const Cart = ({ navigation }) => {
   const [produtosAtacado, setProdutosAtacado] = useState([]);
 
   function getSelectedMarkets() {
-    return state.carrinho
-      .filter((c, i, v) => v.findIndex((f) => f.product.IdEmpresa == c.product.IdEmpresa) == i)
-      .map((c) => c.product.IdEmpresa);
+    // return state.carrinho
+    //   .filter((c, i, v) => v.findIndex((f) => f.product.IdEmpresa == c.product.IdEmpresa) == i)
+    //   .map((c) => c.product.IdEmpresa);
   }
 
   async function carregaCarrinho() {
-    const selectedMarkets = getSelectedMarkets();
-    getMarketsListByIds(selectedMarkets)
-      .then((markets) => {
-        const action = { type: 'setMarkets', payload: { markets } };
-        cartDispatch(action);
-      });
+    // const selectedMarkets = getSelectedMarkets();
+    // getMarketsListByIds(selectedMarkets)
+    //   .then((markets) => {
+    //     const action = { type: 'setMarkets', payload: { markets } };
+    //     cartDispatch(action);
+    //   });
   }
 
   function deleteItem(IdEmpresa) {
@@ -89,7 +88,7 @@ const Cart = ({ navigation }) => {
   useEffect(() => {
     if (!cartState.selected && cartState.markets.length > 0) {
       const newCart = state.carrinho.filter((product) => product.product.IdEmpresa === cartState.markets[0].IdEmpresa);
-      setCart(newCart);
+      setCart(cartState.markets[0]);
     } else {
       const newCart = state.carrinho.filter((product) => product.product.IdEmpresa === cartState.selected);
       setCart(newCart);

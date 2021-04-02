@@ -82,20 +82,31 @@ const Locations = ({ route, navigation }) => {
           Padrao: local.Padrao,
           Beautify: local.Endereco,
         });
-        const action = { type: 'createAddress', payload: local };
-        dispatch(action);
+        if (route?.params?.checkoutEdit) {
+          const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: local } };
 
-        await AsyncStorage.setItem('Localization', JSON.stringify(local));
+          checkoutDispatch(action);
+        } else {
+          const action = { type: 'createAddress', payload: local };
+          dispatch(action);
+          await AsyncStorage.setItem('Localization', JSON.stringify(local));
+        }
+
         navigation.pop();
         return;
       } catch (e) {
         console.log(e);
       }
     } else {
+      if (route?.params?.checkoutEdit) {
+        const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: local } };
+
+        checkoutDispatch(action);
+      } else {
+        const action = { type: 'createAddress', payload: local };
+        dispatch(action);
+      }
       await AsyncStorage.setItem('Localization', JSON.stringify(local));
-      console.log(local);
-      const action = { type: 'createAddress', payload: local };
-      dispatch(action);
     }
 
     navigation.pop();
