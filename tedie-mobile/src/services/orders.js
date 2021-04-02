@@ -4,7 +4,7 @@ import { urlApi } from './axios';
 
 export const getOrders = async () => {
   const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
-  const IdCliente = sessao?.IdCliente || 54;
+  const IdCliente = sessao?.IdCliente;
   if (!IdCliente) {
     return;
   }

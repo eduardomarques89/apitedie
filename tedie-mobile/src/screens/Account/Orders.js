@@ -1,40 +1,51 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { TouchableOpacity, StatusBar } from 'react-native';
+import React, {
+  useState, useCallback, useEffect, useContext,
+} from 'react';
+import { TouchableOpacity, StatusBar, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Navbar from '../../components/Navbar';
 import ScreenContainer from '../../components/ScreenContainer';
 import Typography from '../../components/Typography';
 import OrderItem from '../../components/OrderItem';
+import { AppContext } from '../../contexts/AppContext';
+import Loader from '../../components/Loader';
 // theme
 import theme from '../../theme';
 // services
-import { getOrders } from '../../services/orders';
+import api from '../../services/axios';
 
 const Orders = ({ navigation }) => {
+  const { state } = useContext(AppContext);
   const navigate = useNavigation();
   const [ordersLoader, setOrderLoader] = useState(false);
   const [orders, setOrders] = useState([]);
 
-  const loadOrders = useCallback(async () => {
-    setOrderLoader(true);
+  useFocusEffect(useCallback(() => {
+    async function fetch() {
+      setOrderLoader(true);
+      if (!state?.sessao?.IdCliente) {
+        setOrderLoader(false);
+        return;
+      }
 
-    const orderResponse = await getOrders();
-    setOrders(orderResponse);
+      try {
+        const { data } = await api.get(`Pedidos/Usuario/${state?.sessao?.IdCliente}`);
+        setOrders(data);
 
-    setOrderLoader(false);
-  }, [setOrderLoader, setOrders, getOrders]);
-
-  useEffect(() => {
-    debugger;
-    loadOrders();
-  }, []);
+        setOrderLoader(false);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    fetch();
+  }, []));
 
   return (
     <>
-
       <StatusBar backgroundColor={theme.palette.primary} />
+
       <Navbar
         left={(
           <TouchableOpacity
@@ -55,16 +66,22 @@ const Orders = ({ navigation }) => {
         )}
       />
 
-      <ScreenContainer>
-        {!ordersLoader && orders.length > 0
-          && orders.map((order, index) => (
-            <OrderItem
-              order={order}
-              onPress={() => navigation.navigate('Pedido', { order })}
-              key={index}
+      <Loader show={ordersLoader} />
+      {!ordersLoader && orders.length > 0
+          && (
+          <ScreenContainer>
+            <FlatList
+              data={orders}
+              keyExtractor={(item) => `${item.NumeroPedido}`}
+              renderItem={({ item }) => (
+                <OrderItem
+                  order={item}
+                  onPress={() => navigation.navigate('Pedido', { order: item })}
+                />
+              )}
             />
-          ))}
-      </ScreenContainer>
+          </ScreenContainer>
+          )}
     </>
   );
 };

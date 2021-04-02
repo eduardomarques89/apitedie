@@ -99,7 +99,6 @@ const Checkout = ({ navigation, route }) => {
           notExist: true,
         };
       });
-      console.log(locations);
       const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: locations[0] } };
       checkoutDispatch(action);
     }

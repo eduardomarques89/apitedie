@@ -1,5 +1,5 @@
-import React from 'react';
-import { TouchableOpacity, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { TouchableOpacity, StatusBar, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
 import { useNavigation } from '@react-navigation/native';
@@ -11,26 +11,30 @@ import TicketItem from '../components/TicketItem';
 
 const Tickets = ({ navigation }) => {
   const navigate = useNavigation();
-  const tickets = [
-    {
-      Pedido: '1234',
-      Empresa: 'Mercado',
-      Data: '27/10/2020',
-      Status: 'Aberto',
-    },
-    {
-      Pedido: '1233',
-      Empresa: 'Mercado',
-      Data: '15/10/2020',
-      Status: 'Fechado',
-    },
-    {
-      Pedido: '1232',
-      Empresa: 'Mercado',
-      Data: '03/10/2020',
-      Status: 'Fechado',
-    },
-  ];
+  const [tickets, setTickets] = useState([]);
+
+  useEffect(() => {
+    setTickets([
+      {
+        Pedido: '1234',
+        Empresa: 'Mercado',
+        Data: '27/10/2020',
+        Status: 'Aberto',
+      },
+      {
+        Pedido: '1233',
+        Empresa: 'Mercado',
+        Data: '15/10/2020',
+        Status: 'Fechado',
+      },
+      {
+        Pedido: '1232',
+        Empresa: 'Mercado',
+        Data: '03/10/2020',
+        Status: 'Fechado',
+      },
+    ]);
+  }, []);
 
   return (
     <>
@@ -57,11 +61,15 @@ const Tickets = ({ navigation }) => {
       />
 
       <ScreenContainer>
-        {tickets.length > 0 && tickets.map((ticket) => (
-          <TouchableOpacity onPress={() => navigation.push('Ticket')}>
-            <TicketItem ticket={ticket} key={ticket.Pedido} />
-          </TouchableOpacity>
-        ))}
+        <FlatList
+          data={tickets}
+          keyExtractor={(item) => `${item.Pedido}`}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => navigation.push('Ticket', { ticket: item })}>
+              <TicketItem ticket={item} />
+            </TouchableOpacity>
+          )}
+        />
       </ScreenContainer>
     </>
   );

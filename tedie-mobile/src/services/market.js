@@ -33,7 +33,6 @@ export const getMarketsByLocation = async (local) => {
   const response = await Axios.get(
     `${urlApi}empresas/GetListaEmpresaByCEP?CEP=${cep.replace('-', '')}`,
   );
-  console.log(response);
 
   return response.data;
 };

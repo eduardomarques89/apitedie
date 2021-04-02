@@ -84,15 +84,9 @@ const LocationsCheckout = ({ route, navigation }) => {
           notExist: true,
         };
       });
-      const locationsFilter = locations.filter((local) => {
-        const existAddress = address.find((localAdress) => local?.CEP.split('-').join('') !== localAdress.CEP);
-        if (existAddress) {
-          return false;
-        }
-        return true;
-      });
+      const locationsFilter = locations.filter((local) => !address.find((localAdress) => local?.CEP.split('-').join('') === localAdress.CEP));
       console.log(locations);
-      setLocations((props) => [...locations, ...address]);
+      setLocations((props) => [...locationsFilter, ...address]);
       setLocationsLoader(false);
     }
     fetchLocation();
@@ -118,6 +112,8 @@ const LocationsCheckout = ({ route, navigation }) => {
         });
         const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: response[0] } };
         checkoutDispatch(action);
+
+        await AsyncStorage.setItem('Localization', JSON.stringify(local));
         navigation.pop();
         return;
       } catch (e) {
@@ -125,6 +121,8 @@ const LocationsCheckout = ({ route, navigation }) => {
       }
     } else {
       const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: local } };
+
+      await AsyncStorage.setItem('Localization', JSON.stringify(local));
       checkoutDispatch(action);
     }
 

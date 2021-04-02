@@ -42,7 +42,8 @@ const Home = ({ navigation }) => {
     try {
       const response = await getMarketsByLocation(state.address);
       setMarkets(response);
-    } catch {
+    } catch (e) {
+      console.log(e);
       setMarkets([]);
     } finally {
       setLoadingMarkets(false);
@@ -58,8 +59,7 @@ const Home = ({ navigation }) => {
       const productsDestaque = response.filter((product) => product.Destaque === 'S');
       setProductsDestaque(productsDestaque);
     } else {
-      const cep = local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '';
-      console.log(cep);
+      const cep = local.CEP;
       if (!cep) {
         return;
       }
@@ -73,8 +73,6 @@ const Home = ({ navigation }) => {
 
   async function askLocalizationPermission() {
     const location = JSON.parse(await AsyncStorage.getItem('Localization'));
-    console.log('location');
-    console.log(location);
     if (location && !state.address) {
       const action = { type: 'createAddress', payload: location };
       dispatch(action);
@@ -89,8 +87,29 @@ const Home = ({ navigation }) => {
       const location = await Location.getCurrentPositionAsync({});
       const local = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
       await AsyncStorage.setItem('Localization', JSON.stringify(local));
-      console.log('locationsadsd');
-      const action = { type: 'createAddress', payload: local };
+      const newLocations = local.results.map((result) => {
+        const UF = result.address_components.find((object) => object.types.includes('administrative_area_level_1'))?.short_name || '';
+        const Cidade = result.address_components.find((object) => object.types.includes('administrative_area_level_2'))?.long_name || '';
+        const Bairro = result.address_components.find((object) => object.types.includes('sublocality_level_1'))?.long_name || '';
+        const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
+        const Endereco = result.formatted_address || '';
+        const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
+        // const [, , cep] = result.formatted_address.split(',');
+        return {
+          Cidade,
+          UF,
+          Num,
+          Bairro,
+          Endereco,
+          CEP: cep,
+          Latitude: result.geometry.location.lat,
+          Longitude: result.geometry.location.lng,
+          IdEndereco: result.place_id,
+          Padrao: 'N',
+          notExist: true,
+        };
+      });
+      const action = { type: 'createAddress', payload: newLocations[0] };
       dispatch(action);
     })();
   }
@@ -101,9 +120,6 @@ const Home = ({ navigation }) => {
       loadProducts();
       const banners = await api.get('banner');
       const bannersFilter = banners.data.filter((value) => value.Destaque === 'S');
-      console.log('ifoioio');
-      console.log(state.address);
-      console.log(bannersFilter);
       setBanners(bannersFilter);
     } else {
       askLocalizationPermission();
@@ -111,7 +127,6 @@ const Home = ({ navigation }) => {
   }
 
   useFocusEffect(useCallback(() => {
-    console.log('oioi');
     loadAll();
   }, [state.address]));
 
@@ -123,29 +138,30 @@ const Home = ({ navigation }) => {
         <StatusBar backgroundColor={theme.palette.primary} />
 
         <CartFab />
+        <SafeAreaView>
 
-        <ScreenContainer>
-          <ContentContainer>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('Localização')}>
-              <View style={styles.locationContainer}>
-                <Ionicons name="md-locate" size={25} color={theme.palette.primary} />
+          <ScreenContainer>
+            <ContentContainer>
+              <TouchableWithoutFeedback onPress={() => navigation.navigate('Localização')}>
+                <View style={styles.locationContainer}>
+                  <Ionicons name="md-locate" size={25} color={theme.palette.primary} />
 
-                <View style={styles.locationInfo}>
-                  <Typography size="small" color="#000">
-                    {state?.address?.CEP
-                      ? (state.address?.results ? state?.address?.results[0]?.formatted_address : state.address.Beautify)
-                      : 'Selecione uma localização'}
-                  </Typography>
+                  <View style={styles.locationInfo}>
+                    <Typography size="small" color="#000">
+                      {state?.address?.CEP
+                        ? (state.address?.Endereco)
+                        : 'Selecione uma localização'}
+                    </Typography>
+                  </View>
+
+                  <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.primary} />
                 </View>
+              </TouchableWithoutFeedback>
+            </ContentContainer>
 
-                <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.primary} />
-              </View>
-            </TouchableWithoutFeedback>
-          </ContentContainer>
-
-          <Swiper style={styles.swiper}>
-            {
-            banners.map((banner) => (
+            <Swiper style={styles.swiper}>
+              {banners.length > 0
+            && banners.map((banner) => (
               <TouchableOpacity
                 key={banner.IdBanner}
                 onPress={() => {
@@ -160,57 +176,56 @@ const Home = ({ navigation }) => {
               >
                 <Image source={{ uri: banner.Imagem }} style={styles.banner} />
               </TouchableOpacity>
-            ))
-          }
-          </Swiper>
+            ))}
+            </Swiper>
 
-          <Typography size="medium" color="#000">
-            Destaques
-          </Typography>
+            <Typography size="medium" color="#000">
+              Destaques
+            </Typography>
 
-          <FlatList
-            data={productsDestaque}
-            keyExtractor={(item) => `${item.Id}`}
-            horizontal
-            renderItem={({ item }) => (
-              <TouchableOpacity key={item.Id} onPress={() => navigation.navigate('Produto', { product: item, empresaId: item.IdEmpresa })}>
-                <ProductItem
-                  product={item}
-                />
+            <FlatList
+              data={productsDestaque}
+              keyExtractor={(item) => `${item.Id}`}
+              horizontal
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => navigation.navigate('Produto', { product: item, empresaId: item.IdEmpresa })}>
+                  <ProductItem
+                    product={item}
+                  />
 
-              </TouchableOpacity>
-            )}
-          />
-
-          <Typography size="medium" color="#000">
-            Perto de você
-          </Typography>
-
-          <ScrollView
-            contentContainerStyle={styles.horizontalList}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          >
-            <Pill
-              selected={deliveryType === 'all'}
-              title="Todos"
-              onPress={() => setDeliveryType('all')}
+                </TouchableOpacity>
+              )}
             />
 
-            <Pill
-              selected={deliveryType === 'delivery'}
-              title="Entrega"
-              onPress={() => setDeliveryType('delivery')}
-            />
+            <Typography size="medium" color="#000">
+              Perto de você
+            </Typography>
 
-            <Pill
-              selected={deliveryType === 'pickup'}
-              title="Retirada"
-              onPress={() => setDeliveryType('pickup')}
-            />
-          </ScrollView>
+            <ScrollView
+              contentContainerStyle={styles.horizontalList}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+            >
+              <Pill
+                selected={deliveryType === 'all'}
+                title="Todos"
+                onPress={() => setDeliveryType('all')}
+              />
 
-          {
+              <Pill
+                selected={deliveryType === 'delivery'}
+                title="Entrega"
+                onPress={() => setDeliveryType('delivery')}
+              />
+
+              <Pill
+                selected={deliveryType === 'pickup'}
+                title="Retirada"
+                onPress={() => setDeliveryType('pickup')}
+              />
+            </ScrollView>
+
+            {
           loadingMarkets && (
             <>
               <MarketItem skeleton />
@@ -219,7 +234,7 @@ const Home = ({ navigation }) => {
             </>
           )
         }
-          {
+            {
           !loadingMarkets && markets?.length > 0
           && (
           <FlatList
@@ -231,7 +246,6 @@ const Home = ({ navigation }) => {
                   dispatch({ type: 'addMarketSelect', market: item });
                   navigation.navigate('Mercado', { market: item });
                 }}
-                key={item.IdEmpresa}
               >
                 <MarketItem market={item} />
               </TouchableOpacity>
@@ -239,7 +253,8 @@ const Home = ({ navigation }) => {
           />
           )
         }
-        </ScreenContainer>
+          </ScreenContainer>
+        </SafeAreaView>
 
         {/* </ScreenContainer> */}
 

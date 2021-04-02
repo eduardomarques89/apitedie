@@ -2,7 +2,7 @@ import React, {
   useEffect, useCallback, useState, useRef, useContext,
 } from 'react';
 import {
-  View, Text, StatusBar, FlatList, TouchableOpacity, TextInput, StyleSheet,
+  View, Text, StatusBar, FlatList, TouchableOpacity, TextInput, StyleSheet, SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
@@ -52,9 +52,8 @@ const Locations = ({ route, navigation }) => {
 
         navigation.pop();
       })();
-    } else if (!local.IdCliente) {
+    } else if (!state.sessao.IdCliente) {
       const address = await getLocationByLatLong(local.Latitude, local.Longitude);
-      console.log(local);
       await AsyncStorage.setItem('Localization', JSON.stringify(address));
 
       const action = { type: 'createAddress', payload: address };
@@ -62,14 +61,45 @@ const Locations = ({ route, navigation }) => {
 
       navigation.pop();
     } else {
-      await AsyncStorage.setItem('Localization', JSON.stringify(local));
-
-      const action = { type: 'createAddress', payload: local };
-      dispatch(action);
-
-      navigation.pop();
+      setLocalizationByManual(local);
     }
   }
+
+  const setLocalizationByManual = async (local) => {
+    if (local?.notExist) {
+      try {
+        const response = await api.post('Enderecos', {
+          IdCliente: state?.sessao?.IdCliente,
+          Endereco: local.Endereco,
+          Bairro: local.Bairro,
+          Cidade: local.Cidade,
+          UF: local.UF.toUpperCase(),
+          CEP: local.CEP.split('-').join(''),
+          Num: local.Num,
+          Complemento: '',
+          Latitude: local.latitude,
+          Longitude: local.longitude,
+          Padrao: local.Padrao,
+          Beautify: local.Endereco,
+        });
+        const action = { type: 'createAddress', payload: local };
+        dispatch(action);
+
+        await AsyncStorage.setItem('Localization', JSON.stringify(local));
+        navigation.pop();
+        return;
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      await AsyncStorage.setItem('Localization', JSON.stringify(local));
+      console.log(local);
+      const action = { type: 'createAddress', payload: local };
+      dispatch(action);
+    }
+
+    navigation.pop();
+  };
 
   const fetchLocations = useCallback(async () => {
     try {
@@ -108,26 +138,31 @@ const Locations = ({ route, navigation }) => {
         const Bairro = result.address_components.find((object) => object.types.includes('sublocality_level_1'))?.long_name || '';
         const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
         const Endereco = result.formatted_address || '';
-
+        const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
         return {
           Cidade,
           UF,
           Num,
           Bairro,
           Endereco,
+          CEP: cep,
           Latitude: result.geometry.location.lat,
           Longitude: result.geometry.location.lng,
           IdEndereco: result.place_id,
+          Padrao: 'N',
+          notExist: true,
         };
       });
-      setLocations([...locations, ...address]);
+      console.log(locations);
+      const locationsFilter = locations.filter((location) => !address.find((address) => address.CEP === location.CEP.split('-').join('')));
+      setLocations([...locationsFilter, ...address]);
       setLocationsLoader(false);
     }
     fetchLocation();
   }, [locationText, fetchLocations]);
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, paddingBottom: 10 }}>
 
       <Toast
         ref={toastRef}
@@ -157,7 +192,7 @@ const Locations = ({ route, navigation }) => {
         )}
       />
 
-      <ScreenContainer>
+      <View style={styles.container}>
 
         <ContentContainer>
           <View style={styles.searchContainer}>
@@ -172,56 +207,48 @@ const Locations = ({ route, navigation }) => {
         </ContentContainer>
 
         <ContentContainer background="#fff">
-          <View style={{ flexDirection: 'row', flex: 1 }}>
-            <TouchableOpacity
-              onPress={() => setLocalization('gps')}
-              style={{
-                flex: 1,
-                width: '100%',
-                minWidth: '50%',
-                paddingLeft: '25%',
-                flexDirection: 'row',
-              }}
-            >
-              <View style={{ position: 'absolute', left: 0 }}>
-                <Ionicons name="md-locate" size={30} color={theme.palette.primary} />
-              </View>
-              <Text style={{ paddingLeft: 8 }}>
-                Usar Localização Atual
-              </Text>
-            </TouchableOpacity>
-            <View style={{ position: 'absolute', right: 0 }}>
+          <TouchableOpacity
+            onPress={() => setLocalization('gps')}
+            style={{
+              flexDirection: 'row', width: '100%', height: 30, paddingHorizontal: 8, justifyContent: 'space-between', alignContent: 'center',
+            }}
+          >
+            <Ionicons name="md-locate" size={30} color={theme.palette.primary} />
+            <Text>
+              Usar Localização Atual
+            </Text>
+            <View>
               <Ionicons name="ios-arrow-forward" size={30} color={theme.palette.primary} />
             </View>
-          </View>
+          </TouchableOpacity>
         </ContentContainer>
 
         {locationsLoader && (
-          <>
-            <LocationItem skeleton />
-            <LocationItem skeleton />
-            <LocationItem skeleton />
-          </>
+        <>
+          <LocationItem skeleton />
+          <LocationItem skeleton />
+          <LocationItem skeleton />
+        </>
         )}
 
-        {locations.length > 0 && !locationsLoader
+        {!locationsLoader
           && (
-            <FlatList
-              data={locations}
-              keyExtractor={(item) => `${item.IdEndereco}`}
-              renderItem={({ item }) => (
-                <LocationItem
-                  location={item}
-                  onPressEdit={() => navigation.navigate('Localização', { location: item })}
-                  setLocalization={setLocalization}
-                />
+          <FlatList
+            data={locations}
+            keyExtractor={(item) => `${item.IdEndereco}`}
+            renderItem={({ item }) => (
+              <LocationItem
+                location={item}
+                onPressEdit={() => navigation.navigate('Localização', { location: item })}
+                setLocalization={setLocalization}
+              />
 
-              )}
-            />
+            )}
+          />
           )}
 
-      </ScreenContainer>
-    </>
+      </View>
+    </SafeAreaView>
 
   );
 };
@@ -232,6 +259,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  container: {
+    paddingHorizontal: 16,
+    paddingTop: 0,
+    flex: 1,
   },
 
   touchable: {

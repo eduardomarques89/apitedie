@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet, View, TouchableOpacity, StatusBar,
 } from 'react-native';
@@ -17,7 +17,16 @@ import theme from '../../theme';
 
 const Order = ({ navigation, route }) => {
   const navigate = useNavigation();
-  const { order } = route.params;
+  const [order, setOrder] = useState({});
+  const { order: orderParam } = route.params;
+
+  useEffect(() => {
+    console.log(orderParam);
+    setOrder({
+      ...orderParam,
+      Data: new Date(),
+    });
+  }, [orderParam]);
 
   return (
     <>
@@ -52,7 +61,9 @@ const Order = ({ navigation, route }) => {
                 Big Bom
               </Typography>
               <Typography size="caption" color={theme.palette.light}>
-                Realizado em - 04/08/2020
+                Realizado em -
+                {' '}
+                {`${order?.Data?.getDate() || '00'}-${order?.Data?.getMonth() || '00'}-${order?.Data?.getFullYear() || '00'}`}
               </Typography>
             </View>
           </View>
@@ -60,35 +71,35 @@ const Order = ({ navigation, route }) => {
           <Divider />
 
           {order.review && (
-            <TouchableOpacity onPress={() => navigation.navigate('Avaliar', { review: order.review })}>
-              <Box direction="row" justify="space-between" alignItems="center" noMargin>
-                <Box direction="column" justify="center" alignItems="flex-start" noMargin>
-                  <Typography size="small" color={theme.palette.dark}>
-                    Sua Avaliação
-                  </Typography>
-                  <Box direction="row" justify="center" alignItems="center" noMargin>
-                    <Typography size="small" color={theme.palette.secondary}>
-                      {order.review.nota.toFixed(1)}
-                    </Typography>
-                    <Ionicons name="md-star" size={20} color={theme.palette.secondary} />
-                  </Box>
-                </Box>
-
-                <Typography size="small" color={theme.palette.primary}>
-                  ver
+          <TouchableOpacity onPress={() => navigation.navigate('Avaliar', { review: order.review })}>
+            <Box direction="row" justify="space-between" alignItems="center" noMargin>
+              <Box direction="column" justify="center" alignItems="flex-start" noMargin>
+                <Typography size="small" color={theme.palette.dark}>
+                  Sua Avaliação
                 </Typography>
+                <Box direction="row" justify="center" alignItems="center" noMargin>
+                  <Typography size="small" color={theme.palette.secondary}>
+                    {order.review.nota.toFixed(1)}
+                  </Typography>
+                  <Ionicons name="md-star" size={20} color={theme.palette.secondary} />
+                </Box>
               </Box>
-            </TouchableOpacity>
+
+              <Typography size="small" color={theme.palette.primary}>
+                ver
+              </Typography>
+            </Box>
+          </TouchableOpacity>
           )}
 
           {!order.review && (
-            <Button
-              background={theme.palette.primary}
-              color="#fff"
-              width="100%"
-              text="Avaliar Pedido"
-              onPress={() => navigation.navigate('Avaliar', { review: null })}
-            />
+          <Button
+            background={theme.palette.primary}
+            color="#fff"
+            width="100%"
+            text="Avaliar Pedido"
+            onPress={() => navigation.navigate('Avaliar', { review: null })}
+          />
           )}
 
           <Divider />
@@ -101,11 +112,11 @@ const Order = ({ navigation, route }) => {
           </View>
 
           {order.status === 'finished' && (
-            <TouchableOpacity>
-              <Typography size="small" color={theme.palette.primary}>
-                Refazer Pedido!
-              </Typography>
-            </TouchableOpacity>
+          <TouchableOpacity>
+            <Typography size="small" color={theme.palette.primary}>
+              Refazer Pedido!
+            </Typography>
+          </TouchableOpacity>
           )}
 
           <Divider />
@@ -125,7 +136,7 @@ const Order = ({ navigation, route }) => {
             </View>
 
             <Typography size="small" color={theme.palette.dark}>
-              R$ 15,00
+              {`R$ ${(order?.Valor || 0).toFixed(2).replace('.', ',')}`}
             </Typography>
           </View>
 
@@ -181,7 +192,8 @@ const Order = ({ navigation, route }) => {
               Total em produtos
             </Typography>
             <Typography size="small" color={theme.palette.light}>
-              R$ 60,00
+
+              {`R$ ${((order?.Valor || 0) - (order?.Taxa || 0)).toFixed(2).replace('.', ',')}`}
             </Typography>
           </View>
 
@@ -190,7 +202,8 @@ const Order = ({ navigation, route }) => {
               Entrega
             </Typography>
             <Typography size="small" color={theme.palette.success}>
-              Grátis
+
+              {`R$ ${((order?.Taxa || 0)).toFixed(2).replace('.', ',')}`}
             </Typography>
           </View>
 
@@ -213,7 +226,8 @@ const Order = ({ navigation, route }) => {
               Total
             </Typography>
             <Typography size="medium" color={theme.palette.dark}>
-              R$ 48,00
+
+              {`R$ ${((order?.Valor || 0)).toFixed(2).replace('.', ',')}`}
             </Typography>
           </View>
 

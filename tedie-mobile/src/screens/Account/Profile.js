@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   StyleSheet, TouchableOpacity, View, StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
 import { useNavigation } from '@react-navigation/native';
+import { useFormik } from 'formik';
 import Navbar from '../../components/Navbar';
 import Typography from '../../components/Typography';
 import ScreenContainer from '../../components/ScreenContainer';
@@ -13,9 +14,49 @@ import TextField from '../../components/TextField';
 import Button from '../../components/Button';
 // theme
 import theme from '../../theme';
+import api from '../../services/axios';
+import { AppContext } from '../../contexts/AppContext';
+
+const initialValues = {
+  Nome: '',
+  SobreNome: '',
+  Apelido: '',
+  dataNasc: '',
+  Telefone: '',
+  Email: '',
+  CPF: '',
+};
 
 const Profile = ({ navigation }) => {
+  const { state } = useContext(AppContext);
   const navigate = useNavigation();
+  const formik = useFormik({
+    initialValues,
+    onSubmit: async (values) => {
+      console.log(values);
+
+      // const response = await api.put('Clientes',variables)
+    },
+  });
+
+  async function handleSubmit() {
+    const variables = {
+      IdCliente: state?.sessao?.IdCliente,
+      Apelido: formik.values.Apelido,
+      dataNasc: '',
+      Telefone: formik.values.Telefone,
+      Email: formik.values.Email,
+      CPF: formik.values.CPF,
+      NomeCliente: `${formik.values.Nome} ${formik.values.SobreNome}`,
+    };
+    try {
+      const response = await api.put('Clientes', variables);
+      alert('Dados salvos');
+    } catch (e) {
+      console.log('erro');
+    }
+  }
+
   return (
     <>
 
@@ -46,28 +87,38 @@ const Profile = ({ navigation }) => {
             <TextField
               width="50%"
               label="Nome"
+              setValue={(value) => formik.setFieldValue('Nome', value)}
+              value={formik.values.Nome}
             />
             <TextField
               width="50%"
               label="Sobrenome"
+              setValue={(value) => formik.setFieldValue('Sobrenome', value)}
+              value={formik.values.SobreNome}
             />
           </Box>
 
           <Box direction="row" justify="center" alignItems="center">
             <TextField
               label="E-mail"
+              setValue={(value) => formik.setFieldValue('Email', value)}
+              value={formik.values.Email}
             />
           </Box>
 
           <Box direction="row" justify="center" alignItems="center">
             <TextField
               label="Telefone"
+              setValue={(value) => formik.setFieldValue('Telefone', value)}
+              value={formik.values.Telefone}
             />
           </Box>
 
           <Box direction="row" justify="center" alignItems="center">
             <TextField
               label="CPF"
+              setValue={(value) => formik.setFieldValue('CPF', value)}
+              value={formik.values.CPF}
             />
           </Box>
         </View>
@@ -77,6 +128,7 @@ const Profile = ({ navigation }) => {
           color={theme.palette.primary}
           width="100%"
           text="Salvar"
+          onPress={handleSubmit}
         />
       </ScreenContainer>
     </>

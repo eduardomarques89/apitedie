@@ -16,6 +16,7 @@ export const postCheckout = async (pedido) => {
 };
 
 export const getProductsByCEP = async (CEP, categoria = '', offset = 0, limite = 999, searchQuery = '') => {
+  console.log(`${urlApi}produtos/CEPCategoriaPaginado?CEP=${CEP}&Categoria=${categoria}&offset=${offset}&limite=${limite}&searchQuery=${searchQuery}`);
   const response = await api().get(
     `${urlApi}produtos/CEPCategoriaPaginado?CEP=${CEP}&Categoria=${categoria}&offset=${offset}&limite=${limite}&searchQuery=${searchQuery}`,
   );

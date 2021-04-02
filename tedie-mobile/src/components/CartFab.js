@@ -28,6 +28,7 @@ const CartFab = () => {
 
   async function handleSelectMarket(market) {
     const action = { type: 'select', payload: { IdEmpresa: market.IdEmpresa, Nome: market.Nome } };
+    console.log(action);
     cartDispatch(action);
     navigate.navigate('Carrinho');
   }
@@ -40,6 +41,7 @@ const CartFab = () => {
     });
 
     l = l.filter((v) => v.qtd > 0);
+    console.log(l);
     setLista(l);
   }
 
@@ -79,7 +81,6 @@ const CartFab = () => {
           <TouchableWithoutFeedback key={obj.market.IdEmpresa} onPress={() => handleSelectMarket(obj.market)}>
 
             <Animated.View
-              key={Math.random(100)}
               style={[
                 styles.miniFab,
                 {

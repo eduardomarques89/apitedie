@@ -8,7 +8,7 @@ import Order from '../screens/Account/Order';
 import Coupons from '../screens/Coupons';
 import Profile from '../screens/Account/Profile';
 import Locations from '../screens/Locations';
-import Cards from '../screens/Cards';
+import Cards from '../screens/OrderPayments';
 import Help from '../screens/Account/Help';
 import MyCode from '../screens/Account/MyCode';
 import Rating from '../screens/Rating';
@@ -25,7 +25,7 @@ const AccountStackComponent = () => {
     <AccountStack.Navigator headerMode="none">
       <AccountStack.Screen name="Conta" component={Account} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Pedidos" component={Orders} options={{ ...TransitionPresets.SlideFromRightIOS }} />
-      <AccountStack.Screen name="Pedido" component={Order} options={{ ...TransitionPresets.SlideFromRightIOS }} />
+      <AccountStack.Screen name="Pedido" component={Order} options={{ ...TransitionPresets.SlideFromRightIOS }} initialParams={{ order: {} }} />
       <AccountStack.Screen name="Cupons" component={Coupons} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Perfil" component={Profile} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Localização" component={Locations} options={{ ...TransitionPresets.SlideFromRightIOS }} />
