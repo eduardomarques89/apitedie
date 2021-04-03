@@ -10,19 +10,19 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-easy-toast';
-import Navbar from '../components/Navbar';
-import Typography from '../components/Typography';
-import ScreenContainer from '../components/ScreenContainer';
-import ContentContainer from '../components/ContentContainer';
-import Box from '../components/Box';
-import Divider from '../components/Divider';
-import RadioButton from '../components/RadioButton';
+import Navbar from '../../components/Navbar';
+import Typography from '../../components/Typography';
+import ScreenContainer from '../../components/ScreenContainer';
+import ContentContainer from '../../components/ContentContainer';
+import Box from '../../components/Box';
+import Divider from '../../components/Divider';
+import RadioButton from '../../components/RadioButton';
 // theme
-import theme from '../theme';
-import { CheckoutContext } from '../contexts/CheckoutContext';
-import { CartContext } from '../contexts/CartContext';
-import { buscaHorarios } from '../services/market';
-import Loader from '../components/Loader';
+import theme from '../../theme';
+import { CheckoutContext } from '../../contexts/CheckoutContext';
+import { CartContext } from '../../contexts/CartContext';
+import { buscaHorarios } from '../../services/market';
+import Loader from '../../components/Loader';
 
 const weekDay = ['DOMINGO', 'SEGUNDA-FEIRA', 'TERÇA-FEIRA', 'QUARTA-FEIRA', 'QUINTA-FEIRA', 'SEXTA-FEIRA', 'SABADO'];
 

@@ -4,8 +4,6 @@ import { createStackNavigator, TransitionPresets } from '@react-navigation/stack
 // screens
 import Home from '../screens/Home';
 import Locations from '../screens/Locations';
-import LocationsCheckout from '../screens/LocationsCheckout';
-import Location from '../screens/Location';
 import Market from '../screens/Market';
 import Product from '../screens/Product';
 import Products from '../screens/Products';

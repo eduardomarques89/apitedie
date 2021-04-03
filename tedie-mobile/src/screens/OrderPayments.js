@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useRef, useState, useCallback,
+  useContext, useRef, useState, useCallback,
 } from 'react';
 import {
   StyleSheet,
@@ -9,7 +9,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import BottomSheet from 'reanimated-bottom-sheet';
 // theme
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import theme from '../theme';
 // components
@@ -21,25 +20,29 @@ import Divider from '../components/Divider';
 import Button from '../components/Button';
 import { getCard } from '../services/card';
 import { CheckoutContext } from '../contexts/CheckoutContext';
-import { CartContext } from '../contexts/CartContext';
-import api from '../services/axios';
 import { AppContext } from '../contexts/AppContext';
+import Loader from '../components/Loader';
 
 const OrderPayments = ({ navigation }) => {
   const navigate = useNavigation();
   const [meiosPag, setMeiosPag] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
   const { state } = useContext(AppContext);
-  const { cartState, cartDispatch } = useContext(CartContext);
 
   useFocusEffect(useCallback(() => {
     loadMeiosPag();
   }, []));
 
   async function loadMeiosPag() {
-    const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
-    const cartoes = await getCard(state.sessao.IdCliente);
-    setMeiosPag(cartoes);
+    try {
+      setLoading(true);
+      const cartoes = await getCard(state.sessao.IdCliente);
+      setMeiosPag(cartoes);
+      setLoading(false);
+    } catch {
+      setLoading(false);
+    }
   }
 
   async function selecionaCartao(card) {
@@ -116,92 +119,66 @@ const OrderPayments = ({ navigation }) => {
           </Typography>
         )}
       />
+      <Loader show={loading} />
+      {!loading && (
+        <>
+          <ScreenContainer>
 
-      <ScreenContainer>
+            <ContentContainer>
+              <View style={styles.columnContainer}>
+                <Typography size="medium" color={theme.palette.dark}>
+                  Pagamento pelo TEDIE
+                </Typography>
 
-        <ContentContainer>
-          <View style={styles.columnContainer}>
-            <Typography size="medium" color={theme.palette.dark}>
-              Pagamento pelo TEDIE
-            </Typography>
+                <Divider />
 
-            <Divider />
+                {meiosPag.length > 0 && meiosPag.map((p) => (
+                  <View style={styles.lineSpaceContainer} key={p.IdCartao}>
+                    <TouchableOpacity onPress={() => selecionaCartao(p)}>
+                      <View style={styles.columnContainer}>
+                        <Typography size="small" color={theme.palette.dark}>
+                          Cartão de Crédito/Débito
+                        </Typography>
+                        <Typography size="caption" color={theme.palette.light}>
+                          {p.Bandeira}
+                          {' '}
+                          {p.Numero.split(' ').map((y, i) => (i == 1 || i == 2 ? '****' : y)).join(' ')}
+                        </Typography>
+                      </View>
+                    </TouchableOpacity>
 
-            {meiosPag.length > 0 && meiosPag.map((p, index) => (
-              <View style={styles.lineSpaceContainer}>
-                <TouchableOpacity onPress={() => selecionaCartao(p)}>
-                  <View style={styles.columnContainer}>
-                    <Typography size="small" color={theme.palette.dark}>
-                      Cartão de Crédito/Débito
-                    </Typography>
-                    <Typography size="caption" color={theme.palette.light}>
-                      {p.Bandeira}
-                      {' '}
-                      {p.Numero.split(' ').map((y, i) => (i == 1 || i == 2 ? '****' : y)).join(' ')}
-                    </Typography>
+                    <View style={styles.lineContainer}>
+                      <Ionicons name="md-card" size={25} color={theme.palette.dark} />
+                      <TouchableOpacity
+                        style={styles.editButton}
+                        hitSlop={styles.slope}
+                        onPress={() => openBottomSheet(bottomSheetRef)}
+                      >
+                        <Ionicons name="md-more" size={25} color={theme.palette.primary} />
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </TouchableOpacity>
+                ))}
 
-                <View style={styles.lineContainer}>
-                  <Ionicons name="md-card" size={25} color={theme.palette.dark} />
-                  <TouchableOpacity
-                    style={styles.editButton}
-                    hitSlop={styles.slope}
-                    onPress={() => openBottomSheet(bottomSheetRef)}
-                  >
-                    <Ionicons name="md-more" size={25} color={theme.palette.primary} />
-                  </TouchableOpacity>
-                </View>
+                <Button
+                  background={theme.palette.primary}
+                  color="#fff"
+                  width="100%"
+                  text="Adicionar Cartão"
+                  onPress={() => navigation.navigate('Cartão')}
+                />
               </View>
-            ))}
+            </ContentContainer>
+          </ScreenContainer>
 
-            <Button
-              background={theme.palette.primary}
-              color="#fff"
-              width="100%"
-              text="Adicionar Cartão"
-              onPress={() => navigation.navigate('Cartão')}
-            />
-          </View>
-        </ContentContainer>
+          <BottomSheet
+            snapPoints={[0, 1, 150]}
+            renderContent={() => (<BotomSheetContent sheetRef={bottomSheetRef} />)}
+            ref={bottomSheetRef}
+          />
+        </>
+      )}
 
-        {/* <ContentContainer>
-          <View style={styles.columnContainer}>
-            <Typography size="medium" color={theme.palette.dark}>
-              Pagamento na Entrega
-            </Typography>
-
-            <Divider />
-
-            <View style={styles.lineSpaceContainer}>
-              <Typography size="small" color={theme.palette.dark}>
-                Cartão de Crédito
-              </Typography>
-              <Ionicons name="md-card" size={25} color={theme.palette.dark} />
-            </View>
-
-            <View style={styles.lineSpaceContainer}>
-              <Typography size="small" color={theme.palette.dark}>
-                Cartão de Débito
-              </Typography>
-              <Ionicons name="md-card" size={25} color={theme.palette.dark} />
-            </View>
-
-            <View style={styles.lineSpaceContainer}>
-              <Typography size="small" color={theme.palette.dark}>
-                Dinheiro
-              </Typography>
-              <Ionicons name="md-cash" size={25} color={theme.palette.dark} />
-            </View>
-          </View>
-        </ContentContainer> */}
-      </ScreenContainer>
-
-      <BottomSheet
-        snapPoints={[0, 1, 150]}
-        renderContent={() => (<BotomSheetContent sheetRef={bottomSheetRef} />)}
-        ref={bottomSheetRef}
-      />
     </>
   );
 };

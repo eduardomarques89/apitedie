@@ -8,10 +8,9 @@ import Coupons from '../screens/Coupons';
 import OrderPayments from '../screens/OrderPayments';
 import Card from '../screens/Card';
 import Document from '../screens/Document';
-import DeliveryType from '../screens/DeliveryType';
+import DeliveryType from '../screens/Cart/DeliveryType';
 import LocationsCheckout from '../screens/Locations';
 import ModalConfirmed from '../screens/ModalConfirmed';
-import Login from './Login';
 
 const CartStack = createStackNavigator();
 
