@@ -79,6 +79,7 @@ const CartItem = ({ cartItem }) => {
         </View>
         <View style={styles.quantityContainer}>
           <TouchableOpacity
+
             hitSlop={theme.hitSlop}
             onPress={() => handleRemove(cartItem.quantity)}
           >

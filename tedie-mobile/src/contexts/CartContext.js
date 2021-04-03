@@ -18,7 +18,6 @@ export const appCartReducer = (state = cartInitialState, action) => {
   let newProducts;
   let existMarket;
   let newMarkets;
-  let existProductInMarket;
   let newTotal;
   switch (action.type) {
     case 'select':

@@ -67,7 +67,10 @@ const Card = ({ navigation }) => {
       CVV: formik.values.CVV,
       IdBandeira: '',
     };
-
+    if (!(await addCardSchema.isValid(cartao))) {
+      alert('Cartão invalido');
+      return;
+    }
     try {
       await api.post('clientes/PostCartao', cartao);
 
@@ -75,6 +78,7 @@ const Card = ({ navigation }) => {
     } catch (e) {
       alert('cartao indisponivel');
     }
+    formik.resetForm();
   }
 
   function formatDate(value) {

@@ -84,7 +84,6 @@ const Checkout = ({ navigation, route }) => {
         const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
         const Endereco = result.formatted_address || '';
         const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
-        // const [, , cep] = result.formatted_address.split(',');
         return {
           Cidade,
           UF,
@@ -109,13 +108,6 @@ const Checkout = ({ navigation, route }) => {
     if (!checkoutState?.enderecoEntregaPorEstabelecimento) return;
     const selected = checkoutState.enderecoEntregaPorEstabelecimento?.Endereco;
     setShowEndereco(selected || (selected?.Endereco ?? 'Selecione'));
-  }
-
-  function changeHorario(IdEmpresa) {
-    if (checkoutState.horarioEntregaPorEstabelecimento.length == 0) return;
-    const selected = checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa].title;
-    const ret = selected?.split('-').length > 0 ? selected : 'Tipo de entrega-Horário-0-0-0';
-    return ret;
   }
 
   async function changeCartao() {
@@ -145,7 +137,7 @@ const Checkout = ({ navigation, route }) => {
   async function pedidoConfirmado() {
     const actionCart = { type: 'CLEAR_CART' };
     cartDispatch(actionCart);
-    // carregaCarrinho();
+    checkoutDispatch(actionCart);
     navigate.goBack();
   }
 
@@ -260,7 +252,6 @@ const Checkout = ({ navigation, route }) => {
           pedido.status = junoValues.status;
           pedido.codigoJuno = junoValues.codeJuno;
         }
-        console.log(pedido);
 
         return api.post('Pedidos', pedido);
       });
