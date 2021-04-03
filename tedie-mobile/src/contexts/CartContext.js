@@ -23,14 +23,6 @@ export const appCartReducer = (state = cartInitialState, action) => {
   switch (action.type) {
     case 'select':
       return { ...state, selected: action.payload };
-    case 'setTotalCompras':
-      return { ...state, totalCompras: action.payload.totalCompras };
-    case 'setSomaParcial':
-      return { ...state, totalCompras: action.payload.somaParcial };
-    case 'setMarkets':
-      return { ...state, markets: action.payload.markets };
-    case 'setTotalComprasPorEstabelecimento':
-      return { ...state, totalComprasPorEstabelecimento: action.payload.totalComprasPorEstabelecimento };
     case 'CLEAR_CART':
       return { ...cartInitialState };
     case 'ADD_MARKET_TAX':
@@ -40,7 +32,6 @@ export const appCartReducer = (state = cartInitialState, action) => {
         }
         return market;
       });
-
       return { ...state, markets: newMarkets };
     case 'Add_MARKET':
       existMarket = state.markets.find((market) => market.market.IdEmpresa === action.payload.market.IdEmpresa);

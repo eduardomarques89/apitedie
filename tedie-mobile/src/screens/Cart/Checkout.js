@@ -142,19 +142,8 @@ const Checkout = ({ navigation, route }) => {
     }
   }
 
-  async function carregaCarrinho() {
-    const selectedMarkets = getSelectedMarkets();
-    getMarketsListByIds(selectedMarkets)
-      .then((markets) => {
-        const action = { type: 'setMarkets', payload: { markets } };
-        cartDispatch(action);
-      });
-  }
-
   async function pedidoConfirmado() {
-    const action = { type: 'createCarrinho', payload: new Array() };
     const actionCart = { type: 'CLEAR_CART' };
-    dispatch(action);
     cartDispatch(actionCart);
     // carregaCarrinho();
     navigate.goBack();

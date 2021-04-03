@@ -32,16 +32,6 @@ const CartItem = ({ cartItem }) => {
     const payload = { product: cartItem.product, quantity: 1 };
     const action = { type: 'ADD_PRODUCT', payload };
     cartDispatch(action);
-
-    // dispatch(action);
-
-    // action = { type: 'setTotalCompras', payload: { totalCompras: 0 } };
-
-    // action = { type: 'setSomaParcial', payload: { somaParcial: [] } };
-    // cartDispatch(action);
-
-    // action = { type: 'setTotalComprasPorEstabelecimento', payload: { totalComprasPorEstabelecimento: [] } };
-    // cartDispatch(action);
   };
 
   return (
