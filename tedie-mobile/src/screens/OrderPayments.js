@@ -39,7 +39,6 @@ const OrderPayments = ({ navigation }) => {
   async function loadMeiosPag() {
     const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
     const cartoes = await getCard(state.sessao.IdCliente);
-    console.log(cartoes);
     setMeiosPag(cartoes);
   }
 
@@ -47,7 +46,6 @@ const OrderPayments = ({ navigation }) => {
     card.opcao = 'credit';
     const he = { ...checkoutState.cartaoPorEstabelecimento };
     he[`${0}`] = card;
-    console.log(he);
     const action = { type: 'setCartaoPorEstabelecimento', payload: { cartaoPorEstabelecimento: he } };
     checkoutDispatch(action);
     navigation.pop();

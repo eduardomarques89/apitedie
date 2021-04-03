@@ -32,8 +32,6 @@ const Card = ({ navigation }) => {
   const formik = useFormik({
     initialValues,
     onSubmit(values, { resetForm }) {
-      console.log(values);
-
       async function fech() {
         const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
         const cartao = {
@@ -50,7 +48,6 @@ const Card = ({ navigation }) => {
           resetForm();
           navigation.pop();
         } catch (e) {
-          console.log(e);
           alert('cartao indisponivel');
         }
       }
@@ -70,14 +67,12 @@ const Card = ({ navigation }) => {
       CVV: formik.values.CVV,
       IdBandeira: '',
     };
-    console.log(cartao);
 
     try {
       await api.post('clientes/PostCartao', cartao);
 
       alert('cartao salvo');
     } catch (e) {
-      console.log(e);
       alert('cartao indisponivel');
     }
   }

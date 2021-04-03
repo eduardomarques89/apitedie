@@ -12,15 +12,37 @@ import { AppContext } from '../contexts/AppContext';
 // theme
 import theme from '../theme';
 
-const CartItem = ({ cartItem, valorCalculado, handleDeleteItem }) => {
+const CartItem = ({ cartItem }) => {
   const { cartState, cartDispatch } = useContext(CartContext);
   const { state, dispatch } = useContext(AppContext);
 
-  function handleValueDropdown(value) {
-    if (value === 0) {
-      handleDeleteItem();
-    }
+  function handleValueDropdown() {
+    const payload = { product: cartItem.product, quantity: cartItem.quantity };
+    const action = { type: 'REMOVE_PRODUCT', payload };
+    cartDispatch(action);
   }
+
+  const handleRemove = () => {
+    const payload = { product: cartItem.product, quantity: 1 };
+    const action = { type: 'REMOVE_PRODUCT', payload };
+    cartDispatch(action);
+  };
+
+  const handleAdd = async (quantity) => {
+    const payload = { product: cartItem.product, quantity: 1 };
+    const action = { type: 'ADD_PRODUCT', payload };
+    cartDispatch(action);
+
+    // dispatch(action);
+
+    // action = { type: 'setTotalCompras', payload: { totalCompras: 0 } };
+
+    // action = { type: 'setSomaParcial', payload: { somaParcial: [] } };
+    // cartDispatch(action);
+
+    // action = { type: 'setTotalComprasPorEstabelecimento', payload: { totalComprasPorEstabelecimento: [] } };
+    // cartDispatch(action);
+  };
 
   return (
     <View style={styles.container}>
@@ -60,16 +82,15 @@ const CartItem = ({ cartItem, valorCalculado, handleDeleteItem }) => {
             Total
           </Typography>
           <Typography size="small" color="#000">
-            {/* {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorCalculado)} */}
             R$
             {' '}
-            {Number.parseFloat(valorCalculado()).toFixed(2).replace('.', ',')}
+            {Number.parseFloat(cartItem.quantity * cartItem.product.Preco_Por).toFixed(2).replace('.', ',')}
           </Typography>
         </View>
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             hitSlop={theme.hitSlop}
-            onPress={() => dispatch({ type: 'deleteQuantyItem', id: cartItem.product.Id })}
+            onPress={() => handleRemove(cartItem.quantity)}
           >
             <Ionicons name="md-remove" size={25} color={theme.palette.primary} />
           </TouchableOpacity>
@@ -78,7 +99,7 @@ const CartItem = ({ cartItem, valorCalculado, handleDeleteItem }) => {
 
           <TouchableOpacity
             hitSlop={theme.hitSlop}
-            onPress={() => dispatch({ type: 'addQuantyItem', id: cartItem.product.Id })}
+            onPress={() => handleAdd(cartItem)}
           >
             <Ionicons name="md-add" size={25} color={theme.palette.primary} />
           </TouchableOpacity>

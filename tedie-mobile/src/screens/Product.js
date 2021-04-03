@@ -27,17 +27,15 @@ const Product = ({ navigation, route }) => {
   const { product, empresaId } = route.params;
 
   useEffect(() => {
-    // console.log(empresaName)
-
     async function fetch() {
       const empresa = await api.get(`Empresas/${empresaId}`);
       setEmpresa(empresa.data);
     }
 
-    if (product.Preco_De > 0) {
-      setProductValue(product.Preco_De);
-    } else {
+    if (product.Preco_Por) {
       setProductValue(product.Preco_Por);
+    } else {
+      setProductValue(product.Preco_Der);
     }
     fetch();
   }, []);
@@ -45,7 +43,7 @@ const Product = ({ navigation, route }) => {
   useEffect(() => {
     const total = productValue * quantity;
     setProductTotal(total);
-  }, [quantity]);
+  }, [quantity, productValue]);
 
   const handleRemove = (quantity) => {
     if (quantity > 1) { setQuantity(quantity - 1); }
@@ -55,17 +53,23 @@ const Product = ({ navigation, route }) => {
     setQuantity(quantity + 1);
   };
 
-  async function addProduct() {
-    const payload = { product, quantity: (quantity + 1) };
-    const action = { type: 'createCarrinho', payload };
-    dispatch(action);
-    // console.log('product');
-    // console.log(product);
-    if (!cartState.markets.find((market) => market.IdEmpresa === product.IdEmpresa)) {
-      const { data } = await api.post(`api/Empresas/${product.IdEmpresa}`);
-      const action = { type: 'setMarkets', payload: { markets: [...cartState.markets, data] } };
+  async function carregaCarrinho(marketId) {
+    try {
+      const market = await api.get(`Empresas/${marketId}`);
+      const action = { type: 'Add_MARKET', payload: { market: market.data } };
       cartDispatch(action);
+    } catch {
     }
+  }
+
+  async function addProduct() {
+    const existMarket = cartState.markets.find((market) => market.market.IdEmpresa === product.IdEmpresa);
+    if (!existMarket) {
+      await carregaCarrinho(product.IdEmpresa);
+    }
+    const payload = { product, quantity };
+    const action = { type: 'ADD_PRODUCT', payload };
+    cartDispatch(action);
   }
 
   useEffect(() => {

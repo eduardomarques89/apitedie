@@ -17,37 +17,24 @@ import theme from '../theme';
 import { CartContext } from '../contexts/CartContext';
 import { CheckoutContext } from '../contexts/CheckoutContext';
 import { AppContext } from '../contexts/AppContext';
+import { getMarketsListByIds } from '../services/market';
 
 const CartFab = () => {
   const { cartState, cartDispatch } = useContext(CartContext);
   const { state, dispatch } = useContext(AppContext);
-  const [lista, setLista] = useState([]);
+  const [markets, setMarkets] = useState([]);
   const [isOpen, setOpen] = useState(false);
   const openFabAnimation = useRef(new Animated.Value(0)).current;
   const navigate = useNavigation();
 
   async function handleSelectMarket(market) {
-    const action = { type: 'select', payload: { IdEmpresa: market.IdEmpresa, Nome: market.Nome } };
-    console.log(action);
+    const action = { type: 'select', payload: market };
     cartDispatch(action);
     navigate.navigate('Carrinho');
   }
-
-  async function atualiza() {
-    let l = cartState?.markets.map((market) => {
-      const qtd = state.carrinho.filter((c) => c.product.IdEmpresa == market.IdEmpresa).map((c) => c.quantity).reduce((a, v) => a + v, 0);
-      const obj = { market, qtd };
-      return obj;
-    });
-
-    l = l.filter((v) => v.qtd > 0);
-    console.log(l);
-    setLista(l);
-  }
-
-  useFocusEffect(useCallback(() => {
-    atualiza();
-  }, [cartState.markets]));
+  useEffect(() => {
+    setMarkets(cartState.markets);
+  }, [cartState.markets]);
 
   const openFab = () => {
     Animated.timing(openFabAnimation, {
@@ -77,7 +64,7 @@ const CartFab = () => {
       )} */}
 
       <View style={styles.miniFabContainer}>
-        {lista.map((obj) => (
+        {markets.map((obj) => (
           <TouchableWithoutFeedback key={obj.market.IdEmpresa} onPress={() => handleSelectMarket(obj.market)}>
 
             <Animated.View
@@ -107,7 +94,7 @@ const CartFab = () => {
                 resizeMode="contain"
               />
               <View style={styles.quantityContainer}>
-                <Text style={styles.quantityText}>{obj.qtd}</Text>
+                <Text style={styles.quantityText}>{obj.quantity}</Text>
               </View>
             </Animated.View>
           </TouchableWithoutFeedback>
@@ -124,7 +111,8 @@ const CartFab = () => {
           )}
           <View style={styles.quantityContainer}>
             <Text style={styles.quantityText}>
-              {lista.reduce((a, v) => a + v.qtd, 0)}
+              {markets.reduce((marketPrev, marketCurrent) => marketPrev + marketCurrent.quantity,
+                0)}
             </Text>
           </View>
         </View>

@@ -33,7 +33,6 @@ const Profile = ({ navigation }) => {
   const formik = useFormik({
     initialValues,
     onSubmit: async (values) => {
-      console.log(values);
 
       // const response = await api.put('Clientes',variables)
     },

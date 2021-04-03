@@ -1,9 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useState, useCallback,
+} from 'react';
 import {
   StyleSheet, View, Text, TouchableOpacity, Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
+import { useFocusEffect } from '@react-navigation/native';
 import ContentContainer from './ContentContainer';
 import Typography from './Typography';
 // theme
@@ -11,68 +14,60 @@ import theme from '../theme';
 import { AppContext } from '../contexts/AppContext';
 import { useQuantity } from '../hooks/useQuantity';
 import { CartContext } from '../contexts/CartContext';
-import { getMarketsListByIds } from '../services/market';
+import api from '../services/axios';
 
 const ProductItem = ({ product, skeleton }) => {
   const { state, dispatch } = useContext(AppContext);
   const { cartState, cartDispatch } = useContext(CartContext);
-  const { quantity } = useQuantity(product);
+  const [quantity, setQuantity] = useState(0);
 
+  useEffect(() => {
+    if (product) {
+      const existProduct = cartState.products.find((productState) => productState.product.Id === product.Id);
+      if (existProduct) {
+        setQuantity(existProduct.quantity);
+      } else {
+        setQuantity(0);
+      }
+    }
+  }, [cartState.products]);
+
+  async function carregaCarrinho(marketId) {
+    try {
+      const market = await api.get(`Empresas/${marketId}`);
+      const action = { type: 'Add_MARKET', payload: { market: market.data } };
+      cartDispatch(action);
+    } catch {
+    }
+  }
   const handleRemove = (quantity) => {
     if (quantity - 1 < 0) return;
-    const payload = { product, quantity: (quantity - 1) };
-    let action = { type: 'createCarrinho', payload };
-    dispatch(action);
-
-    action = { type: 'setTotalCompras', payload: { totalCompras: 0 } };
+    const payload = { product, quantity: 1 };
+    let action = { type: 'REMOVE_PRODUCT', payload };
     cartDispatch(action);
-
-    action = { type: 'setSomaParcial', payload: { somaParcial: [] } };
-    cartDispatch(action);
-
-    carregaCarrinho();
-
-    action = { type: 'setTotalComprasPorEstabelecimento', payload: { totalComprasPorEstabelecimento: [] } };
-    cartDispatch(action);
-
+    setQuantity(quantity + 1);
     if (quantity - 1 == 0) {
       action = { type: 'select', payload: { selected: undefined, selectedNome: undefined } };
       cartDispatch(action);
     }
+    if (quantity - 1 < 0) {
+      setQuantity(0);
+    } else {
+      setQuantity(quantity - 1);
+    }
   };
 
-  const handleAdd = (quantity) => {
-    const payload = { product, quantity: (quantity + 1) };
-    let action = { type: 'createCarrinho', payload };
-    dispatch(action);
+  const handleAdd = async (quantity) => {
+    const existMarket = cartState.markets.find((market) => market.market.IdEmpresa === product.IdEmpresa);
+    if (!existMarket) {
+      await carregaCarrinho(product.IdEmpresa);
+    }
 
-    action = { type: 'setTotalCompras', payload: { totalCompras: 0 } };
+    const payload = { product, quantity: 1 };
+    const action = { type: 'ADD_PRODUCT', payload };
     cartDispatch(action);
-
-    action = { type: 'setSomaParcial', payload: { somaParcial: [] } };
-    cartDispatch(action);
-    console.log('oiio');
-
-    carregaCarrinho();
-
-    action = { type: 'setTotalComprasPorEstabelecimento', payload: { totalComprasPorEstabelecimento: [] } };
-    cartDispatch(action);
+    setQuantity(quantity + 1);
   };
-
-  function getSelectedMarkets() {
-    return state.carrinho
-      .filter((c, i, v) => v.findIndex((f) => f.product.IdEmpresa == c.product.IdEmpresa) == i)
-      .map((c) => c.product.IdEmpresa);
-  }
-
-  async function carregaCarrinho() {
-    const selectedMarkets = getSelectedMarkets();
-    getMarketsListByIds(selectedMarkets)
-      .then((markets) => {
-        const action = { type: 'setMarkets', payload: { markets } };
-        cartDispatch(action);
-      });
-  }
 
   return (
     <View style={styles.container}>

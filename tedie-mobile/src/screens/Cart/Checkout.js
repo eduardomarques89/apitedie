@@ -152,14 +152,11 @@ const Checkout = ({ navigation, route }) => {
   }
 
   async function pedidoConfirmado() {
-    const limpaCarrinho = () => {
-      const action = { type: 'createCarrinho', payload: new Array() };
-      const actionCart = { type: 'CLEAR_CART' };
-      dispatch(action);
-      cartDispatch(actionCart);
-    };
-    limpaCarrinho();
-    carregaCarrinho();
+    const action = { type: 'createCarrinho', payload: new Array() };
+    const actionCart = { type: 'CLEAR_CART' };
+    dispatch(action);
+    cartDispatch(actionCart);
+    // carregaCarrinho();
     navigate.goBack();
   }
 
@@ -196,7 +193,7 @@ const Checkout = ({ navigation, route }) => {
     } = checkoutState?.enderecoEntregaPorEstabelecimento;
     let horarioOk = true;
     cartState.markets.forEach((market) => {
-      if (!checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]) {
+      if (!checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]) {
         horarioOk = false;
       }
     });
@@ -215,27 +212,21 @@ const Checkout = ({ navigation, route }) => {
     }
 
     setLoading(true);
-
-    const valorTotal = cartState.markets.reduce((prev, market) => cartState.totalComprasPorEstabelecimento[`"${market.IdEmpresa}"`]
-      + (checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? (+checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2]) : 0), 0);
-
+    const totalWithTax = cartState.markets.reduce((prev, market) => prev + Number(market.total) + Number(market.tax), 0);
     try {
       const junoValues = {};
       if (selectedPayment.value === 'Cartão de crédito') {
-        const juno = await postPagamento(codigo_transacao, valorTotal, checkoutState?.enderecoEntregaPorEstabelecimento);
+        const juno = await postPagamento(codigo_transacao, totalWithTax, checkoutState?.enderecoEntregaPorEstabelecimento);
         junoValues.status = juno.status;
         junoValues.codeJuno = juno.code;
       }
       const promises = cartState.markets.map((market) => {
-        const Valor = cartState.totalComprasPorEstabelecimento[`"${market.IdEmpresa}"`]
-          + (checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? (+checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2]) : 0);
-        const IdCupom = market.IdEmpresa == cupom?.IdEmpresa ? cupom.IdCupom : 0;
-        const Desconto = market.IdEmpresa == cupom?.Valor ? cupom.IdCupom : 0;
-        const IdTipoEntrega = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[3];
-        const Taxa = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2];
+        const IdCupom = market.market.IdEmpresa == cupom?.IdEmpresa ? cupom.IdCupom : 0;
+        const Desconto = market.market.IdEmpresa == cupom?.Valor ? cupom.IdCupom : 0;
+        const IdTipoEntrega = checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa].title.split('-')[3];
         const {
-          TipoEntrega, IdHorario, DiaSemana, Horario, IdDiaSemana, DataFinal,
-        } = checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa];
+          TipoEntrega, IdHorario, DiaSemana, Horario, IdDiaSemana, Data,
+        } = checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa];
 
         const pedido = {
           nomecliente: '',
@@ -254,9 +245,9 @@ const Checkout = ({ navigation, route }) => {
           idendereco: IdEndereco,
           NumeroPedido: (Math.random() * 1000000).toFixed(0),
           Data: new Date(),
-          Valor,
+          Valor: Number(market.total) + Number(market.tax),
           Desconto,
-          Taxa,
+          Taxa: market.tax,
           TipoEntrega,
           DiaSemana,
           Horario,
@@ -271,7 +262,7 @@ const Checkout = ({ navigation, route }) => {
           QtdeParcela: 1,
           Observacao: '',
           status: 'aguardando pagamento',
-          DataFinal,
+          DataFinal: Data,
           codigoJuno: '',
         };
 
@@ -280,6 +271,7 @@ const Checkout = ({ navigation, route }) => {
           pedido.status = junoValues.status;
           pedido.codigoJuno = junoValues.codeJuno;
         }
+        console.log(pedido);
 
         return api.post('Pedidos', pedido);
       });
@@ -363,12 +355,11 @@ const Checkout = ({ navigation, route }) => {
         {/* End Delivery Location */}
 
         {cartState.markets.length > 0 && cartState.markets.map((market, index) => (
-          <View key={market.IdEmpresa}>
-            {/* TouchableOpacity onPress={() => checkoutDispatch({ type: "setSelectedMarketIndex", payload: { selectedMarketIndex: index } }) */}
+          <View key={market.market.IdEmpresa}>
             <ContentContainer>
               <View style={styles.pricesOuterContiner}>
                 <Typography size="large" color={theme.palette.dark}>
-                  {market.Nome}
+                  {market.market.Nome}
                 </Typography>
 
                 <Divider />
@@ -380,7 +371,7 @@ const Checkout = ({ navigation, route }) => {
                   <Typography size="small" color={theme.palette.light}>
                     R$
                     {' '}
-                    {cartState.totalComprasPorEstabelecimento[`"${market.IdEmpresa}"`]?.toFixed(2).replace('.', ',') ?? '0,00'}
+                    {(market.total || 0)?.toFixed(2).replace('.', ',') ?? '0,00'}
                   </Typography>
                 </View>
 
@@ -389,11 +380,8 @@ const Checkout = ({ navigation, route }) => {
                     Entrega
                   </Typography>
                   <Typography size="small" color={theme.palette.light}>
-                    R$
-                    {' '}
-                    {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title?.split('-').length > 0
-                      ? (+checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-')[2]).toFixed(2).replace('.', ',')
-                      : '0,00'}
+
+                    {`R$ ${(market.tax || 0).toFixed(2).replace('.', ',')}`}
                   </Typography>
                 </View>
 
@@ -404,13 +392,7 @@ const Checkout = ({ navigation, route }) => {
                     TOTAL
                   </Typography>
                   <Typography size="medium" color={theme.palette.dark}>
-                    R$
-                    {' '}
-                    {
-                      (cartState.totalComprasPorEstabelecimento[`"${market.IdEmpresa}"`]
-                        + (checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.title.split('-').length > 0 ? (+checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa].title.split('-')[2]) : 0)
-                      ).toFixed(2).replace('.', ',')
-                    }
+                    {`R$ ${((Number(market.total) + Number(market.tax)) || 0).toFixed(2).replace('.', ',')} `}
                   </Typography>
                 </View>
               </View>
@@ -418,17 +400,17 @@ const Checkout = ({ navigation, route }) => {
               <Typography size="small" color={theme.palette.dark}>
                 Dados da Entrega/Retirada
               </Typography>
-              <TouchableOpacity onPress={() => navigation.navigate('Entrega', { IdEmpresa: market.IdEmpresa })}>
+              <TouchableOpacity onPress={() => navigation.navigate('Entrega', { IdEmpresa: market.market.IdEmpresa })}>
                 <Box direction="row" justify="space-between" alignItems="center">
                   <Box direction="column" justify="center" alignItems="flex-start">
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.TIPOENTREGA || 'Tipo'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]?.TIPOENTREGA || 'Tipo'}
                     </Typography>
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.Data ? `${checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.Data.getDate()}/${checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.Data.getMonth()}/${checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.Data.getFullYear()}` : 'Data'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]?.Data ? checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]?.Data : 'Data'}
                     </Typography>
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.IdEmpresa]?.horario || 'Horário'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]?.horario || 'Horário'}
                     </Typography>
                   </Box>
 

@@ -1,8 +1,8 @@
-import { useContext, useEffect } from "react"
-import { AppContext } from "../contexts/AppContext"
+import { useContext, useEffect } from 'react';
+import { CartContext } from '../contexts/CartContext';
 
 export const useQuantity = (product) => {
-    const { state } = useContext(AppContext);
-    const quantity = state.carrinho.filter(c => c.product.Id == product.Id)[0]?.quantity ?? 0
-    return { quantity: quantity }
-}
+  const { cartState } = useContext(CartContext);
+  const quantity = cartState.products.find((c) => c.product.Id == product.Id)?.quantity ?? 0;
+  return { quantity };
+};

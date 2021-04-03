@@ -34,10 +34,6 @@ const Account = ({ navigation }) => {
     navigate.dispatch(resetAction);
   }
 
-  useEffect(() => {
-    console.log(state.sessao);
-  }, [state]);
-
   return (
     <>
 

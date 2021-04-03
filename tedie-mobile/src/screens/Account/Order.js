@@ -21,7 +21,6 @@ const Order = ({ navigation, route }) => {
   const { order: orderParam } = route.params;
 
   useEffect(() => {
-    console.log(orderParam);
     setOrder({
       ...orderParam,
       Data: new Date(),

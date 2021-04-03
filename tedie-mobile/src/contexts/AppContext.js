@@ -33,6 +33,8 @@ export const appReducer = (state, action) => {
       return addMarketSelect(state, action);
     case 'addCpfOrCpnj':
       return addCpfOrCpnj(state, action);
+    case 'LOAD_USER_DATA':
+      return action.payload;
     case 'LOG_OUT':
       AsyncStorage.removeItem('sessao');
       return initialState;
@@ -76,7 +78,6 @@ function createAddress(state, action) {
 }
 
 function createSessao(state, action) {
-  console.log(action);
   const { sessao } = action.payload;
   AsyncStorage.setItem('sessao', JSON.stringify(sessao));
   return { ...state, sessao };
@@ -118,7 +119,5 @@ export const convergeCep = (local) => {
   try {
     return (local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '').replace('-', '');
   } catch (e) {
-    console.log(e);
-    debugger;
   }
 };

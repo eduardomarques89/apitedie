@@ -32,34 +32,10 @@ const Products = ({ navigation, route }) => {
   const [filter, setFilter] = useState('');
   const { nameCategory, onlyOffer } = route.params ?? {};
 
-  const loadProducts = async () => {
-    const local = state.address;
-    // carrega produtos com localizacao do localstorage
-    if (local.CEP != undefined && local.CEP != '') {
-      const response = await getProductsByCEP(local.CEP.replace('-', ''));
-      setProducts(response);
-      setProductsFilter(response);
-      const empresa = await api.get('Empresas/');
-      setEmpresa(empresa.data);
-      console.log(empresa);
-    } else {
-      try {
-        const cep = local.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '';
-        const response = await getProductsByCEP(cep.replace('-', ''));
-        setProducts(response);
-        setProductsFilter(response);
-      } catch (e) {
-        console.log(e);
-        debugger;
-      }
-    }
-  };
-
   useFocusEffect(useCallback(() => {
     async function fechData() {
       setLoading(true);
       try {
-        console.log(state.market);
         if (state?.market?.Logo) {
           const { data } = await api.get(`Produtos?idempresa=${state.market.IdEmpresa}&categoria=${nameCategory}`);
           setProducts(data);

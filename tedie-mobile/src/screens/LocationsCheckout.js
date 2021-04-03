@@ -60,7 +60,6 @@ const LocationsCheckout = ({ route, navigation }) => {
     }
     async function fetchLocation() {
       const { data } = await api.get(`https://maps.googleapis.com/maps/api/geocode/json?address=Brasil ${locationText}&key=AIzaSyCXoBOm61XlnQJkAFRiMF80ZGj0HLla36I`);
-      // console.log(data.results[0]);
 
       const locations = data.results.map((result) => {
         const UF = result.address_components.find((object) => object.types.includes('administrative_area_level_1'))?.short_name || '';
@@ -85,7 +84,6 @@ const LocationsCheckout = ({ route, navigation }) => {
         };
       });
       const locationsFilter = locations.filter((local) => !address.find((localAdress) => local?.CEP.split('-').join('') === localAdress.CEP));
-      console.log(locations);
       setLocations((props) => [...locationsFilter, ...address]);
       setLocationsLoader(false);
     }
@@ -93,7 +91,6 @@ const LocationsCheckout = ({ route, navigation }) => {
   }, [locationText]);
 
   async function setLocalization(local) {
-    console.log('oio');
     if (local?.notExist) {
       try {
         const response = await api.post('Enderecos', {
@@ -122,8 +119,8 @@ const LocationsCheckout = ({ route, navigation }) => {
     } else {
       const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: local } };
 
-      await AsyncStorage.setItem('Localization', JSON.stringify(local));
       checkoutDispatch(action);
+      await AsyncStorage.setItem('Localization', JSON.stringify(local));
     }
 
     navigation.pop();

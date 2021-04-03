@@ -108,7 +108,7 @@ const Deals = ({ navigation }) => {
                   <ProductItem product={{ ...item }} />
                 </TouchableOpacity>
               )}
-              keyExtractor={(item, index) => `${item.Id + index}`}
+              keyExtractor={(item) => `${item.Id}`}
               numColumns={2}
               columnWrapperStyle={{ flexWrap: 'wrap', flexDirection: 'row' }}
               showsVerticalScrollIndicator={false}

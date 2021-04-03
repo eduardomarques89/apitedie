@@ -164,7 +164,6 @@ const Locations = ({ route, navigation }) => {
           notExist: true,
         };
       });
-      console.log(locations);
       const locationsFilter = locations.filter((location) => !address.find((address) => address.CEP === location.CEP.split('-').join('')));
       setLocations([...locationsFilter, ...address]);
       setLocationsLoader(false);

@@ -22,27 +22,25 @@ import theme from '../theme';
 import { CheckoutContext } from '../contexts/CheckoutContext';
 import { CartContext } from '../contexts/CartContext';
 import { buscaHorarios } from '../services/market';
-// import {} from '@expo/vector-icons'
+import Loader from '../components/Loader';
 
 const weekDay = ['DOMINGO', 'SEGUNDA-FEIRA', 'TERÇA-FEIRA', 'QUARTA-FEIRA', 'QUINTA-FEIRA', 'SEXTA-FEIRA', 'SABADO'];
 
 const DeliveryType = ({ navigation, route }) => {
   const toastRef = useRef();
   const navigate = useNavigation();
-  // const [selectedType, setSelectedType] = useState(0);
   const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
   const { cartState, cartDispatch } = useContext(CartContext);
   const [horarios, setHorarios] = useState([]);
   const { IdEmpresa } = route.params;
   const [date, setDate] = useState(new Date());
   const [filterHorario, seFilterHorario] = useState([]);
-  const [dateFinal, setDateFinal] = useState(new Date());
   const [show, setShow] = useState(false);
-  const [showFinal, setShowFinal] = useState(false);
   const [week, setWeek] = useState(weekDay[date.getDay()]);
   const [horario, setHorario] = useState({});
   const [dataFormat, setDataFormat] = useState(`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`);
   const [type, setType] = useState(1);
+  const [loading, setLoading] = useState(false);
   const typesDelivery = [{
     label: 'Entrega',
     id: 1,
@@ -53,13 +51,6 @@ const DeliveryType = ({ navigation, route }) => {
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
-
-    // const he = horario;
-    // he[`${IdEmpresa}`].Data = currentDate;
-    // console.log(he);
-
-    // const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
-
     setShow(Platform.OS === 'ios');
     setDate(currentDate);
 
@@ -68,7 +59,7 @@ const DeliveryType = ({ navigation, route }) => {
 
   useEffect(() => {
     setDataFormat(`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`);
-  }, [date, dateFinal]);
+  }, [date]);
 
   useFocusEffect(useCallback(() => {
     buscaHorariosEstabelecimento();
@@ -79,46 +70,39 @@ const DeliveryType = ({ navigation, route }) => {
     setWeek(week);
   }, [date]);
 
-  // useEffect(() => {
-  //   if (horarios.length > 0) {
-  //     setSelectedIndexSaved();
-  //   }
-  // }, [horarios]);
   useEffect(() => {
-    console.log(week);
     if (horarios.length > 0) {
       const newHorario = horarios.filter((horario) => (horario.identrega === String(type) || horario.identrega > 2) && horario.diasemana === week);
       seFilterHorario(newHorario);
-      console.log(newHorario);
     }
   }, [type, horarios, week]);
 
   async function buscaHorariosEstabelecimento() {
-    console.log('carreando horarios');
+    setLoading(true);
     const horarios = await buscaHorarios(IdEmpresa);
-    console.log(horarios);
     setHorarios(horarios);
+    setLoading(false);
   }
 
   async function setSelectedHorario(horario) {
     const horarioEntrega = `${horario.TIPOENTREGA}-${horario.horario}-${horario.TAXA}-${horario.identrega}-${horario.horacod}`;
-    // setSelectedType(horarioEntrega);
 
     const he = { ...checkoutState.horarioEntregaPorEstabelecimento };
     he[`${IdEmpresa}`] = {
-      ...he[`${IdEmpresa}`],
       title: horarioEntrega,
       IdTipoEntrega: horario.identrega,
       IdHorario: horario.horacod,
-      TipoEntrega: horario.TIPOENTREGA,
+      TIPOENTREGA: horario.TIPOENTREGA,
       DiaSemana: horario.diasemana,
-      Horario: horario.horario,
+      horario: horario.horario,
       IdDiaSemana: horario.iddiasemana,
-      Data: date,
+      Data: `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`,
+      taxa: horario.TAXA,
     };
-    console.log(he[`${IdEmpresa}`]);
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
+    const actionCart = { type: 'ADD_MARKET_TAX', payload: { tax: Number(horario.TAXA), id: IdEmpresa } };
     checkoutDispatch(action);
+    cartDispatch(actionCart);
     setHorario(he);
     navigation.pop();
   }
@@ -165,80 +149,80 @@ const DeliveryType = ({ navigation, route }) => {
         )}
       />
 
-      <ScreenContainer>
-        {show && (
-          <View style={{ position: 'relative' }}>
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode="date"
-              is24Hour
-              style={{ display: show ? 'flex' : 'none' }}
-              display="default"
-              onChange={onChange}
+      <Loader show={loading} />
+      {
+          !loading && (
+          <ScreenContainer>
+            {show && (
+            <View style={{ position: 'relative' }}>
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={date}
+                mode="date"
+                is24Hour
+                style={{ display: show ? 'flex' : 'none' }}
+                display="default"
+                onChange={onChange}
+              />
 
-            />
-
-          </View>
-        )}
-        <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data Inicial</Typography>
-        <View style={styles.dataInputContainer}>
-          <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
-          <TouchableOpacity onPress={() => setShow(true)}>
-            <EvilIcons name="calendar" size={32} color="black" />
-          </TouchableOpacity>
-        </View>
-        <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Entrega</Typography>
-        <View style={{
-          borderWidth: 1,
-          margin: 8,
-        }}
-        >
-          <Picker
-            style={{
-              height: 50,
+            </View>
+            )}
+            <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data Inicial</Typography>
+            <View style={styles.dataInputContainer}>
+              <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
+              <TouchableOpacity onPress={() => setShow(true)}>
+                <EvilIcons name="calendar" size={32} color="black" />
+              </TouchableOpacity>
+            </View>
+            <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Entrega</Typography>
+            <View style={{
+              borderWidth: 1,
+              margin: 8,
             }}
-            selectedValue={type}
-            onValueChange={(itemValue, itemIndex) => setType(itemValue)}
-          >
-            {
-            typesDelivery.map((value) => (
+            >
+              <Picker
+                style={{
+                  height: 50,
+                }}
+                selectedValue={type}
+                onValueChange={(itemValue, itemIndex) => setType(itemValue)}
+              >
+                {
+                typesDelivery.map((value) => (
 
-              <Picker.Item key={value.id} label={value.label} value={value.id} />
-            ))
-          }
-          </Picker>
-        </View>
+                  <Picker.Item key={value.id} label={value.label} value={value.id} />
+                ))
+              }
+              </Picker>
+            </View>
 
-        <ContentContainer>
-          <Box direction="column" justify="center" alignContent="flex-start">
-            <Typography size="large" color={theme.palette.dark}>
-              {typesDelivery[type - 1].label}
-            </Typography>
+            <ContentContainer>
+              <Box direction="column" justify="center" alignContent="flex-start">
+                <Typography size="large" color={theme.palette.dark}>
+                  {typesDelivery[type - 1].label}
+                </Typography>
 
-            <Divider />
-            <FlatList
-              data={filterHorario}
-              keyExtractor={(item) => `${item.horacod}`}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => setSelectedHorario(item)}>
-                  <Box direction="row" justify="space-between" alignItems="center" fullwidth>
-                    <Typography size="small" color={theme.palette.light}>
-                      {item.horario}
-                    </Typography>
-                    <RadioButton selected={horario.horacode === item.horacode} />
-                  </Box>
-                </TouchableOpacity>
+                <Divider />
+                <FlatList
+                  data={filterHorario}
+                  keyExtractor={(item) => `${item.horacod}`}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => setSelectedHorario(item)}>
+                      <Box direction="row" justify="space-between" alignItems="center" fullwidth>
+                        <Typography size="small" color={theme.palette.light}>
+                          {item.horario}
+                        </Typography>
+                        <RadioButton selected={horario.horacode === item.horacode} />
+                      </Box>
+                    </TouchableOpacity>
 
-              )}
-            />
-            {/* {filterHorario.map((th, index) => (
-              ))} */}
-          </Box>
-        </ContentContainer>
-        {/* {filterHorario.map((h, index) => (
-        ))} */}
-      </ScreenContainer>
+                  )}
+                />
+              </Box>
+            </ContentContainer>
+          </ScreenContainer>
+          )
+        }
     </>
   );
 };

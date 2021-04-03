@@ -26,7 +26,6 @@ const Categories = ({ navigation }) => {
   useFocusEffect(useCallback(() => {
     async function fechData() {
       setCategoriesLoader(true);
-      console.log(state.market);
       try {
         if (state?.market?.Logo) {
           const { data } = await api.get(`empresas/categorias?id=${state?.market?.IdEmpresa}`);
@@ -36,7 +35,6 @@ const Categories = ({ navigation }) => {
           setCategories(data);
         }
       } catch (e) {
-        console.log(e);
       } finally {
         setCategoriesLoader(false);
       }
@@ -107,7 +105,7 @@ const Categories = ({ navigation }) => {
                   />
                 </TouchableOpacity>
               )}
-              keyExtractor={(item, index) => index}
+              keyExtractor={(item, index) => `${item.IdCategoria}`}
               numColumns={2}
               showsVerticalScrollIndicator={false}
             />
