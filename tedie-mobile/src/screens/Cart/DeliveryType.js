@@ -154,12 +154,13 @@ const DeliveryType = ({ navigation, route }) => {
           !loading && (
           <ScreenContainer>
             {show && (
-            <View style={{ position: 'relative' }}>
+            <View style={{ position: 'relative', display: show ? 'flex' : 'none' }}>
               <DateTimePicker
                 testID="dateTimePicker"
                 value={date}
-                mode="date"
+                mode="datetime"
                 is24Hour
+                minimumDate={new Date()}
                 style={{ display: show ? 'flex' : 'none' }}
                 display="default"
                 onChange={onChange}
@@ -178,19 +179,18 @@ const DeliveryType = ({ navigation, route }) => {
             <View style={{
               borderWidth: 1,
               margin: 8,
+              height: 50,
             }}
             >
               <Picker
-                style={{
-                  height: 50,
-                }}
+                style={{ flex: 1 }}
                 selectedValue={type}
-                onValueChange={(itemValue, itemIndex) => setType(itemValue)}
+                onValueChange={(itemValue) => setType(itemValue)}
               >
                 {
                 typesDelivery.map((value) => (
 
-                  <Picker.Item key={value.id} label={value.label} value={value.id} />
+                  <Picker.Item style={{ flex: 1 }} key={value.id} label={value.label} value={value.id} />
                 ))
               }
               </Picker>
