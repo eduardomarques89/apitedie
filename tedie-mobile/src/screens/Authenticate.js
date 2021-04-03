@@ -31,6 +31,7 @@ const Login = ({ route }) => {
 
   async function changeText(index, value, codes) {
     if (value !== '0' && !Number(value) && value !== '') {
+      setLoading(false);
       return;
     }
     setCode((props) => ({ ...props, [codes]: value[value.length - 1] }));
@@ -42,6 +43,7 @@ const Login = ({ route }) => {
         if (response.data.Status !== 'OK') {
           alert('erro,tente novamente');
           setCode(initialCode);
+          setLoading(false);
           return;
         }
         dispatch({
@@ -164,7 +166,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     textAlign: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
     backgroundColor: '#fff',
   },
   text: {
