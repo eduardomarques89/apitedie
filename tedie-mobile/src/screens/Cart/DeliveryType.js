@@ -2,10 +2,9 @@ import React, {
   useContext, useEffect, useState, useRef, useCallback,
 } from 'react';
 import {
-  TouchableOpacity, StatusBar, TextInput, View, StyleSheet, Text, FlatList, Platform,
+  TouchableOpacity, StatusBar, TextInput, View, StyleSheet, FlatList,
 } from 'react-native';
 import { Ionicons, EvilIcons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 // components
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -51,14 +50,14 @@ const DeliveryType = ({ navigation, route }) => {
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
-    setShow(Platform.OS === 'ios');
+    setShow(false);
     setDate(currentDate);
 
     return event;
   };
 
   useEffect(() => {
-    setDataFormat(`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`);
+    setDataFormat(`${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`);
   }, [date]);
 
   useFocusEffect(useCallback(() => {
@@ -96,15 +95,14 @@ const DeliveryType = ({ navigation, route }) => {
       DiaSemana: horario.diasemana,
       horario: horario.horario,
       IdDiaSemana: horario.iddiasemana,
-      Data: `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`,
+      Data: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
       taxa: horario.TAXA,
     };
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
     const actionCart = { type: 'ADD_MARKET_TAX', payload: { tax: Number(horario.TAXA), id: IdEmpresa } };
     checkoutDispatch(action);
     cartDispatch(actionCart);
-    setHorario(he);
-    navigation.pop();
+    setHorario(horario);
   }
 
   function formatDate(value, setValue) {
@@ -115,6 +113,10 @@ const DeliveryType = ({ navigation, route }) => {
     newValue = newValue.replace(/(\d{2})\/(\d{2})(\d)/g, '$1/$2/$3');
     if (length > 8) {
       return;
+    }
+    if (length == 8) {
+      const a = new Date(newValue);
+      setDate(new Date(newValue));
     }
     setValue(newValue);
   }
@@ -168,38 +170,37 @@ const DeliveryType = ({ navigation, route }) => {
 
             </View>
             )}
-            <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data Inicial</Typography>
-            <View style={styles.dataInputContainer}>
-              <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
-              <TouchableOpacity onPress={() => setShow(true)}>
-                <EvilIcons name="calendar" size={32} color="black" />
-              </TouchableOpacity>
+            <View style={styles.container}>
+              <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data</Typography>
+              <View style={styles.dataInputContainer}>
+                <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
+                <TouchableOpacity onPress={() => setShow(true)}>
+                  <EvilIcons name="calendar" size={32} color="black" />
+                </TouchableOpacity>
+              </View>
             </View>
-            <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Entrega</Typography>
-            <View style={{
-              borderWidth: 1,
-              margin: 8,
-              height: 50,
-            }}
-            >
-              <Picker
-                style={{ flex: 1 }}
-                selectedValue={type}
-                onValueChange={(itemValue) => setType(itemValue)}
-              >
-                {
-                typesDelivery.map((value) => (
+            <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Tipo</Typography>
+            <ContentContainer>
+              <TouchableOpacity style={{ flexDirection: 'row', marginBottom: 8 }} onPress={() => setType(1)}>
+                <RadioButton selected={type === 1} />
+                <Typography size="small" color={theme.palette.dark}>
+                  Entrega
+                </Typography>
 
-                  <Picker.Item style={{ flex: 1 }} key={value.id} label={value.label} value={value.id} />
-                ))
-              }
-              </Picker>
-            </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => setType(2)}>
+                <RadioButton selected={type === 2} />
+                <Typography size="small" color={theme.palette.dark}>
+                  Retirada
+                </Typography>
+
+              </TouchableOpacity>
+            </ContentContainer>
 
             <ContentContainer>
               <Box direction="column" justify="center" alignContent="flex-start">
                 <Typography size="large" color={theme.palette.dark}>
-                  {typesDelivery[type - 1].label}
+                  Horário
                 </Typography>
 
                 <Divider />
@@ -207,13 +208,13 @@ const DeliveryType = ({ navigation, route }) => {
                   data={filterHorario}
                   keyExtractor={(item) => `${item.horacod}`}
                   renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => setSelectedHorario(item)}>
-                      <Box direction="row" justify="space-between" alignItems="center" fullwidth>
-                        <Typography size="small" color={theme.palette.light}>
-                          {item.horario}
-                        </Typography>
-                        <RadioButton selected={horario.horacode === item.horacode} />
-                      </Box>
+                    <TouchableOpacity onPress={() => setSelectedHorario(item)} style={{ alignItems: 'center', flexDirection: 'row' }}>
+                      {/* <Box direction="row" justify="space-between" alignItems="center" fullwidth> */}
+                      <RadioButton selected={horario.horacod === item.horacod} />
+                      <Typography size="small" color={theme.palette.light}>
+                        {item.horario}
+                      </Typography>
+                      {/* </Box> */}
                     </TouchableOpacity>
 
                   )}
@@ -232,6 +233,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   dataLabel: {
+    marginTop: 8,
     fontSize: 24,
   },
   dataInputContainer: {
@@ -241,6 +243,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingVertical: 8,
     margin: 8,
+  },
+  paymentMethodContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 6,
+  },
+  container: {
+    marginTop: 16,
   },
 });
 

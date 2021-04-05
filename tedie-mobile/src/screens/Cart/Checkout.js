@@ -9,6 +9,7 @@ import {
   Text,
   ActivityIndicator,
   StatusBar,
+  Modal,
 } from 'react-native';
 import '@expo/browser-polyfill';
 
@@ -33,7 +34,6 @@ import Box from '../../components/Box';
 import { CartContext } from '../../contexts/CartContext';
 import { CheckoutContext } from '../../contexts/CheckoutContext';
 import { AppContext } from '../../contexts/AppContext';
-import { getMarketsListByIds } from '../../services/market';
 import api from '../../services/axios';
 
 const Juno = new JunoCardHash('7ACA5244C520E4641C6E636E11AE9F05073D1B779B64825BD0F9DDFE44D9C954', 'sandbox');
@@ -50,6 +50,7 @@ const Checkout = ({ navigation, route }) => {
   const [showCartao, setShowCartao] = useState('');
   const [cupom, setCupom] = useState('');
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     changeAddress();
@@ -138,7 +139,8 @@ const Checkout = ({ navigation, route }) => {
     const actionCart = { type: 'CLEAR_CART' };
     cartDispatch(actionCart);
     checkoutDispatch(actionCart);
-    navigate.goBack();
+    setModalVisible(true);
+    // navigate.goBack();
   }
 
   async function postPagamento(codigo_transacao, valor, endereco) {
@@ -274,6 +276,32 @@ const Checkout = ({ navigation, route }) => {
 
   return (
     <>
+      <Modal
+        animationType="slide"
+        transparent
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+
+      >
+        <View style={styles.centeredViewModal}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>O seu pagamento foi feito com sucesso!</Text>
+            <TouchableOpacity
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => {
+                setModalVisible(!modalVisible);
+                if (navigate.canGoBack()) {
+                  navigate.goBack();
+                }
+              }}
+            >
+              <Text style={styles.textStyle}>Ok</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       { loading
     && (
     <View style={styles.loadingScreen}>
@@ -569,6 +597,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    minWidth: 80,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: theme.palette.primary,
+  },
   locationOuterContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
@@ -587,6 +627,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginTop: 8,
   },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
   email: {
     paddingLeft: 8,
     marginTop: 8,
@@ -636,6 +692,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
+  },
+  centeredViewModal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,.4)',
   },
   modalView: {
     margin: 20,
