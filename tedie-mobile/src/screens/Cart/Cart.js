@@ -24,6 +24,10 @@ const Cart = ({ navigation }) => {
         const action = { type: 'select', payload: {} };
         cartDispatch(action);
       }
+    } else if (cartState.markets.length > 0) {
+      console.log('oio');
+      const action = { type: 'select', payload: cartState.markets[0] };
+      cartDispatch(action);
     }
   }, [cartState.markets]);
 

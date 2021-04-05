@@ -98,9 +98,9 @@ const DeliveryType = ({ navigation, route }) => {
       Data: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
       taxa: horario.TAXA,
     };
-    console.log(he);
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
-    const actionCart = { type: 'ADD_MARKET_TAX', payload: { tax: Number(horario.TAXA), id: IdEmpresa } };
+    const tax = type === 2 ? 0 : Number(horario.TAXA);
+    const actionCart = { type: 'ADD_MARKET_TAX', payload: { tax, id: IdEmpresa } };
     cartDispatch(actionCart);
     checkoutDispatch(action);
     setHorario(horario);

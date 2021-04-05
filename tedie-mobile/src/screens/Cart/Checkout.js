@@ -112,27 +112,10 @@ const Checkout = ({ navigation, route }) => {
   }
 
   async function changeCartao() {
-    if (checkoutState.cartaoPorEstabelecimento.length == 0) return;
-    const selected = checkoutState.cartaoPorEstabelecimento[0];
+    if (!checkoutState.cartaoPorEstabelecimento.IdCartao) return;
+    const selected = checkoutState.cartaoPorEstabelecimento;
     setShowCartao(selected);
-    if (selected) { setSelectedPayment(selected.opcao); }
-  }
-
-  function selecionaOpcaoPagamento(opcao) {
-    if (opcao.value === 'Cartão de Crédito') {
-      const he = { ...checkoutState.cartaoPorEstabelecimento };
-      const cartao = he[`${0}`];
-      if (cartao == undefined) {
-        return;
-      }
-      cartao.opcao = opcao.value;
-      he[`${0}`] = cartao;
-      const action = { type: 'setCartaoPorEstabelecimento', payload: { cartaoPorEstabelecimento: he } };
-      checkoutDispatch(action);
-      setSelectedPayment(opcao);
-    } else {
-      setSelectedPayment(opcao);
-    }
+    setSelectedPayment({ value: 'Cartão de crédito', id: 1 });
   }
 
   async function pedidoConfirmado() {
@@ -140,11 +123,10 @@ const Checkout = ({ navigation, route }) => {
     cartDispatch(actionCart);
     checkoutDispatch(actionCart);
     setModalVisible(true);
-    // navigate.goBack();
   }
 
   async function postPagamento(codigo_transacao, valor, endereco) {
-    const cartao = checkoutState.cartaoPorEstabelecimento[0];
+    const cartao = checkoutState.cartaoPorEstabelecimento;
     const cardData = {
       cardNumber: cartao?.Numero?.split(' ').join('') || '',
       holderName: cartao.Titular,
@@ -184,7 +166,7 @@ const Checkout = ({ navigation, route }) => {
       toastRef.current?.show('Selecione o horário de entrega', 2000);
       return;
     }
-    const IdCartao = checkoutState.cartaoPorEstabelecimento[0]?.IdCartao;
+    const IdCartao = checkoutState.cartaoPorEstabelecimento?.IdCartao;
     if (!IdCartao && selectedPayment.value === 'Cartão de crédito') {
       toastRef.current?.show('Selecione um cartão', 2000);
       return;
@@ -222,10 +204,10 @@ const Checkout = ({ navigation, route }) => {
           IdTipoEntrega,
           IdHorario,
           IdCupom,
-          idempresa: market.market.IdEmpresa,
-          idformapagamento: selectedPayment.id,
+          IdEmpresa: market.market.IdEmpresa,
+          IdFormaPagamento: selectedPayment.id,
           IdDiaSemana,
-          idendereco: IdEndereco,
+          IdEndereco,
           NumeroPedido: (Math.random() * 1000000).toFixed(0),
           Data: new Date(),
           Valor: Number(market.total) + Number(market.tax),
@@ -250,7 +232,7 @@ const Checkout = ({ navigation, route }) => {
         };
 
         if (selectedPayment.value === 'Cartão de crédito') {
-          pedido.IdCartao = checkoutState.cartaoPorEstabelecimento[0].IdCartao;
+          pedido.IdCartao = checkoutState.cartaoPorEstabelecimento.IdCartao;
           pedido.status = junoValues.status;
           pedido.codigoJuno = junoValues.codeJuno;
         }
@@ -269,12 +251,6 @@ const Checkout = ({ navigation, route }) => {
     }
   }
 
-  function getSelectedMarkets() {
-    return state.carrinho
-      .filter((c, i, v) => v.findIndex((f) => f.product.IdEmpresa == c.product.IdEmpresa) == i)
-      .map((c) => c.product.IdEmpresa);
-  }
-
   return (
     <>
       <Modal
@@ -288,7 +264,8 @@ const Checkout = ({ navigation, route }) => {
       >
         <View style={styles.centeredViewModal}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>O seu pagamento foi feito com sucesso!</Text>
+            <Text style={styles.modalText}>Pedido foi realizado com sucesso</Text>
+            <Text style={styles.modalText}>{selectedPayment.id === 2 ? 'Aguardando pagamento' : 'Pagamento realizado'}</Text>
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
               onPress={() => {
@@ -463,7 +440,7 @@ const Checkout = ({ navigation, route }) => {
 
             <View style={styles.paymentMethodContainer}>
               <View style={styles.paymentContainer}>
-                <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => selecionaOpcaoPagamento({ value: 'Cartão de crédito', id: 1 })}>
+                <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => setSelectedPayment({ value: 'Cartão de crédito', id: 1 })}>
                   <RadioButton selected={selectedPayment.value === 'Cartão de crédito'} />
                   <View>
                     <Typography size="small" color={theme.palette.dark}>
@@ -488,19 +465,9 @@ const Checkout = ({ navigation, route }) => {
                 </Typography>
               </TouchableOpacity>
             </View>
-
-            {/* <TouchableOpacity onPress={() => selecionaOpcaoPagamento("Picpay")}>
-              <View style={styles.paymentMethodContainer}>
-                <RadioButton selected={selectedPayment === "Picpay"} />
-                <Typography size="small" color={theme.palette.dark}>
-                  Picpay
-                </Typography>
-              </View>
-            </TouchableOpacity> */}
-
             <View style={styles.paymentMethodContainer}>
               <View style={styles.paymentContainer}>
-                <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => selecionaOpcaoPagamento({ value: 'Na retirada ou entrega', id: 2 })}>
+                <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => setSelectedPayment({ value: 'Na retirada ou entrega', id: 2 })}>
 
                   <RadioButton selected={selectedPayment.value === 'Na retirada ou entrega'} />
                   <Typography size="small" color={theme.palette.dark}>

@@ -46,10 +46,12 @@ const OrderPayments = ({ navigation }) => {
   }
 
   async function selecionaCartao(card) {
-    card.opcao = 'credit';
-    const he = { ...checkoutState.cartaoPorEstabelecimento };
-    he[`${0}`] = card;
-    const action = { type: 'setCartaoPorEstabelecimento', payload: { cartaoPorEstabelecimento: he } };
+    const newCard = card;
+    newCard.opcao = 'credit';
+    // const he = { ...checkoutState.cartaoPorEstabelecimento };
+    // he[`${0}`] = card;
+    console.log(newCard);
+    const action = { type: 'setCartaoPorEstabelecimento', payload: { cartaoPorEstabelecimento: newCard } };
     checkoutDispatch(action);
     navigation.pop();
   }

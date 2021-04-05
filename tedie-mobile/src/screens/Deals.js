@@ -21,19 +21,36 @@ import theme from '../theme';
 
 const Deals = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
-  const [products, setProducts] = useState([]);
   const [productsFilter, setProductsFilter] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState('');
+  const [page, setPage] = useState(1);
   const fetchProducts = async (cep) => {
-    const value = await api.get(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=${0}&limite=${999}&searchQuery=${filter}`);
+    setPage(1);
+    const value = await api.get(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=0&limite=${20}&searchQuery=${filter}`);
+    console.log(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=0&limite=${20}&searchQuery=${filter}`);
     const productsOferta = value.data.filter((product) => product.Oferta === 'S');
     if (!state.market?.IdEmpresa) {
-      setProductsFilter(productsOferta);
+      setProductsFilter([productsOferta]);
       return;
     }
 
     const FilterValues = productsOferta.filter((value) => value.IdEmpresa === state.market.IdEmpresa);
     setProductsFilter(FilterValues);
+  };
+  const refreshProducts = async (cep) => {
+    const value = await api.get(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=${(page) * 20}&limite=${20}&searchQuery=${filter}`);
+    const productsOferta = value.data.filter((product) => product.Oferta === 'S');
+    if (!state.market?.IdEmpresa) {
+      setProductsFilter([...productsFilter, ...productsOferta]);
+      setRefreshing(false);
+      return;
+    }
+
+    const FilterValues = productsOferta.filter((value) => value.IdEmpresa === state.market.IdEmpresa);
+    setProductsFilter([...productsFilter, ...FilterValues]);
+    setPage(page + 1);
+    setRefreshing(false);
   };
 
   const loadProducts = async () => {
@@ -108,6 +125,22 @@ const Deals = ({ navigation }) => {
                   <ProductItem product={{ ...item }} />
                 </TouchableOpacity>
               )}
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                const local = state.address;
+                if (local?.CEP != undefined && local?.CEP != '') {
+                  refreshProducts(local.CEP.replace('-', ''));
+                } else {
+                  try {
+                    const cep = local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '';
+                    refreshProducts(cep.replace('-', ''));
+                  } catch (e) {
+                    console.log(e);
+                    debugger;
+                  }
+                }
+              }}
               keyExtractor={(item) => `${item.Id}`}
               numColumns={2}
               columnWrapperStyle={{ flexWrap: 'wrap', flexDirection: 'row' }}
