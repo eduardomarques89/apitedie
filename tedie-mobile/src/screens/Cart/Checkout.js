@@ -206,9 +206,9 @@ const Checkout = ({ navigation, route }) => {
       const promises = cartState.markets.map((market) => {
         const IdCupom = market.market.IdEmpresa == cupom?.IdEmpresa ? cupom.IdCupom : 0;
         const Desconto = market.market.IdEmpresa == cupom?.Valor ? cupom.IdCupom : 0;
-        const IdTipoEntrega = checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa].title.split('-')[3];
+        // const IdTipoEntrega = checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa].title.split('-')[3];
         const {
-          TipoEntrega, IdHorario, DiaSemana, Horario, IdDiaSemana, Data,
+          TIPOENTREGA, IdHorario, DiaSemana, horario, IdDiaSemana, Data, IdTipoEntrega,
         } = checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa];
 
         const pedido = {
@@ -222,8 +222,8 @@ const Checkout = ({ navigation, route }) => {
           IdTipoEntrega,
           IdHorario,
           IdCupom,
-          idempresa: market.IdEmpresa,
-          IdFormaPagamento: selectedPayment.id,
+          idempresa: market.market.IdEmpresa,
+          idformapagamento: selectedPayment.id,
           IdDiaSemana,
           idendereco: IdEndereco,
           NumeroPedido: (Math.random() * 1000000).toFixed(0),
@@ -231,9 +231,9 @@ const Checkout = ({ navigation, route }) => {
           Valor: Number(market.total) + Number(market.tax),
           Desconto,
           Taxa: market.tax,
-          TipoEntrega,
+          TipoEntrega: TIPOENTREGA,
           DiaSemana,
-          Horario,
+          Horario: horario,
           Endereco,
           Bairro,
           Cidade,
@@ -255,6 +255,7 @@ const Checkout = ({ navigation, route }) => {
           pedido.codigoJuno = junoValues.codeJuno;
         }
 
+        console.log(pedido);
         return api.post('Pedidos', pedido);
       });
 
@@ -340,7 +341,7 @@ const Checkout = ({ navigation, route }) => {
 
         {/* Delivery Location */}
         <ContentContainer>
-          <TouchableWithoutFeedback onPress={() => navigation.navigate('LocalizaçõesCheckout')}>
+          <TouchableWithoutFeedback onPress={() => navigation.navigate('LocalizaçõesCheckout', { checkoutEdit: true })}>
             <View style={styles.locationOuterContainer}>
               <Typography size="caption" color={theme.palette.light}>
                 Entregar em
@@ -412,13 +413,13 @@ const Checkout = ({ navigation, route }) => {
                 <Box direction="row" justify="space-between" alignItems="center">
                   <Box direction="column" justify="center" alignItems="flex-start">
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]?.TIPOENTREGA || 'Tipo'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.TIPOENTREGA || 'Tipo'}
                     </Typography>
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]?.Data ? checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]?.Data : 'Data'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.Data ? checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.Data : 'Data'}
                     </Typography>
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]?.horario || 'Horário'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.horario || 'Horário'}
                     </Typography>
                   </Box>
 

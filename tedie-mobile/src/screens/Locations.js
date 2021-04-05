@@ -11,6 +11,7 @@ import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import { CheckoutContext } from '../contexts/CheckoutContext';
 import ScreenContainer from '../components/ScreenContainer';
 import ContentContainer from '../components/ContentContainer';
 import Navbar from '../components/Navbar';
@@ -29,8 +30,8 @@ const Locations = ({ route, navigation }) => {
   const [locationsLoader, setLocationsLoader] = useState(false);
   const [locations, setLocations] = useState([]);
   const [address, setaddress] = useState([]);
-  const [locationsInput, setLocationsInput] = useState([]);
   const [locationText, setLocationText] = useState('');
+  const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
   const toastRef = useRef();
 
   async function setLocalization(local) {

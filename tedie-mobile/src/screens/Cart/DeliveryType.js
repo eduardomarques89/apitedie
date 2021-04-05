@@ -89,19 +89,20 @@ const DeliveryType = ({ navigation, route }) => {
     const he = { ...checkoutState.horarioEntregaPorEstabelecimento };
     he[`${IdEmpresa}`] = {
       title: horarioEntrega,
-      IdTipoEntrega: horario.identrega,
+      IdTipoEntrega: horario.identrega >= 2 ? 2 : 1,
       IdHorario: horario.horacod,
-      TIPOENTREGA: horario.TIPOENTREGA,
+      TIPOENTREGA: horario.identrega >= 2 ? 'Retirada' : 'Entrega',
       DiaSemana: horario.diasemana,
       horario: horario.horario,
       IdDiaSemana: horario.iddiasemana,
       Data: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
       taxa: horario.TAXA,
     };
+    console.log(he);
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
     const actionCart = { type: 'ADD_MARKET_TAX', payload: { tax: Number(horario.TAXA), id: IdEmpresa } };
-    checkoutDispatch(action);
     cartDispatch(actionCart);
+    checkoutDispatch(action);
     setHorario(horario);
   }
 
