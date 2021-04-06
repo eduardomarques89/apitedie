@@ -21,41 +21,23 @@ import theme from '../theme';
 
 const Deals = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
+  const [products, setProducts] = useState([]);
   const [productsFilter, setProductsFilter] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState('');
-  const [page, setPage] = useState(1);
   const fetchProducts = async (cep) => {
-    setPage(1);
-    const value = await api.get(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=0&limite=${20}&searchQuery=${filter}`);
-    console.log(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=0&limite=${20}&searchQuery=${filter}`);
+    const value = await api.get(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=${0}&limite=${999}&searchQuery=${filter}`);
     const productsOferta = value.data.filter((product) => product.Oferta === 'S');
     if (!state.market?.IdEmpresa) {
-      setProductsFilter([productsOferta]);
+      setProductsFilter(productsOferta);
       return;
     }
 
     const FilterValues = productsOferta.filter((value) => value.IdEmpresa === state.market.IdEmpresa);
     setProductsFilter(FilterValues);
   };
-  const refreshProducts = async (cep) => {
-    const value = await api.get(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=${(page) * 20}&limite=${20}&searchQuery=${filter}`);
-    const productsOferta = value.data.filter((product) => product.Oferta === 'S');
-    if (!state.market?.IdEmpresa) {
-      setProductsFilter([...productsFilter, ...productsOferta]);
-      setRefreshing(false);
-      return;
-    }
-
-    const FilterValues = productsOferta.filter((value) => value.IdEmpresa === state.market.IdEmpresa);
-    setProductsFilter([...productsFilter, ...FilterValues]);
-    setPage(page + 1);
-    setRefreshing(false);
-  };
 
   const loadProducts = async () => {
     const local = state.address;
-
     // carrega produtos com localizacao do localstorage
     if (local?.CEP != undefined && local?.CEP != '') {
       fetchProducts(local.CEP.replace('-', ''));
@@ -69,14 +51,11 @@ const Deals = ({ navigation }) => {
       }
     }
   };
-
   useFocusEffect(useCallback(() => {
     loadProducts();
   }, [state.address, state.market.IdEmpresa, filter]));
-
   return (
     <>
-
       <StatusBar backgroundColor={theme.palette.primary} />
       <MainNavbar
         navigation={navigation}
@@ -96,7 +75,6 @@ const Deals = ({ navigation }) => {
         )
       }
       />
-
       <ScreenContainer style={{ padding: 16, flex: 1 }}>
         <ContentContainer>
           <View style={styles.searchContainer}>
@@ -111,7 +89,6 @@ const Deals = ({ navigation }) => {
             />
           </View>
         </ContentContainer>
-
         <View style={styles.container}>
           <Typography size="medium" color="#000">
             Ofertas
@@ -125,36 +102,17 @@ const Deals = ({ navigation }) => {
                   <ProductItem product={{ ...item }} />
                 </TouchableOpacity>
               )}
-              refreshing={refreshing}
-              onRefresh={() => {
-                setRefreshing(true);
-                const local = state.address;
-                if (local?.CEP != undefined && local?.CEP != '') {
-                  refreshProducts(local.CEP.replace('-', ''));
-                } else {
-                  try {
-                    const cep = local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '';
-                    refreshProducts(cep.replace('-', ''));
-                  } catch (e) {
-                    console.log(e);
-                    debugger;
-                  }
-                }
-              }}
               keyExtractor={(item) => `${item.Id}`}
               numColumns={2}
               columnWrapperStyle={{ flexWrap: 'wrap', flexDirection: 'row' }}
               showsVerticalScrollIndicator={false}
             />
-
           </View>
         </View>
       </ScreenContainer>
-
     </>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     marginTop: 16,
@@ -163,7 +121,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-
   },
   searchContainer: {
     flexDirection: 'row',
@@ -179,5 +136,4 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
 });
-
 export default Deals;
