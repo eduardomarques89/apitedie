@@ -60,9 +60,6 @@ const Checkout = ({ navigation, route }) => {
   useEffect(() => {
     changeAddress();
   }, [checkoutState?.enderecoEntregaPorEstabelecimento]);
-  useFocusEffect(useCallback(() => {
-    changeAddress();
-  }, [checkoutState?.enderecoEntregaPorEstabelecimento]));
 
   useEffect(() => {
     setCupom(checkoutState.cupom);

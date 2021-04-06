@@ -43,12 +43,34 @@ const Locations = ({ route, navigation }) => {
           toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
           return;
         }
-
         const location = await Location.getCurrentPositionAsync({});
         const address = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
-        await AsyncStorage.setItem('Localization', JSON.stringify(address));
 
-        const action = { type: 'createAddress', payload: address };
+        const locations = address.results.map((result) => {
+          const UF = result.address_components.find((object) => object.types.includes('administrative_area_level_1'))?.short_name || '';
+          const Cidade = result.address_components.find((object) => object.types.includes('administrative_area_level_2'))?.long_name || '';
+          const Bairro = result.address_components.find((object) => object.types.includes('sublocality_level_1'))?.long_name || '';
+          const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
+          const Endereco = result.formatted_address || '';
+          const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
+          return {
+            Cidade,
+            UF,
+            Num,
+            Bairro,
+            Endereco,
+            CEP: cep,
+            Latitude: result.geometry.location.lat,
+            Longitude: result.geometry.location.lng,
+            IdEndereco: result.place_id,
+            Padrao: 'N',
+            notExist: true,
+          };
+        });
+
+        await AsyncStorage.setItem('Localization', JSON.stringify(locations[0]));
+
+        const action = { type: 'createAddress', payload: locations[0] };
         dispatch(action);
 
         navigation.pop();
