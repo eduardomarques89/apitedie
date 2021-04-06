@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useRef, useState,
+  useContext, useEffect, useRef, useState, useCallback,
 } from 'react';
 import {
   StyleSheet,
@@ -18,7 +18,7 @@ import JunoCardHash from 'react-native-juno-rn-card-hash';
 import { Ionicons } from '@expo/vector-icons';
 // theme
 import Toast from 'react-native-easy-toast';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import theme from '../../theme';
 import { getLocationByLatLong } from '../../services/locations';
@@ -60,6 +60,9 @@ const Checkout = ({ navigation, route }) => {
   useEffect(() => {
     changeAddress();
   }, [checkoutState?.enderecoEntregaPorEstabelecimento]);
+  useFocusEffect(useCallback(() => {
+    changeAddress();
+  }, [checkoutState?.enderecoEntregaPorEstabelecimento]));
 
   useEffect(() => {
     setCupom(checkoutState.cupom);
