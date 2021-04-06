@@ -65,7 +65,7 @@ const CartFab = () => {
 
       <View style={styles.miniFabContainer}>
         {markets.map((obj) => (
-          <TouchableWithoutFeedback key={obj.market.IdEmpresa} onPress={() => handleSelectMarket(obj.market)}>
+          <TouchableWithoutFeedback key={obj.market.IdEmpresa} onPress={() => handleSelectMarket(obj)}>
 
             <Animated.View
               style={[

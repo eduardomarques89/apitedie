@@ -79,7 +79,7 @@ const DeliveryType = ({ navigation, route }) => {
   async function buscaHorariosEstabelecimento() {
     setLoading(true);
     const horarios = await buscaHorarios(IdEmpresa);
-    console.log(checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa]);
+    console.log(horarios);
     setHorario(checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa] || {});
     setHorarios(horarios);
     setLoading(false);
@@ -102,7 +102,7 @@ const DeliveryType = ({ navigation, route }) => {
       taxa: horario.TAXA,
     };
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
-    const tax = type === 2 ? 0 : Number(horario.TAXA);
+    const tax = type === 2 ? '0' : Number(horario.TAXA);
     const actionCart = { type: 'ADD_MARKET_TAX', payload: { tax, id: IdEmpresa } };
     cartDispatch(actionCart);
     checkoutDispatch(action);
