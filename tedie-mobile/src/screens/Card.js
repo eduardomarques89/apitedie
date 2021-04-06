@@ -5,6 +5,8 @@ import {
 // import {Picker } from 'react-native-community/picker'
 import { Ionicons } from '@expo/vector-icons';
 // component
+
+import JunoCardHash from 'react-native-juno-rn-card-hash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useFormik } from 'formik';
@@ -15,9 +17,10 @@ import Button from '../components/Button';
 import formatCPFOrCNPJ from '../utils/formatCPFOrCNPJ';
 // theme
 import theme from '../theme';
-import { postCard } from '../services/card';
 import api from '../services/axios';
 import addCardSchema from '../validations/addCardSchema';
+
+const Juno = new JunoCardHash('7ACA5244C520E4641C6E636E11AE9F05073D1B779B64825BD0F9DDFE44D9C954', 'sandbox');
 
 const initialValues = {
   Numero: '',
@@ -72,13 +75,21 @@ const Card = ({ navigation }) => {
       return;
     }
     try {
+      const cardData = {
+        cardNumber: cartao?.Numero?.split(' ').join('') || '',
+        holderName: cartao.Titular,
+        securityCode: cartao.CVV.trim(),
+        expirationMonth: cartao.Validade.split('/')[0],
+        expirationYear: cartao.Validade.split('/')[1],
+      };
+      await Juno.getCardHash(cardData);
       await api.post('clientes/PostCartao', cartao);
 
       alert('cartao salvo');
+      formik.resetForm();
     } catch (e) {
       alert('cartao indisponivel');
     }
-    formik.resetForm();
   }
 
   function formatDate(value) {

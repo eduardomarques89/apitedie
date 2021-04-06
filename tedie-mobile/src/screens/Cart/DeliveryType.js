@@ -79,6 +79,8 @@ const DeliveryType = ({ navigation, route }) => {
   async function buscaHorariosEstabelecimento() {
     setLoading(true);
     const horarios = await buscaHorarios(IdEmpresa);
+    console.log(checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa]);
+    setHorario(checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa] || {});
     setHorarios(horarios);
     setLoading(false);
   }
@@ -96,6 +98,7 @@ const DeliveryType = ({ navigation, route }) => {
       horario: horario.horario,
       IdDiaSemana: horario.iddiasemana,
       Data: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
+      horacod: horario.horacod,
       taxa: horario.TAXA,
     };
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
@@ -157,8 +160,8 @@ const DeliveryType = ({ navigation, route }) => {
           !loading && (
           <ScreenContainer>
             {show && (
-            <View style={{ position: 'relative', display: show ? 'flex' : 'none' }}>
               <DateTimePicker
+                cancelTextIOS="Exit"
                 testID="dateTimePicker"
                 value={date}
                 mode="datetime"
@@ -168,8 +171,6 @@ const DeliveryType = ({ navigation, route }) => {
                 display="default"
                 onChange={onChange}
               />
-
-            </View>
             )}
             <View style={styles.container}>
               <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data</Typography>
@@ -211,7 +212,7 @@ const DeliveryType = ({ navigation, route }) => {
                   renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => setSelectedHorario(item)} style={{ alignItems: 'center', flexDirection: 'row' }}>
                       {/* <Box direction="row" justify="space-between" alignItems="center" fullwidth> */}
-                      <RadioButton selected={horario.horacod === item.horacod} />
+                      <RadioButton selected={horario?.horacod === item.horacod} />
                       <Typography size="small" color={theme.palette.light}>
                         {item.horario}
                       </Typography>

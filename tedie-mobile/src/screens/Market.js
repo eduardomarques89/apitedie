@@ -36,7 +36,7 @@ const Market = ({ navigation, route }) => {
 
     setLoadingProducts(true);
     const [products, banners] = await Promise.all([api.get(`produtos/?token=${token}&Idempresa=${market.IdEmpresa}`), api.get('banner')]);
-    const bannerEmpresa = banners.data.filter((banner) => banner.Destaque === 'S' && banner.IdEmpresa === market.IdEmpresa);
+    const bannerEmpresa = banners.data.filter((banner) => banner.Destaque === 'S' || banner.IdEmpresa === market.IdEmpresa);
     setBanners(bannerEmpresa);
     setMarketProducts([...products.data]);
     setMarketProductsFilter(products.data.filter((p) => p.Destaque === 'S'));
