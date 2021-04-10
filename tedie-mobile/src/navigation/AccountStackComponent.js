@@ -9,6 +9,7 @@ import Coupons from '../screens/Coupons';
 import Profile from '../screens/Account/Profile';
 import Locations from '../screens/Locations';
 import Cards from '../screens/OrderPayments';
+import Card from '../screens/Card';
 import Help from '../screens/Account/Help';
 import MyCode from '../screens/Account/MyCode';
 import Rating from '../screens/Rating';
@@ -30,6 +31,7 @@ const AccountStackComponent = () => {
       <AccountStack.Screen name="Perfil" component={Profile} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Localização" component={Locations} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Pagamento" component={Cards} options={{ ...TransitionPresets.SlideFromRightIOS }} />
+      <AccountStack.Screen name="Cartão" component={Card} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Ajuda" component={Help} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Indicação" component={MyCode} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Avaliar" component={Rating} options={{ ...TransitionPresets.SlideFromRightIOS }} />

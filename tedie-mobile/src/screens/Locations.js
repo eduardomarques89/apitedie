@@ -23,6 +23,7 @@ import theme from '../theme';
 import { getLocationByLatLong } from '../services/locations';
 import { AppContext } from '../contexts/AppContext';
 import api from '../services/axios';
+import refactoreLocalization from '../utils/refactoreLocalization';
 
 const Locations = ({ route, navigation }) => {
   const navigate = useNavigation();
@@ -36,50 +37,33 @@ const Locations = ({ route, navigation }) => {
 
   async function setLocalization(local) {
     if (local == 'gps') {
-      (async () => {
-        toastRef.current?.show('Carregando localização...', 2000);
-        const { status } = await Location.requestPermissionsAsync();
-        if (status !== 'granted') {
-          toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
-          return;
-        }
-        const location = await Location.getCurrentPositionAsync({});
-        const address = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
+      const { status } = await Location.requestPermissionsAsync();
+      toastRef.current?.show('Carregando localização...', 2000);
+      if (status !== 'granted') {
+        toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
+        return;
+      }
+      const newLocation = await Location.getCurrentPositionAsync({});
+      const address = await getLocationByLatLong(newLocation.coords.latitude, newLocation.coords.longitude);
 
-        const locations = address.results.map((result) => {
-          const UF = result.address_components.find((object) => object.types.includes('administrative_area_level_1'))?.short_name || '';
-          const Cidade = result.address_components.find((object) => object.types.includes('administrative_area_level_2'))?.long_name || '';
-          const Bairro = result.address_components.find((object) => object.types.includes('sublocality_level_1'))?.long_name || '';
-          const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
-          const Endereco = result.formatted_address || '';
-          const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
-          return {
-            Cidade,
-            UF,
-            Num,
-            Bairro,
-            Endereco,
-            CEP: cep,
-            Latitude: result.geometry.location.lat,
-            Longitude: result.geometry.location.lng,
-            IdEndereco: result.place_id,
-            Padrao: 'N',
-            notExist: true,
-          };
-        });
+      const locations = address.results.map(refactoreLocalization);
+      if (route?.params?.checkoutEdit) {
+        setLocalizationByManual(locations[0]);
+        return;
+      }
 
-        await AsyncStorage.setItem('Localization', JSON.stringify(locations[0]));
+      // await AsyncStorage.setItem('Localization', JSON.stringify(locations[0]));
 
-        const action = { type: 'createAddress', payload: locations[0] };
-        dispatch(action);
+      const action = { type: 'createAddress', payload: locations[0] };
+      dispatch(action);
 
-        navigation.pop();
-      })();
+      navigation.pop();
     } else if (!state.sessao.IdCliente) {
       const address = await getLocationByLatLong(local.Latitude, local.Longitude);
-      await AsyncStorage.setItem('Localization', JSON.stringify(address));
+      const locations = address.results.map(refactoreLocalization);
+      // await AsyncStorage.setItem('Localization', JSON.stringify(locations[0]));
 
-      const action = { type: 'createAddress', payload: address };
+      const action = { type: 'createAddress', payload: locations[0] };
       dispatch(action);
 
       navigation.pop();
@@ -89,48 +73,45 @@ const Locations = ({ route, navigation }) => {
   }
 
   const setLocalizationByManual = async (local) => {
-    if (local?.notExist) {
-      try {
-        const response = await api.post('Enderecos', {
-          IdCliente: state?.sessao?.IdCliente,
-          Endereco: local.Endereco,
-          Bairro: local.Bairro,
-          Cidade: local.Cidade,
-          UF: local.UF.toUpperCase(),
-          CEP: local.CEP.split('-').join(''),
-          Num: local.Num,
-          Complemento: '',
-          Latitude: local.latitude,
-          Longitude: local.longitude,
-          Padrao: local.Padrao,
-          Beautify: local.Endereco,
-        });
-        if (route?.params?.checkoutEdit) {
-          const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: local } };
-
-          checkoutDispatch(action);
-        } else {
-          const action = { type: 'createAddress', payload: local };
-          dispatch(action);
-          await AsyncStorage.setItem('Localization', JSON.stringify(local));
-        }
-
-        navigation.pop();
-        return;
-      } catch (e) {
-        console.log(e);
-      }
-    } else {
+    try {
+      const response = await api.post('Enderecos', {
+        IdCliente: state?.sessao?.IdCliente,
+        Endereco: local.Endereco,
+        Bairro: local.Bairro,
+        Cidade: local.Cidade,
+        UF: local.UF.toUpperCase(),
+        CEP: local.CEP.split('-').join(''),
+        Num: local.Num,
+        Complemento: '',
+        Latitude: local.latitude,
+        Longitude: local.longitude,
+        Padrao: local.Padrao,
+        Beautify: local.Endereco,
+      });
       if (route?.params?.checkoutEdit) {
-        const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: local } };
+        const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: response.data[0] } };
 
         checkoutDispatch(action);
       } else {
         const action = { type: 'createAddress', payload: local };
         dispatch(action);
+        // await AsyncStorage.setItem('Localization', JSON.stringify(local));
       }
-      await AsyncStorage.setItem('Localization', JSON.stringify(local));
+
+      navigation.pop();
+      return;
+    } catch (e) {
+      console.log(e);
     }
+    if (route?.params?.checkoutEdit) {
+      const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: local } };
+
+      checkoutDispatch(action);
+    } else {
+      const action = { type: 'createAddress', payload: local };
+      dispatch(action);
+    }
+    await AsyncStorage.setItem('Localization', JSON.stringify(local));
 
     navigation.pop();
   };
@@ -166,27 +147,7 @@ const Locations = ({ route, navigation }) => {
 
     async function fetchLocation() {
       const { data } = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${locationText}&key=AIzaSyCXoBOm61XlnQJkAFRiMF80ZGj0HLla36I`);
-      const locations = data.results.map((result) => {
-        const UF = result.address_components.find((object) => object.types.includes('administrative_area_level_1'))?.short_name || '';
-        const Cidade = result.address_components.find((object) => object.types.includes('administrative_area_level_2'))?.long_name || '';
-        const Bairro = result.address_components.find((object) => object.types.includes('sublocality_level_1'))?.long_name || '';
-        const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
-        const Endereco = result.formatted_address || '';
-        const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
-        return {
-          Cidade,
-          UF,
-          Num,
-          Bairro,
-          Endereco,
-          CEP: cep,
-          Latitude: result.geometry.location.lat,
-          Longitude: result.geometry.location.lng,
-          IdEndereco: result.place_id,
-          Padrao: 'N',
-          notExist: true,
-        };
-      });
+      const locations = data.results.map(refactoreLocalization);
       const locationsFilter = locations.filter((location) => !address.find((address) => address.CEP === location.CEP.split('-').join('')));
       setLocations([...locationsFilter, ...address]);
       setLocationsLoader(false);

@@ -26,6 +26,7 @@ import { getProductsByCEP } from '../services/products';
 import { getLocationByLatLong } from '../services/locations';
 import { AppContext } from '../contexts/AppContext';
 import api from '../services/axios';
+import refactoreLocalization from '../utils/refactoreLocalization';
 
 const Home = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
@@ -53,65 +54,26 @@ const Home = ({ navigation }) => {
   const loadProducts = async () => {
     const local = state.address;
     // carrega produtos com localizacao do localstorage
-    if (local.CEP != undefined && local.CEP != '') {
-      const response = await getProductsByCEP(local.CEP.replace('-', ''));
-      setProducts(response);
-      const productsDestaque = response.filter((product) => product.Destaque === 'S');
-      setProductsDestaque(productsDestaque);
-    } else {
-      const cep = local.CEP;
-      if (!cep) {
-        return;
-      }
-      try {
-        const response = await getProductsByCEP(cep.replace('-', ''));
-        setProducts(response);
-      } catch (e) {
-      }
+    if (!local.CEP) {
+      return;
     }
+    const response = await getProductsByCEP(local.CEP.replace('-', ''));
+    setProducts(response);
+    const productsDestaque = response.filter((product) => product.Destaque === 'S');
+    setProductsDestaque(productsDestaque);
   };
 
   async function askLocalizationPermission() {
-    const location = JSON.parse(await AsyncStorage.getItem('Localization'));
-    if (location && !state.address) {
-      const action = { type: 'createAddress', payload: location };
-      dispatch(action);
+    const { status } = await Location.requestPermissionsAsync();
+    if (status !== 'granted') {
+      toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
       return;
     }
-    (async () => {
-      const { status } = await Location.requestPermissionsAsync();
-      if (status !== 'granted') {
-        toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
-        return;
-      }
-      const location = await Location.getCurrentPositionAsync({});
-      const local = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
-      await AsyncStorage.setItem('Localization', JSON.stringify(local));
-      const newLocations = local.results.map((result) => {
-        const UF = result.address_components.find((object) => object.types.includes('administrative_area_level_1'))?.short_name || '';
-        const Cidade = result.address_components.find((object) => object.types.includes('administrative_area_level_2'))?.long_name || '';
-        const Bairro = result.address_components.find((object) => object.types.includes('sublocality_level_1'))?.long_name || '';
-        const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
-        const Endereco = result.formatted_address || '';
-        const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
-        // const [, , cep] = result.formatted_address.split(',');
-        return {
-          Cidade,
-          UF,
-          Num,
-          Bairro,
-          Endereco,
-          CEP: cep,
-          Latitude: result.geometry.location.lat,
-          Longitude: result.geometry.location.lng,
-          IdEndereco: result.place_id,
-          Padrao: 'N',
-          notExist: true,
-        };
-      });
-      const action = { type: 'createAddress', payload: newLocations[0] };
-      dispatch(action);
-    })();
+    const newlocation = await Location.getCurrentPositionAsync({});
+    const local = await getLocationByLatLong(newlocation.coords.latitude, newlocation.coords.longitude);
+    const newLocations = local.results.map(refactoreLocalization);
+    const action = { type: 'createAddress', payload: newLocations[0] };
+    dispatch(action);
   }
 
   async function loadAll() {
@@ -149,7 +111,7 @@ const Home = ({ navigation }) => {
                   <View style={styles.locationInfo}>
                     <Typography size="small" color="#000">
                       {state?.address?.CEP
-                        ? (state.address?.Endereco)
+                        ? `${state.address?.Endereco}`
                         : 'Selecione uma localização'}
                     </Typography>
                   </View>

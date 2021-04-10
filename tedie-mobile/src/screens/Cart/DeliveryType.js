@@ -158,72 +158,76 @@ const DeliveryType = ({ navigation, route }) => {
       <Loader show={loading} />
       {
           !loading && (
-          <ScreenContainer>
-            {show && (
-              <DateTimePicker
-                cancelTextIOS="Exit"
-                testID="dateTimePicker"
-                value={date}
-                mode="datetime"
-                is24Hour
-                minimumDate={new Date()}
-                style={{ display: show ? 'flex' : 'none' }}
-                display="default"
-                onChange={onChange}
-              />
-            )}
-            <View style={styles.container}>
-              <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data</Typography>
-              <View style={styles.dataInputContainer}>
-                <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
-                <TouchableOpacity onPress={() => setShow(true)}>
-                  <EvilIcons name="calendar" size={32} color="black" />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Tipo</Typography>
-            <ContentContainer>
-              <TouchableOpacity style={{ flexDirection: 'row', marginBottom: 8 }} onPress={() => setType(1)}>
-                <RadioButton selected={type === 1} />
-                <Typography size="small" color={theme.palette.dark}>
-                  Entrega
-                </Typography>
+            <>
+              <View style={{ position: 'absolute', top: -100 }}>
 
-              </TouchableOpacity>
-              <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => setType(2)}>
-                <RadioButton selected={type === 2} />
-                <Typography size="small" color={theme.palette.dark}>
-                  Retirada
-                </Typography>
+                {show && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={date}
+                  mode="date"
+                  minimumDate={new Date()}
+                  style={{ display: show ? 'flex' : 'none' }}
+                  display="calendar"
 
-              </TouchableOpacity>
-            </ContentContainer>
-
-            <ContentContainer>
-              <Box direction="column" justify="center" alignContent="flex-start">
-                <Typography size="large" color={theme.palette.dark}>
-                  Horário
-                </Typography>
-
-                <Divider />
-                <FlatList
-                  data={filterHorario}
-                  keyExtractor={(item) => `${item.horacod}`}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => setSelectedHorario(item)} style={{ alignItems: 'center', flexDirection: 'row' }}>
-                      {/* <Box direction="row" justify="space-between" alignItems="center" fullwidth> */}
-                      <RadioButton selected={horario?.horacod === item.horacod} />
-                      <Typography size="small" color={theme.palette.light}>
-                        {item.horario}
-                      </Typography>
-                      {/* </Box> */}
-                    </TouchableOpacity>
-
-                  )}
+                  onChange={onChange}
                 />
-              </Box>
-            </ContentContainer>
-          </ScreenContainer>
+                )}
+              </View>
+              <ScreenContainer>
+                <View style={styles.container}>
+                  <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data</Typography>
+                  <View style={styles.dataInputContainer}>
+                    <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
+                    <TouchableOpacity onPress={() => setShow(true)}>
+                      <EvilIcons name="calendar" size={32} color="black" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Tipo</Typography>
+                <ContentContainer>
+                  <TouchableOpacity style={{ flexDirection: 'row', marginBottom: 8 }} onPress={() => setType(1)}>
+                    <RadioButton selected={type === 1} />
+                    <Typography size="small" color={theme.palette.dark}>
+                      Entrega
+                    </Typography>
+
+                  </TouchableOpacity>
+                  <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => setType(2)}>
+                    <RadioButton selected={type === 2} />
+                    <Typography size="small" color={theme.palette.dark}>
+                      Retirada
+                    </Typography>
+
+                  </TouchableOpacity>
+                </ContentContainer>
+
+                <ContentContainer>
+                  <Box direction="column" justify="center" alignContent="flex-start">
+                    <Typography size="large" color={theme.palette.dark}>
+                      Horário
+                    </Typography>
+
+                    <Divider />
+                    <FlatList
+                      data={filterHorario}
+                      keyExtractor={(item) => `${item.horacod}`}
+                      renderItem={({ item }) => (
+                        <TouchableOpacity onPress={() => setSelectedHorario(item)} style={{ alignItems: 'center', flexDirection: 'row' }}>
+                          {/* <Box direction="row" justify="space-between" alignItems="center" fullwidth> */}
+                          <RadioButton selected={horario?.horacod === item.horacod} />
+                          <Typography size="small" color={theme.palette.light}>
+                            {item.horario}
+                          </Typography>
+                          {/* </Box> */}
+                        </TouchableOpacity>
+
+                      )}
+                    />
+                  </Box>
+                </ContentContainer>
+              </ScreenContainer>
+            </>
           )
         }
     </>

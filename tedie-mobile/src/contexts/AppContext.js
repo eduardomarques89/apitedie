@@ -41,12 +41,7 @@ function addMarketSelect(state, action) {
   return { ...state, market: action.market };
 }
 function createAddress(state, action) {
-  let local = action.payload;
-  if (local && (local.CEP == undefined || local.CEP == '')) {
-    const CEP = convergeCep(local);
-    local = { ...local, CEP };
-  }
-  return { ...state, address: local };
+  return { ...state, address: action.payload };
 }
 
 function createSessao(state, action) {
@@ -54,10 +49,3 @@ function createSessao(state, action) {
   AsyncStorage.setItem('sessao', JSON.stringify(sessao));
   return { ...state, sessao };
 }
-
-export const convergeCep = (local) => {
-  try {
-    return (local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? '').replace('-', '');
-  } catch (e) {
-  }
-};

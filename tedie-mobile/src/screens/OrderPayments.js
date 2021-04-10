@@ -29,6 +29,7 @@ const OrderPayments = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
   const { state } = useContext(AppContext);
+  const [cardSelect, setCardSelect] = useState({});
 
   useFocusEffect(useCallback(() => {
     loadMeiosPag();
@@ -59,17 +60,22 @@ const OrderPayments = ({ navigation }) => {
   const bottomSheetRef = useRef(null);
 
   const openBottomSheet = (ref) => {
-    ref.current.snapTo(150);
+    bottomSheetRef.current.snapTo(150);
   };
 
   const closeBottomSheet = (ref) => {
-    ref.current.snapTo(0);
+    bottomSheetRef.current.snapTo(0);
   };
 
-  const BotomSheetContent = ({ sheetRef }) => (
+  const BotomSheetContent = () => (
     <>
       <View style={styles.bottomSheetContainer}>
-        <TouchableOpacity hitSlop={theme.hitSlop} onPress={() => closeBottomSheet(sheetRef)}>
+        <TouchableOpacity
+          onPress={() => {
+            console.log('oioi');
+            closeBottomSheet();
+          }}
+        >
           <View style={styles.bottomSheetHeader}>
             <Ionicons name="md-close-circle" size={25} color={theme.palette.light} />
             <Typography size="small" color={theme.palette.light}>
@@ -79,7 +85,7 @@ const OrderPayments = ({ navigation }) => {
         </TouchableOpacity>
 
         <View style={styles.bottomSheetActions}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Cartão', { editCard: true, card: cardSelect })}>
             <View style={styles.bottomSheetItem}>
               <Ionicons name="md-create" size={25} color={theme.palette.primary} />
               <Typography size="small" color={theme.palette.dark}>
@@ -154,7 +160,10 @@ const OrderPayments = ({ navigation }) => {
                       <TouchableOpacity
                         style={styles.editButton}
                         hitSlop={styles.slope}
-                        onPress={() => openBottomSheet(bottomSheetRef)}
+                        onPress={() => {
+                          setCardSelect(p);
+                          openBottomSheet(bottomSheetRef);
+                        }}
                       >
                         <Ionicons name="md-more" size={25} color={theme.palette.primary} />
                       </TouchableOpacity>
@@ -174,9 +183,10 @@ const OrderPayments = ({ navigation }) => {
           </ScreenContainer>
 
           <BottomSheet
-            snapPoints={[0, 1, 150]}
-            renderContent={() => (<BotomSheetContent sheetRef={bottomSheetRef} />)}
             ref={bottomSheetRef}
+            snapPoints={[0, 1, 150]}
+            renderContent={BotomSheetContent}
+            enabledGestureInteraction={false}
           />
         </>
       )}

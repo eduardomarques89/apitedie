@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
-  StyleSheet, TouchableOpacity, TextInput, View, Picker, StatusBar,
+  StyleSheet, TouchableOpacity, TextInput, View, StatusBar,
 } from 'react-native';
 // import {Picker } from 'react-native-community/picker'
 import { Ionicons } from '@expo/vector-icons';
@@ -10,9 +10,11 @@ import JunoCardHash from 'react-native-juno-rn-card-hash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useFormik } from 'formik';
+import { AppContext } from '../contexts/AppContext';
 import Navbar from '../components/Navbar';
 import ScreenContainer from '../components/ScreenContainer';
 import Typography from '../components/Typography';
+import Loader from '../components/Loader';
 import Button from '../components/Button';
 import formatCPFOrCNPJ from '../utils/formatCPFOrCNPJ';
 // theme
@@ -29,16 +31,19 @@ const initialValues = {
   Validade: '',
   CVV: '',
   NOMECARTAO: '',
+  IdCartao: '',
 };
-const Card = ({ navigation }) => {
+const Card = ({ navigation, route }) => {
+  const { state, dispatch } = useContext(AppContext);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigation();
   const formik = useFormik({
     initialValues,
     onSubmit(values, { resetForm }) {
       async function fech() {
-        const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
+        // const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
         const cartao = {
-          IdCliente: sessao.IdCliente,
+          IdCliente: state.sessao.IdCliente,
           Numero: values.Numero,
           Validade: values.Validade,
           CPF: values.CPF,
@@ -60,18 +65,24 @@ const Card = ({ navigation }) => {
   });
 
   async function salvarCartao() {
-    const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
+    setLoading(true);
     const cartao = {
-      IdCliente: sessao.IdCliente,
+      IdCliente: state.sessao.IdCliente,
       Numero: formik.values.Numero,
       Validade: formik.values.Validade,
       CPF: formik.values.CPF,
       Titular: formik.values.Titular,
-      CVV: formik.values.CVV,
+      CVV: formik.values.CVV.trim(),
       IdBandeira: '',
     };
+    if (route?.params?.editCard) {
+      cartao.IdCartao = formik.values.IdCartao;
+    }
+
+    console.log(cartao);
     if (!(await addCardSchema.isValid(cartao))) {
       alert('Cartão invalido');
+      setLoading(false);
       return;
     }
     try {
@@ -83,12 +94,21 @@ const Card = ({ navigation }) => {
         expirationYear: cartao.Validade.split('/')[1],
       };
       await Juno.getCardHash(cardData);
-      await api.post('clientes/PostCartao', cartao);
+      console.log(cardData);
+      if (route?.params?.editCard) {
+        await api.put('clientes/PutCartao', cartao);
+        console.log('editou');
+      } else {
+        await api.post('clientes/PostCartao', cartao);
+      }
 
       alert('cartao salvo');
+      setLoading(false);
       formik.resetForm();
     } catch (e) {
+      console.log(e);
       alert('cartao indisponivel');
+      setLoading(false);
     }
   }
 
@@ -118,6 +138,13 @@ const Card = ({ navigation }) => {
     formik.setFieldValue('Numero', newValue);
   }
 
+  useEffect(() => {
+    if (route.params?.editCard) {
+      console.log(route.params.card);
+      formik.setValues({ ...route.params.card, CVV: route.params.card.CVV.trim() });
+    }
+  }, [route.params?.editCard]);
+
   return (
     <>
 
@@ -141,7 +168,8 @@ const Card = ({ navigation }) => {
           </Typography>
         )}
       />
-
+      <Loader show={loading} />
+      {!loading && (
       <ScreenContainer>
         <View style={styles.paymentMethodContainer}>
           <View style={styles.paymentContainer}>
@@ -212,6 +240,8 @@ const Card = ({ navigation }) => {
 
         </View>
       </ScreenContainer>
+
+      )}
     </>
   );
 };

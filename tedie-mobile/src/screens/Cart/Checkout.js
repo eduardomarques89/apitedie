@@ -18,7 +18,7 @@ import JunoCardHash from 'react-native-juno-rn-card-hash';
 import { Ionicons } from '@expo/vector-icons';
 // theme
 import Toast from 'react-native-easy-toast';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import axios from 'axios';
 import theme from '../../theme';
 import { getLocationByLatLong } from '../../services/locations';
@@ -35,6 +35,7 @@ import { CartContext } from '../../contexts/CartContext';
 import { CheckoutContext } from '../../contexts/CheckoutContext';
 import { AppContext } from '../../contexts/AppContext';
 import api from '../../services/axios';
+import refactoreLocalization from '../../utils/refactoreLocalization';
 
 const Juno = new JunoCardHash('7ACA5244C520E4641C6E636E11AE9F05073D1B779B64825BD0F9DDFE44D9C954', 'sandbox');
 
@@ -78,29 +79,27 @@ const Checkout = ({ navigation, route }) => {
       }
       const location = await Location.getCurrentPositionAsync({});
       const local = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
-      const locations = local.results.map((result) => {
-        const UF = result.address_components.find((object) => object.types.includes('administrative_area_level_1'))?.short_name || '';
-        const Cidade = result.address_components.find((object) => object.types.includes('administrative_area_level_2'))?.long_name || '';
-        const Bairro = result.address_components.find((object) => object.types.includes('sublocality_level_1'))?.long_name || '';
-        const Num = result.address_components.find((object) => object.types.includes('street_number'))?.short_name || 0;
-        const Endereco = result.formatted_address || '';
-        const cep = result.address_components.find((object) => object.types.includes('postal_code'))?.short_name || '';
-        return {
-          Cidade,
-          UF,
-          Num,
-          Bairro,
-          Endereco,
-          CEP: cep,
-          Latitude: result.geometry.location.lat,
-          Longitude: result.geometry.location.lng,
-          IdEndereco: result.place_id,
-          Padrao: 'N',
-          notExist: true,
-        };
-      });
-      const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: locations[0] } };
-      checkoutDispatch(action);
+      const locations = local.results.map(refactoreLocalization);
+      try {
+        const response = await api.post('Enderecos', {
+          IdCliente: state?.sessao?.IdCliente,
+          Endereco: locations[0].Endereco,
+          Bairro: locations[0].Bairro,
+          Cidade: locations[0].Cidade,
+          UF: locations[0].UF.toUpperCase(),
+          CEP: locations[0].CEP.split('-').join(''),
+          Num: locations[0].Num,
+          Complemento: '',
+          Latitude: locations[0].latitude,
+          Longitude: locations[0].longitude,
+          Padrao: locations[0].Padrao,
+          Beautify: locations[0].Endereco,
+        });
+        const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: response.data[0] } };
+        checkoutDispatch(action);
+      } catch {
+
+      }
     }
     fetchData();
   }, []);
@@ -237,7 +236,6 @@ const Checkout = ({ navigation, route }) => {
           pedido.codigoJuno = junoValues.codeJuno;
         }
 
-        console.log(pedido);
         return api.post('Pedidos', pedido);
       });
 
@@ -270,9 +268,13 @@ const Checkout = ({ navigation, route }) => {
               style={[styles.button, styles.buttonClose]}
               onPress={() => {
                 setModalVisible(!modalVisible);
-                if (navigate.canGoBack()) {
-                  navigate.goBack();
-                }
+                const resetAction = CommonActions.reset({
+                  index: 0,
+                  routes: [
+                    { name: 'tabs' },
+                  ],
+                });
+                navigate.dispatch(resetAction);
               }}
             >
               <Text style={styles.textStyle}>Ok</Text>

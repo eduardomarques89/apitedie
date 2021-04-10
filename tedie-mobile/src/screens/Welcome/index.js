@@ -14,6 +14,7 @@ import Tela2 from '../../assets/telaWelcome.png';
 import Tela3 from '../../assets/tela3.png';
 import { getLocationByLatLong } from '../../services/locations';
 import { AppContext } from '../../contexts/AppContext';
+import refactoreLocalization from '../../utils/refactoreLocalization';
 
 const Welcome = ({ navigation }) => {
   const { dispatch } = useContext(AppContext);
@@ -26,10 +27,10 @@ const Welcome = ({ navigation }) => {
       return;
     }
     const location = await Location.getCurrentPositionAsync({});
-    const local = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
-    await AsyncStorage.setItem('Localization', JSON.stringify(local));
+    const address = await getLocationByLatLong(location.coords.latitude, location.coords.longitude);
+    const locations = address.results.map(refactoreLocalization);
 
-    const action = { type: 'createAddress', payload: local };
+    const action = { type: 'createAddress', payload: locations[0] };
     dispatch(action);
   }, []);
 

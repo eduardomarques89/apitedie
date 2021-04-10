@@ -43,15 +43,17 @@ const Profile = ({ navigation }) => {
       IdCliente: state?.sessao?.IdCliente,
       Apelido: formik.values.Apelido,
       dataNasc: '',
-      Telefone: formik.values.Telefone,
+      Telefone: `55${formik.values.Telefone}`,
       Email: formik.values.Email,
       CPF: formik.values.CPF,
       NomeCliente: `${formik.values.Nome} ${formik.values.SobreNome}`,
     };
+    console.log(variables);
     try {
-      const response = await api.put('Clientes', variables);
+      const response = await api.put('clientes/PutCliente', variables);
       alert('Dados salvos');
     } catch (e) {
+      console.log(e);
       console.log('erro');
     }
   }
