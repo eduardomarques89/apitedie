@@ -28,7 +28,8 @@ const Login = ({ navigation }) => {
     }
     setLoading(true);
     try {
-      const response = await axios.get('http://tedie.azurewebsites.net/api/Clientes');
+      const response = await api.get('Clientes');
+
       const existPhone = response.data.find((user) => user.Telefone === usuario);
 
       if (existPhone) {
@@ -36,14 +37,14 @@ const Login = ({ navigation }) => {
         setLoading(false);
         return;
       }
-      const user = await api.post('api/Clientes', {
+      const user = await api.post('Clientes', {
         nomecliente: '',
         apelido: '',
         datanasc: '',
         email: '',
         cpf: '',
         senha: '',
-        Telefone: usuario,
+        Telefone: `55${usuario}`,
       });
 
       setLoading(false);
