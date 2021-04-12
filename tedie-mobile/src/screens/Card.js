@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 // component
 
 import JunoCardHash from 'react-native-juno-rn-card-hash';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useFormik } from 'formik';
 import { AppContext } from '../contexts/AppContext';
@@ -41,7 +40,6 @@ const Card = ({ navigation, route }) => {
     initialValues,
     onSubmit(values, { resetForm }) {
       async function fech() {
-        // const sessao = JSON.parse(await AsyncStorage.getItem('sessao'));
         const cartao = {
           IdCliente: state.sessao.IdCliente,
           Numero: values.Numero,
@@ -50,7 +48,6 @@ const Card = ({ navigation, route }) => {
           Titular: values.Titular,
           CVV: values.CVV,
         };
-
         try {
           await api.post('clientes/PostCartao', cartao);
           resetForm();

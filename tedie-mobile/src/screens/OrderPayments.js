@@ -49,9 +49,6 @@ const OrderPayments = ({ navigation }) => {
   async function selecionaCartao(card) {
     const newCard = card;
     newCard.opcao = 'credit';
-    // const he = { ...checkoutState.cartaoPorEstabelecimento };
-    // he[`${0}`] = card;
-    console.log(newCard);
     const action = { type: 'setCartaoPorEstabelecimento', payload: { cartaoPorEstabelecimento: newCard } };
     checkoutDispatch(action);
     navigation.pop();
