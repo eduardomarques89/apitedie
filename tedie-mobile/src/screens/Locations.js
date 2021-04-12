@@ -8,11 +8,9 @@ import { Ionicons } from '@expo/vector-icons';
 // components
 import Toast, { DURATION } from 'react-native-easy-toast';
 import * as Location from 'expo-location';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { CheckoutContext } from '../contexts/CheckoutContext';
-import ScreenContainer from '../components/ScreenContainer';
 import ContentContainer from '../components/ContentContainer';
 import Navbar from '../components/Navbar';
 import Typography from '../components/Typography';
@@ -52,7 +50,6 @@ const Locations = ({ route, navigation }) => {
         return;
       }
 
-      // await AsyncStorage.setItem('Localization', JSON.stringify(locations[0]));
 
       const action = { type: 'createAddress', payload: locations[0] };
       dispatch(action);
@@ -61,7 +58,6 @@ const Locations = ({ route, navigation }) => {
     } else if (!state.sessao.IdCliente) {
       const address = await getLocationByLatLong(local.Latitude, local.Longitude);
       const locations = address.results.map(refactoreLocalization);
-      // await AsyncStorage.setItem('Localization', JSON.stringify(locations[0]));
 
       const action = { type: 'createAddress', payload: locations[0] };
       dispatch(action);
@@ -95,7 +91,6 @@ const Locations = ({ route, navigation }) => {
       } else {
         const action = { type: 'createAddress', payload: local };
         dispatch(action);
-        // await AsyncStorage.setItem('Localization', JSON.stringify(local));
       }
 
       navigation.pop();
@@ -111,7 +106,6 @@ const Locations = ({ route, navigation }) => {
       const action = { type: 'createAddress', payload: local };
       dispatch(action);
     }
-    await AsyncStorage.setItem('Localization', JSON.stringify(local));
 
     navigation.pop();
   };

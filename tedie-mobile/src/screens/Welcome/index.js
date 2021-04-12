@@ -21,7 +21,6 @@ const Welcome = ({ navigation }) => {
   const navigate = useNavigation();
   const [loading, setLoading] = useState(false);
   const askLocalizationPermission = useCallback(async () => {
-    if (await AsyncStorage.getItem('Localization')) return;
     const { status } = await Location.requestPermissionsAsync();
     if (status !== 'granted') {
       return;

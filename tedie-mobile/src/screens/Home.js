@@ -9,7 +9,6 @@ import { useFocusEffect } from '@react-navigation/native';
 // components
 import Swiper from 'react-native-swiper';
 import * as Location from 'expo-location';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScreenContainer from '../components/ScreenContainer';
 import ContentContainer from '../components/ContentContainer';
 import MainNavbar from '../components/MainNavbar';
@@ -53,7 +52,6 @@ const Home = ({ navigation }) => {
 
   const loadProducts = async () => {
     const local = state.address;
-    // carrega produtos com localizacao do localstorage
     if (!local.CEP) {
       return;
     }
