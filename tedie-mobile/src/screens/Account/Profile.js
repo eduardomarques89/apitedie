@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   StyleSheet, TouchableOpacity, View, StatusBar,
 } from 'react-native';
@@ -33,8 +33,6 @@ const Profile = ({ navigation }) => {
   const formik = useFormik({
     initialValues,
     onSubmit: async (values) => {
-
-      // const response = await api.put('Clientes',variables)
     },
   });
 
@@ -47,14 +45,14 @@ const Profile = ({ navigation }) => {
       Email: formik.values.Email,
       CPF: formik.values.CPF,
       NomeCliente: `${formik.values.Nome} ${formik.values.SobreNome}`,
+      sexo: '',
+      codigo_indicacao: '',
     };
-    console.log(variables);
     try {
-      const response = await api.put('clientes/PutCliente', variables);
+      await api.put('clientes/PutCliente', variables);
       alert('Dados salvos');
     } catch (e) {
-      console.log(e);
-      console.log('erro');
+      alert('erro');
     }
   }
 
