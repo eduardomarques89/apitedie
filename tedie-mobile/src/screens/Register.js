@@ -49,6 +49,7 @@ const Login = ({ navigation }) => {
       });
       console.log('aqui2');
 
+      await api.post(`auth/Telefone?idcliente=${user.data.IdCliente}&telefone=55${usuario}`);
       setLoading(false);
       navigate.navigate('Authenticate', { id: user.data.IdCliente, telefone: usuario });
     } catch (e) {
