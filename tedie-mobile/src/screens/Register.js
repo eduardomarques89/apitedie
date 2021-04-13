@@ -47,9 +47,7 @@ const Login = ({ navigation }) => {
         senha: '',
         Telefone: `55${usuario}`,
       });
-      console.log('aqui2');
-
-      await api.post(`auth/Telefone?idcliente=${user.data.IdCliente}&telefone=55${usuario}`);
+      await api.post(`auth/Telefone?idcliente=${user.data.cliente.IdCliente}&telefone=55${usuario}`);
       setLoading(false);
       navigate.navigate('Authenticate', { id: user.data.IdCliente, telefone: usuario });
     } catch (e) {
