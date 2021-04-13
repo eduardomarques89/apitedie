@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-  StyleSheet, View, TouchableOpacity, Text, ScrollView, Image, StatusBar,
+  StyleSheet, View, TouchableOpacity, Text, Image, StatusBar, Share,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
+import { Entypo } from '@expo/vector-icons';
 import ScreenContainer from '../components/ScreenContainer';
 import Typography from '../components/Typography';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
-import ProductItem from '../components/ProductItem';
 import api from '../services/axios';
 import { AppContext } from '../contexts/AppContext';
 import { CartContext } from '../contexts/CartContext';
@@ -79,6 +79,13 @@ const Product = ({ navigation, route }) => {
     }
   }, []);
 
+  async function sharingProduct() {
+    const result = await Share.share({
+      title: 'TituloTest',
+      message: 'https://www.tedie.com.br/produto/',
+    });
+  }
+
   return (
     <>
 
@@ -99,6 +106,13 @@ const Product = ({ navigation, route }) => {
 
         right={(
           <>
+            <TouchableOpacity
+              style={styles.navbarButton}
+              hitSlop={theme.hitSlop}
+              onPress={sharingProduct}
+            >
+              <Entypo name="share" size={30} color="#fff" />
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.navbarButton}
               hitSlop={theme.hitSlop}

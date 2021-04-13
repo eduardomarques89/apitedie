@@ -37,6 +37,7 @@ const Login = ({ navigation }) => {
         setLoading(false);
         return;
       }
+      console.log('aqui1');
       const user = await api.post('Clientes', {
         nomecliente: '',
         apelido: '',
@@ -46,6 +47,7 @@ const Login = ({ navigation }) => {
         senha: '',
         Telefone: `55${usuario}`,
       });
+      console.log('aqui2');
 
       setLoading(false);
       navigate.navigate('Authenticate', { id: user.data.IdCliente, telefone: usuario });
