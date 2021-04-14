@@ -37,7 +37,6 @@ const Login = ({ navigation }) => {
         setLoading(false);
         return;
       }
-      console.log('aqui1');
       const user = await api.post('Clientes', {
         nomecliente: '',
         apelido: '',
