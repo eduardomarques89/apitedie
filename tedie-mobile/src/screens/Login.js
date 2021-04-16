@@ -2,12 +2,10 @@ import React, { useRef, useState, useContext } from 'react';
 import {
   StyleSheet, View, Image, StatusBar,
   ActivityIndicator, TouchableOpacity,
-  TouchableWithoutFeedback,
 } from 'react-native';
 // theme
 import Toast from 'react-native-easy-toast';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
 import theme from '../theme';
 import Typography from '../components/Typography';
 import Box from '../components/Box';

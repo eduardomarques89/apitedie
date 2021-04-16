@@ -26,7 +26,7 @@ export const getMarkets = async () => {
 };
 
 export const getMarketsByLocation = async (local) => {
-  const cep = local?.CEP || (local?.results[0]?.address_components.filter((ac) => ac.types.filter((ty) => ty == 'postal_code')?.length > 0)[0]?.short_name ?? undefined);
+  const cep = local?.CEP;
   if (!cep) {
     return [];
   }
