@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
-import Toast, { DURATION } from 'react-native-easy-toast';
+import Toast from 'react-native-easy-toast';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -30,43 +30,8 @@ const Locations = ({ route, navigation }) => {
   const [locations, setLocations] = useState([]);
   const [address, setaddress] = useState([]);
   const [locationText, setLocationText] = useState('');
-  const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
+  const { checkoutDispatch } = useContext(CheckoutContext);
   const toastRef = useRef();
-
-  async function setLocalization(local) {
-    if (local == 'gps') {
-      const { status } = await Location.requestPermissionsAsync();
-      toastRef.current?.show('Carregando localização...', 2000);
-      if (status !== 'granted') {
-        toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
-        return;
-      }
-      const newLocation = await Location.getCurrentPositionAsync({});
-      const address = await getLocationByLatLong(newLocation.coords.latitude, newLocation.coords.longitude);
-
-      const locations = address.results.map(refactoreLocalization);
-      if (route?.params?.checkoutEdit) {
-        setLocalizationByManual(locations[0]);
-        return;
-      }
-
-
-      const action = { type: 'createAddress', payload: locations[0] };
-      dispatch(action);
-
-      navigation.pop();
-    } else if (!state.sessao.IdCliente) {
-      const address = await getLocationByLatLong(local.Latitude, local.Longitude);
-      const locations = address.results.map(refactoreLocalization);
-
-      const action = { type: 'createAddress', payload: locations[0] };
-      dispatch(action);
-
-      navigation.pop();
-    } else {
-      setLocalizationByManual(local);
-    }
-  }
 
   const setLocalizationByManual = async (local) => {
     try {
@@ -79,36 +44,46 @@ const Locations = ({ route, navigation }) => {
         CEP: local.CEP.split('-').join(''),
         Num: local.Num,
         Complemento: '',
-        Latitude: local.latitude,
-        Longitude: local.longitude,
+        Latitude: local.Latitude,
+        Longitude: local.Longitude,
         Padrao: local.Padrao,
         Beautify: local.Endereco,
       });
-      if (route?.params?.checkoutEdit) {
-        const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: response.data[0] } };
-
-        checkoutDispatch(action);
-      } else {
-        const action = { type: 'createAddress', payload: local };
-        dispatch(action);
-      }
-
-      navigation.pop();
-      return;
+      return response.data[0];
     } catch (e) {
-      console.log(e);
+      throw e;
     }
+  };
+
+  async function setLocalization(local) {
+    let newLocation = local;
+    if (local === 'gps') {
+      toastRef.current?.show('Carregando localização...', 2000);
+      const { status } = await Location.requestPermissionsAsync();
+      if (status !== 'granted') {
+        toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
+        return;
+      }
+      const locationByLatLong = await Location.getCurrentPositionAsync({});
+      const locations = await getLocationByLatLong(locationByLatLong.coords.latitude, locationByLatLong.coords.longitude);
+      newLocation = locations.results.map(refactoreLocalization)[0];
+    }
+
+    if (state.sessao.IdCliente && local !== 'gps') {
+      newLocation = await setLocalizationByManual(newLocation);
+    }
+
     if (route?.params?.checkoutEdit) {
-      const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: local } };
+      const action = { type: 'setEnderecoEntregaPorEstabelecimento', payload: { enderecoEntregaPorEstabelecimento: newLocation } };
 
       checkoutDispatch(action);
     } else {
-      const action = { type: 'createAddress', payload: local };
+      const action = { type: 'createAddress', payload: newLocation };
       dispatch(action);
     }
 
     navigation.pop();
-  };
+  }
 
   const fetchLocations = useCallback(async () => {
     try {
