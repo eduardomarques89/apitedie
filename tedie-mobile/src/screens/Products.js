@@ -1,13 +1,11 @@
 import React, {
-  useCallback, useContext, useEffect, useRef, useState,
+  useCallback, useContext, useEffect, useState,
 } from 'react';
 import {
   StyleSheet, FlatList, View, TouchableOpacity, TextInput, StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
-import { ScreenContainer } from 'react-native-screens';
-import { FlingGestureHandler } from 'react-native-gesture-handler';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Navbar from '../components/Navbar';
 import Typography from '../components/Typography';
@@ -15,7 +13,6 @@ import ProductItem from '../components/ProductItem';
 import Avatar from '../components/Avatar';
 // theme
 import theme from '../theme';
-import { getProductsByCEP } from '../services/products';
 import { AppContext } from '../contexts/AppContext';
 import ContentContainer from '../components/ContentContainer';
 import api from '../services/axios';
@@ -29,34 +26,48 @@ const Products = ({ navigation, route }) => {
     setLoading] = useState(false);
   const [productsFilter, setProductsFilter] = useState([]);
   const [empresa, setEmpresa] = useState({});
+  const [refresh, setRefresh] = useState({
+    loading: false,
+    page: 1,
+    limit: 10,
+  });
   const [filter, setFilter] = useState('');
-  const { nameCategory, onlyOffer } = route.params ?? {};
+  const { nameCategory } = route.params ?? {};
 
-  useFocusEffect(useCallback(() => {
-    async function fechData() {
-      setLoading(true);
+  const fechData = useCallback(() => {
+    async function fetchMore() {
+      let moreProducts = [];
       try {
-        if (state?.market?.Logo) {
-          const { data } = await api.get(`Produtos?idempresa=${state.market.IdEmpresa}&categoria=${nameCategory}`);
-          setProducts(data);
-          setProductsFilter(data);
-        } else if (nameCategory) {
-          const { data } = await api.get(`Produtos?categoria=${nameCategory}`);
-          setProducts(data);
-          setProductsFilter(data);
+        if (nameCategory) {
+          const { data } = await api.get(`Produtos/CEPCategoriaPaginado?CEP=${state.address.CEP.replace('-', '')}&Categoria=${nameCategory}&offset=${10 * (refresh.page - 1)}&limite=${refresh.limit}&searchQuery=${filter}`);
+          moreProducts = data;
         } else {
           const { data } = await api.get('Produtos');
-          setProducts(data);
-          setProductsFilter(data);
+          moreProducts = data;
         }
+        if (state?.market?.Logo) {
+          moreProducts = moreProducts.filter((product) => product.IdEmpresa === state.market.IdEmpresa);
+        }
+        setProducts((props) => [...props, ...moreProducts]);
+        setProductsFilter((props) => [...props, ...moreProducts]);
       } catch (e) {
         console.log(e);
       }
-
       setLoading(false);
+      setRefresh((props) => ({ ...props, loading: false }));
     }
+    fetchMore();
+  });
+
+  useFocusEffect(useCallback(() => {
+    setLoading(true);
     fechData();
   }, []));
+  useEffect(() => {
+    if (refresh.loading) {
+      fechData();
+    }
+  }, [refresh, fechData]);
 
   async function filtrar(value) {
     if (value === '') {
@@ -101,85 +112,48 @@ const Products = ({ navigation, route }) => {
             >
               <Ionicons name="md-pin" size={30} color="#fff" />
             </TouchableOpacity>
-
-            {/* <TouchableOpacity
-              style={styles.navbarButton}
-              hitSlop={theme.hitSlop}
-              onPress={() =>navigation.navigate('Categorias', { screen: 'Produtos' })
-              }
-            >
-              <Ionicons name="md-search" size={30} color="#fff" />
-            </TouchableOpacity> */}
           </>
         )}
       />
       <Loader show={loading} />
-      <ScreenContainer style={{ padding: 16 }}>
 
-        {!loading && (
-          <>
+      {!loading && (
+      <>
 
-            <ContentContainer>
-              <View style={styles.searchContainer}>
-                <Ionicons name="md-search" size={30} color={theme.palette.primary} />
+        <View style={styles.searchContainerContainer}>
+          <ContentContainer>
+            <View style={styles.searchContainer}>
+              <Ionicons name="md-search" size={30} color={theme.palette.primary} />
 
-                <TextInput
-                  style={styles.textInput}
-                  value={filter}
-                  onChangeText={(value) => filtrar(value)}
-                  placeholder="Digite um produto"
-                />
-              </View>
-            </ContentContainer>
+              <TextInput
+                style={styles.textInput}
+                value={filter}
+                onChangeText={(value) => filtrar(value)}
+                placeholder="Digite um produto"
+              />
+            </View>
+          </ContentContainer>
+        </View>
 
-            <View style={styles.container}>
-              {nameCategory
-            && (
-            <FlatList
-              data={productsFilter}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => navigation.navigate('Produto', { product: item, empresaId: empresa.IdEmpresa })}>
-                  <ProductItem product={item} />
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item, index) => index}
-              numColumns={2}
-              showsVerticalScrollIndicator={false}
-            />
-            )}
-              {!nameCategory && onlyOffer
-            && (
-            <FlatList
-              data={productsFilter}
-              renderItem={({ item }) => item.hasOffer && (
+        <View style={styles.container}>
+          <FlatList
+            data={productsFilter}
+            renderItem={({ item }) => (
               <TouchableOpacity onPress={() => navigation.navigate('Produto', { product: item, empresaId: empresa.IdEmpresa })}>
                 <ProductItem product={item} />
               </TouchableOpacity>
-              )}
-              keyExtractor={(item, index) => index}
-              numColumns={2}
-              showsVerticalScrollIndicator={false}
-            />
             )}
-              {!nameCategory && !onlyOffer
-            && (
-            <FlatList
-              data={productsFilter}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => navigation.navigate('Produto', { product: item })}>
-                  <ProductItem product={item} />
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item, index) => index}
-              numColumns={2}
-              showsVerticalScrollIndicator={false}
-            />
-            )}
-            </View>
-          </>
-        )}
+            keyExtractor={(item, index) => index}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
 
-      </ScreenContainer>
+            onEndReached={() => setRefresh((props) => ({ ...props, page: props.page + 1, loading: true }))}
+            onEndReachedThreshold={0.5}
+          />
+        </View>
+      </>
+      )}
+
     </>
   );
 };
@@ -190,12 +164,15 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 16,
+    paddingTop: 16,
+
+    marginBottom: 170,
   },
   searchContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
+    marginHorizontal: 16,
   },
   navbarButton: {
     marginHorizontal: 8,
@@ -207,6 +184,9 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     backgroundColor: '#fafafa',
     borderRadius: 16,
+  },
+  searchContainerContainer: {
+    marginHorizontal: 8,
   },
 
 });
