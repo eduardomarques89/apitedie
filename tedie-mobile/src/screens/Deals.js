@@ -23,13 +23,18 @@ const Deals = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);
   const [products, setProducts] = useState([]);
   const [productsFilter, setProductsFilter] = useState([]);
+  const [refresh, setRefresh] = useState({
+    refreshing: false,
+    page: 1,
+  });
   const [filter, setFilter] = useState('');
   const fetchProducts = async (cep) => {
-    const value = await api.get(`produtos/CEPCategoriaPaginado?CEP=${cep}&Categoria=&offset=${0}&limite=${999}&searchQuery=${filter}`);
+    console.log(cep);
+    const value = await api.get(`produtos/Ofertas?CEP=${cep}&offset=${10 * (refresh.page - 1)}&limite=${10 * refresh.page}&searchQuery=${filter}`);
+    console.log(`produtos/Ofertas?CEP=${cep}&offset=${10 * (refresh.page - 1)}&limite=${10 * refresh.page}&searchQuery=${filter}`);
     const productsOferta = value.data.filter((product) => product.Oferta === 'S');
     if (!state.market?.IdEmpresa) {
       setProductsFilter(productsOferta);
-      return;
     }
 
     const FilterValues = productsOferta.filter((value) => value.IdEmpresa === state.market.IdEmpresa);
@@ -95,6 +100,7 @@ const Deals = ({ navigation }) => {
           </Typography>
           <View>
             <FlatList
+              refre
               contentContainerStyle={{ paddingBottom: 120 }}
               data={productsFilter}
               renderItem={({ item }) => (
@@ -102,6 +108,7 @@ const Deals = ({ navigation }) => {
                   <ProductItem product={{ ...item }} />
                 </TouchableOpacity>
               )}
+
               keyExtractor={(item) => `${item.Id}`}
               numColumns={2}
               columnWrapperStyle={{ flexWrap: 'wrap', flexDirection: 'row' }}

@@ -69,7 +69,7 @@ const Locations = ({ route, navigation }) => {
       newLocation = locations.results.map(refactoreLocalization)[0];
     }
 
-    if (state.sessao.IdCliente && local !== 'gps') {
+    if (state?.sessao?.IdCliente && local !== 'gps') {
       newLocation = await setLocalizationByManual(newLocation);
     }
 
