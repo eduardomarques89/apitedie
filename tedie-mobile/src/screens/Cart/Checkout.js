@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useRef, useState, useCallback,
+  useContext, useEffect, useRef, useState,
 } from 'react';
 import {
   StyleSheet,
@@ -46,25 +46,9 @@ const Checkout = ({ navigation, route }) => {
   const { cartState, cartDispatch } = useContext(CartContext);
   const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
   const { state, dispatch } = useContext(AppContext);
-  // const [showHorario, setShowHorario] = useState("Tipo de entrega-Horário-0-0")
-  const [showEndereco, setShowEndereco] = useState('selecione');
   const [showCartao, setShowCartao] = useState('');
-  const [cupom, setCupom] = useState('');
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-
-  useEffect(() => {
-    changeAddress();
-    changeCartao();
-  }, [checkoutState.selectedMarketIndex]);
-
-  useEffect(() => {
-    changeAddress();
-  }, [checkoutState?.enderecoEntregaPorEstabelecimento]);
-
-  useEffect(() => {
-    setCupom(checkoutState.cupom);
-  }, [checkoutState.cupom]);
 
   useEffect(() => {
     changeCartao();
@@ -104,12 +88,6 @@ const Checkout = ({ navigation, route }) => {
     fetchData();
   }, []);
 
-  async function changeAddress() {
-    if (!checkoutState?.enderecoEntregaPorEstabelecimento) return;
-    const selected = checkoutState.enderecoEntregaPorEstabelecimento?.Endereco;
-    setShowEndereco(selected || (selected?.Endereco ?? 'Selecione'));
-  }
-
   async function changeCartao() {
     if (!checkoutState.cartaoPorEstabelecimento.IdCartao) return;
     const selected = checkoutState.cartaoPorEstabelecimento;
@@ -133,28 +111,96 @@ const Checkout = ({ navigation, route }) => {
       expirationMonth: cartao.Validade.split('/')[0],
       expirationYear: cartao.Validade.split('/')[1],
     };
-    try {
-      const cardHash = await Juno.getCardHash(cardData);
-      const cardId = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/card-tokenization?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&creditCardHash=${cardHash}`);
+    const cardHash = await Juno.getCardHash(cardData);
+    const cardId = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/card-tokenization?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&creditCardHash=${cardHash}`);
 
-      const { data } = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&description=${codigo_transacao}&amount=${valor}&payerName=${cartao.Titular}&payerCpfCnpj=${cartao.CPF}&creditCardStore=${false}&creditCardId=${cardId.data.data.creditCardId}&paymentTypes=CREDIT_CARD&billingAddressStreet=null&billingAddressNumber=${endereco.Num}&billingAddressNeighborhood=${endereco.Bairro}&billingAddressCity=${endereco.Cidade}&billingAddressState=${endereco.UF}&billingAddressPostcode=${endereco.CEP}&payerEmail=wi3147383@wi7h.com.br`);
-      return { code: data.data.charges[0].code, status: data.data.charges[0].payments[0].status };
-    } catch (e) {
-      throw e;
-    }
+    const { data } = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&description=${codigo_transacao}&amount=${valor}&payerName=${cartao.Titular}&payerCpfCnpj=${cartao.CPF}&creditCardStore=${false}&creditCardId=${cardId.data.data.creditCardId}&paymentTypes=CREDIT_CARD&billingAddressStreet=null&billingAddressNumber=${endereco.Num}&billingAddressNeighborhood=${endereco.Bairro}&billingAddressCity=${endereco.Cidade}&billingAddressState=${endereco.UF}&billingAddressPostcode=${endereco.CEP}&payerEmail=wi3147383@wi7h.com.br`);
+    return { code: data.data.charges[0].code, status: data.data.charges[0].payments[0].status };
   }
 
-  async function fazerPedido() {
-    const codigo_transacao = (Math.random() * 1000000).toFixed(0);
-    const idCliente = state?.sessao?.IdCliente;
-    if (!checkoutState?.enderecoEntregaPorEstabelecimento || !checkoutState?.enderecoEntregaPorEstabelecimento?.Endereco) {
-      toastRef.current?.show('Selecione o endereço', 2000);
-      return;
-    }
+  function createOrderItem(product, NumeroPedido, IdEmpresa) {
+    const {
+      Data,
+    } = checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa];
+    const item = {
+      IdProduto: product.product.Id,
+      NumeroPedido,
+      Data,
+      Valor: product.quantity * product.product.Preco_Por,
+      Quantidade: product.quantity,
+      Desconto: '',
+      Status: product.product.Status,
+      Observacao: '',
+    };
+    return api.post('PedidosItem', item);
+  }
+
+  function createOrder(market, codigo_transacao, junoValues, NumeroPedido) {
+    const IdCupom = market.market.IdEmpresa === checkoutState.cupom?.IdEmpresa ? checkoutState.cupom.IdCupom : 0;
+    const Desconto = market.market.IdEmpresa === checkoutState.cupom?.Valor ? checkoutState.cupom.IdCupom : 0;
 
     const {
       Bairro, CEP, IdEndereco, Cidade, Complemento, Num, UF, Endereco,
     } = checkoutState?.enderecoEntregaPorEstabelecimento;
+    const {
+      TIPOENTREGA, IdHorario, DiaSemana, horario, IdDiaSemana, Data, IdTipoEntrega,
+    } = checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa];
+
+    const pedido = {
+      nomecliente: '',
+      apelido: '',
+      email: '',
+      cpf: state?.cpf || '',
+      senha: '',
+      codigo_transacao,
+      IdCliente: state.sessao.IdCliente,
+      IdTipoEntrega,
+      IdHorario,
+      IdCupom,
+      IdEmpresa: market.market.IdEmpresa,
+      IdFormaPagamento: selectedPayment.id,
+      IdDiaSemana,
+      IdEndereco,
+      NumeroPedido,
+      Data: new Date(),
+      Valor: Number(market.total) + Number(market.tax),
+      Desconto,
+      Taxa: market.tax,
+      TipoEntrega: TIPOENTREGA,
+      DiaSemana,
+      Horario: horario,
+      Endereco,
+      Bairro,
+      Cidade,
+      UF,
+      CEP: CEP.replace('-', ''),
+      Num,
+      Complemento,
+      FormaPagamento: selectedPayment.value,
+      QtdeParcela: 1,
+      Observacao: '',
+      status: 'aguardando pagamento',
+      DataFinal: Data,
+      codigoJuno: '',
+    };
+
+    if (selectedPayment.value === 'Cartão de crédito') {
+      pedido.IdCartao = checkoutState.cartaoPorEstabelecimento.IdCartao;
+      pedido.status = junoValues.status;
+      pedido.codigoJuno = junoValues.codeJuno;
+    }
+    console.log(pedido);
+
+    return api.post('Pedidos', pedido);
+  }
+
+  async function fazerPedido() {
+    const codigo_transacao = (Math.random() * 1000000).toFixed(0);
+    if (!checkoutState?.enderecoEntregaPorEstabelecimento?.Endereco) {
+      toastRef.current?.show('Selecione o endereço', 2000);
+      return;
+    }
+
     let horarioOk = true;
     cartState.markets.forEach((market) => {
       if (!checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa]) {
@@ -184,62 +230,16 @@ const Checkout = ({ navigation, route }) => {
         junoValues.status = juno.status;
         junoValues.codeJuno = juno.code;
       }
+      let productsPush = [];
       const promises = cartState.markets.map((market) => {
-        const IdCupom = market.market.IdEmpresa == cupom?.IdEmpresa ? cupom.IdCupom : 0;
-        const Desconto = market.market.IdEmpresa == cupom?.Valor ? cupom.IdCupom : 0;
-        // const IdTipoEntrega = checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa].title.split('-')[3];
-        const {
-          TIPOENTREGA, IdHorario, DiaSemana, horario, IdDiaSemana, Data, IdTipoEntrega,
-        } = checkoutState.horarioEntregaPorEstabelecimento[market.market.IdEmpresa];
+        const NumeroPedido = (Math.random() * 1000000).toFixed(0);
+        productsPush = [...productsPush, ...cartState.products.filter((product) => product.product.IdEmpresa === market.market.IdEmpresa).map((product) => createOrderItem(product, NumeroPedido, market.market.IdEmpresa))];
 
-        const pedido = {
-          nomecliente: '',
-          apelido: '',
-          email: '',
-          cpf: state?.cpf || '',
-          senha: '',
-          codigo_transacao,
-          IdCliente: idCliente,
-          IdTipoEntrega,
-          IdHorario,
-          IdCupom,
-          IdEmpresa: market.market.IdEmpresa,
-          IdFormaPagamento: selectedPayment.id,
-          IdDiaSemana,
-          IdEndereco,
-          NumeroPedido: (Math.random() * 1000000).toFixed(0),
-          Data: new Date(),
-          Valor: Number(market.total) + Number(market.tax),
-          Desconto,
-          Taxa: market.tax,
-          TipoEntrega: TIPOENTREGA,
-          DiaSemana,
-          Horario: horario,
-          Endereco,
-          Bairro,
-          Cidade,
-          UF,
-          CEP,
-          Num,
-          Complemento,
-          FormaPagamento: selectedPayment.value,
-          QtdeParcela: 1,
-          Observacao: '',
-          status: 'aguardando pagamento',
-          DataFinal: Data,
-          codigoJuno: '',
-        };
-
-        if (selectedPayment.value === 'Cartão de crédito') {
-          pedido.IdCartao = checkoutState.cartaoPorEstabelecimento.IdCartao;
-          pedido.status = junoValues.status;
-          pedido.codigoJuno = junoValues.codeJuno;
-        }
-
-        return api.post('Pedidos', pedido);
+        return createOrder(market, codigo_transacao, junoValues, NumeroPedido);
       });
 
       await Promise.all(promises);
+      await Promise.all(productsPush);
       pedidoConfirmado();
     } catch (e) {
       console.log(e);
@@ -331,7 +331,7 @@ const Checkout = ({ navigation, route }) => {
 
                 <View style={styles.locationInfo}>
                   <Typography size="small" color={theme.palette.dark}>
-                    {showEndereco}
+                    {checkoutState?.enderecoEntregaPorEstabelecimento?.Endereco || 'Selecione'}
                   </Typography>
                 </View>
 
@@ -395,7 +395,7 @@ const Checkout = ({ navigation, route }) => {
                       {checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.TIPOENTREGA || 'Tipo'}
                     </Typography>
                     <Typography size="small" color={theme.palette.light}>
-                      {checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.Data ? checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.Data : 'Data'}
+                      {checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.Data ? checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.DataFormat : 'Data'}
                     </Typography>
                     <Typography size="small" color={theme.palette.light}>
                       {checkoutState.horarioEntregaPorEstabelecimento[`${market.market.IdEmpresa}`]?.horario || 'Horário'}
@@ -415,12 +415,12 @@ const Checkout = ({ navigation, route }) => {
         <TouchableOpacity onPress={() => navigation.navigate('Cupons')}>
           <ContentContainer>
             <View style={styles.couponContainer}>
-              <Ionicons name="md-pricetag" size={25} color={cupom ? theme.palette.primary : theme.palette.light} />
+              <Ionicons name="md-pricetag" size={25} color={checkoutState.cupom ? theme.palette.primary : theme.palette.light} />
 
               <View style={styles.couponTextContainer}>
                 <Typography size="small" color={theme.palette.light}>
-                  {cupom
-                    ? `${cupom?.NomeCupom} - R$ ${cupom?.Valor.toFixed(2).replace('.', ',')}`
+                  {checkoutState.cupom
+                    ? `${checkoutState.cupom?.NomeCupom} - R$ ${checkoutState.cupom?.Valor.toFixed(2).replace('.', ',')}`
                     : 'Selecionar Cupom'}
                 </Typography>
               </View>
