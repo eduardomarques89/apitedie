@@ -25,11 +25,11 @@ import Loader from '../../components/Loader';
 
 const weekDay = ['DOMINGO', 'SEGUNDA-FEIRA', 'TERÇA-FEIRA', 'QUARTA-FEIRA', 'QUINTA-FEIRA', 'SEXTA-FEIRA', 'SABADO'];
 
-const DeliveryType = ({ navigation, route }) => {
+const DeliveryType = ({ route }) => {
   const toastRef = useRef();
   const navigate = useNavigation();
   const { checkoutState, checkoutDispatch } = useContext(CheckoutContext);
-  const { cartState, cartDispatch } = useContext(CartContext);
+  const { cartDispatch } = useContext(CartContext);
   const [horarios, setHorarios] = useState([]);
   const { IdEmpresa } = route.params;
   const [date, setDate] = useState(new Date());
@@ -40,13 +40,6 @@ const DeliveryType = ({ navigation, route }) => {
   const [dataFormat, setDataFormat] = useState(`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`);
   const [type, setType] = useState(1);
   const [loading, setLoading] = useState(false);
-  const typesDelivery = [{
-    label: 'Entrega',
-    id: 1,
-  }, {
-    label: 'Retirada',
-    id: 2,
-  }];
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -55,6 +48,14 @@ const DeliveryType = ({ navigation, route }) => {
 
     return event;
   };
+
+  async function buscaHorariosEstabelecimento() {
+    setLoading(true);
+    const newHorarios = await buscaHorarios(IdEmpresa);
+    setHorario(checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa] || {});
+    setHorarios(newHorarios);
+    setLoading(false);
+  }
 
   useEffect(() => {
     setDataFormat(`${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`);
@@ -65,8 +66,8 @@ const DeliveryType = ({ navigation, route }) => {
   }, []));
 
   useEffect(() => {
-    const week = weekDay[date.getDay()];
-    setWeek(week);
+    const newWeek = weekDay[date.getDay()];
+    setWeek(newWeek);
   }, [date]);
 
   useEffect(() => {
@@ -76,37 +77,29 @@ const DeliveryType = ({ navigation, route }) => {
     }
   }, [type, horarios, week]);
 
-  async function buscaHorariosEstabelecimento() {
-    setLoading(true);
-    const horarios = await buscaHorarios(IdEmpresa);
-    console.log(horarios);
-    setHorario(checkoutState.horarioEntregaPorEstabelecimento[IdEmpresa] || {});
-    setHorarios(horarios);
-    setLoading(false);
-  }
-
-  async function setSelectedHorario(horario) {
-    const horarioEntrega = `${horario.TIPOENTREGA}-${horario.horario}-${horario.TAXA}-${horario.identrega}-${horario.horacod}`;
+  async function setSelectedHorario(currentHorario) {
+    const horarioEntrega = `${currentHorario.TIPOENTREGA}-${currentHorario.horario}-${currentHorario.TAXA}-${currentHorario.identrega}-${currentHorario.horacod}`;
 
     const he = { ...checkoutState.horarioEntregaPorEstabelecimento };
     he[`${IdEmpresa}`] = {
       title: horarioEntrega,
-      IdTipoEntrega: horario.identrega >= 2 ? 2 : 1,
-      IdHorario: horario.horacod,
-      TIPOENTREGA: horario.identrega >= 2 ? 'Retirada' : 'Entrega',
-      DiaSemana: horario.diasemana,
-      horario: horario.horario,
-      IdDiaSemana: horario.iddiasemana,
-      Data: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
-      horacod: horario.horacod,
-      taxa: horario.TAXA,
+      IdTipoEntrega: currentHorario.identrega >= 2 ? 2 : 1,
+      IdHorario: currentHorario.horacod,
+      TIPOENTREGA: currentHorario.identrega >= 2 ? 'Retirada' : 'Entrega',
+      DiaSemana: currentHorario.diasemana,
+      horario: currentHorario.horario,
+      IdDiaSemana: currentHorario.iddiasemana,
+      DataFormat: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
+      Data: date,
+      horacod: currentHorario.horacod,
+      taxa: currentHorario.TAXA,
     };
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
-    const tax = type === 2 ? '0' : Number(horario.TAXA);
+    const tax = type === 2 ? '0' : Number(currentHorario.TAXA);
     const actionCart = { type: 'ADD_MARKET_TAX', payload: { tax, id: IdEmpresa } };
     cartDispatch(actionCart);
     checkoutDispatch(action);
-    setHorario(horario);
+    setHorario(currentHorario);
   }
 
   function formatDate(value, setValue) {
@@ -118,8 +111,7 @@ const DeliveryType = ({ navigation, route }) => {
     if (length > 8) {
       return;
     }
-    if (length == 8) {
-      const a = new Date(newValue);
+    if (length === 8) {
       setDate(new Date(newValue));
     }
     setValue(newValue);
@@ -169,7 +161,6 @@ const DeliveryType = ({ navigation, route }) => {
                   minimumDate={new Date()}
                   style={{ display: show ? 'flex' : 'none' }}
                   display="calendar"
-
                   onChange={onChange}
                 />
                 )}
@@ -178,7 +169,11 @@ const DeliveryType = ({ navigation, route }) => {
                 <View style={styles.container}>
                   <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data</Typography>
                   <View style={styles.dataInputContainer}>
-                    <TextInput value={dataFormat} onChangeText={(e) => formatDate(e, setDataFormat)} style={styles.dataInput} />
+                    <TextInput
+                      value={dataFormat}
+                      onChangeText={(e) => formatDate(e, setDataFormat)}
+                      style={styles.dataInput}
+                    />
                     <TouchableOpacity onPress={() => setShow(true)}>
                       <EvilIcons name="calendar" size={32} color="black" />
                     </TouchableOpacity>
@@ -214,12 +209,10 @@ const DeliveryType = ({ navigation, route }) => {
                       keyExtractor={(item) => `${item.horacod}`}
                       renderItem={({ item }) => (
                         <TouchableOpacity onPress={() => setSelectedHorario(item)} style={{ alignItems: 'center', flexDirection: 'row' }}>
-                          {/* <Box direction="row" justify="space-between" alignItems="center" fullwidth> */}
                           <RadioButton selected={horario?.horacod === item.horacod} />
                           <Typography size="small" color={theme.palette.light}>
                             {item.horario}
                           </Typography>
-                          {/* </Box> */}
                         </TouchableOpacity>
 
                       )}
