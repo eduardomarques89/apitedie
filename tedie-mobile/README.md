@@ -55,28 +55,11 @@ O projeto será compilado pelo Expo, será necessário ter uma conta para baixar
 
 ### To-do
 
-- [ ] Integração Back-End
-  - [ ] Lista de produtos com busca
   - [ ] Ofertas
-  - [ ] Endereços
-	- [ ] Busca de endereço por lat, long (localização)
-	- [ ] Busca de endereço por CEP
 	- [ ] Perfil do Usuário
-	- [ ] Editar perfil
 	- [ ] Pedidos
 	- [ ] Cupons
-	- [ ] Checkout
-	- [ ] Login
-	- [ ] Cadastro
-	- [ ] Cadastro de cartão
 	- [ ] Avaliação
-	- [ ] Tickets
 	- [ ] Ticket
 	- [ ] Enviar mensagem no ticket
 	- [ ] Notificações
-
-- [ ] Ajustes de lógica
-  - [ ] Lógica de múltiplos carrinhos
-  - [ ] Filtros
-	- [ ] Repetir pedido
-	- [ ] Tratamento de erros
