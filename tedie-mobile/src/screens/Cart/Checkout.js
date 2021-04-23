@@ -50,6 +50,16 @@ const Checkout = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
+  async function changeCartao() {
+    if (!checkoutState.cartaoPorEstabelecimento.IdCartao) return;
+    const selected = checkoutState.cartaoPorEstabelecimento;
+    if (!selected) {
+      return;
+    }
+    setShowCartao(selected.split('').filter((index, i) => i < 4).join(' '));
+    setSelectedPayment({ value: 'Cartão de crédito', id: 1 });
+  }
+
   useEffect(() => {
     changeCartao();
   }, [checkoutState.cartaoPorEstabelecimento]);
@@ -88,13 +98,6 @@ const Checkout = ({ navigation, route }) => {
     fetchData();
   }, []);
 
-  async function changeCartao() {
-    if (!checkoutState.cartaoPorEstabelecimento.IdCartao) return;
-    const selected = checkoutState.cartaoPorEstabelecimento;
-    setShowCartao(selected);
-    setSelectedPayment({ value: 'Cartão de crédito', id: 1 });
-  }
-
   async function pedidoConfirmado() {
     const actionCart = { type: 'CLEAR_CART' };
     cartDispatch(actionCart);
@@ -102,7 +105,7 @@ const Checkout = ({ navigation, route }) => {
     setModalVisible(true);
   }
 
-  async function postPagamento(codigo_transacao, valor, endereco) {
+  async function postPagamento(codigoTransacao, valor, endereco) {
     const cartao = checkoutState.cartaoPorEstabelecimento;
     const cardData = {
       cardNumber: cartao?.Numero?.split(' ').join('') || '',
@@ -112,9 +115,32 @@ const Checkout = ({ navigation, route }) => {
       expirationYear: cartao.Validade.split('/')[1],
     };
     const cardHash = await Juno.getCardHash(cardData);
-    const cardId = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/card-tokenization?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&creditCardHash=${cardHash}`);
 
-    const { data } = await axios.post(`https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge?token=5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852&description=${codigo_transacao}&amount=${valor}&payerName=${cartao.Titular}&payerCpfCnpj=${cartao.CPF}&creditCardStore=${false}&creditCardId=${cardId.data.data.creditCardId}&paymentTypes=CREDIT_CARD&billingAddressStreet=null&billingAddressNumber=${endereco.Num}&billingAddressNeighborhood=${endereco.Bairro}&billingAddressCity=${endereco.Cidade}&billingAddressState=${endereco.UF}&billingAddressPostcode=${endereco.CEP}&payerEmail=wi3147383@wi7h.com.br`);
+    const cardId = await axios.post('https://sandbox.boletobancario.com/boletofacil/integration/api/v1/card-tokenization', {}, {
+      params: {
+        token: '5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852',
+        creditCardHash: cardHash,
+      },
+    });
+    const { data } = await axios.post('https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge', {}, {
+      params: {
+        token: '5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852',
+        description: codigoTransacao,
+        amount: valor,
+        billingAddressStreet: 'null',
+        payerName: cartao.Titular,
+        payerCpfCnpj: state.cpf.match(/\d+/g)?.join(''),
+        creditCardStore: false,
+        creditCardId: cardId.data.data.creditCardId,
+        paymentTypes: 'CREDIT_CARD',
+        billingAddressNumber: endereco.Num,
+        billingAddressNeighborhood: endereco.Bairro,
+        billingAddressCity: endereco.Cidade,
+        billingAddressState: endereco.UF,
+        billingAddressPostcode: endereco.CEP,
+        payerEmail: 'wi3147383@wi7h.com.br',
+      },
+    });
     return { code: data.data.charges[0].code, status: data.data.charges[0].payments[0].status };
   }
 
@@ -135,7 +161,7 @@ const Checkout = ({ navigation, route }) => {
     return api.post('PedidosItem', item);
   }
 
-  function createOrder(market, codigo_transacao, junoValues, NumeroPedido) {
+  function createOrder(market, codigoTransacao, junoValues, NumeroPedido) {
     const IdCupom = market.market.IdEmpresa === checkoutState.cupom?.IdEmpresa ? checkoutState.cupom.IdCupom : 0;
     const Desconto = market.market.IdEmpresa === checkoutState.cupom?.Valor ? checkoutState.cupom.IdCupom : 0;
 
@@ -152,7 +178,7 @@ const Checkout = ({ navigation, route }) => {
       email: '',
       cpf: state?.cpf || '',
       senha: '',
-      codigo_transacao,
+      codigo_transacao: codigoTransacao,
       IdCliente: state.sessao.IdCliente,
       IdTipoEntrega,
       IdHorario,
@@ -189,16 +215,13 @@ const Checkout = ({ navigation, route }) => {
       pedido.status = junoValues.status;
       pedido.codigoJuno = junoValues.codeJuno;
     }
-    console.log(pedido);
 
     return api.post('Pedidos', pedido);
   }
 
-  async function fazerPedido() {
-    const codigo_transacao = (Math.random() * 1000000).toFixed(0);
+  function verifyDatas() {
     if (!checkoutState?.enderecoEntregaPorEstabelecimento?.Endereco) {
-      toastRef.current?.show('Selecione o endereço', 2000);
-      return;
+      return { status: false, error: 'Selecione o endereço' };
     }
 
     let horarioOk = true;
@@ -208,16 +231,28 @@ const Checkout = ({ navigation, route }) => {
       }
     });
     if (!horarioOk) {
-      toastRef.current?.show('Selecione o horário de entrega', 2000);
-      return;
+      return { status: false, error: 'Selecione o horário de entrega' };
     }
+
     const IdCartao = checkoutState.cartaoPorEstabelecimento?.IdCartao;
     if (!IdCartao && selectedPayment.value === 'Cartão de crédito') {
-      toastRef.current?.show('Selecione um cartão', 2000);
-      return;
+      return { status: false, error: 'Selecione um cartão' };
     }
+
     if (selectedPayment.value === 'Cartão de crédito' && !state?.cpf) {
-      toastRef.current?.show('Digite um cpf', 2000);
+      return { status: false, error: 'Digite um cpf' };
+    }
+
+    return { status: true, error: '' };
+  }
+
+  async function fazerPedido() {
+    const codigoTransacao = (Math.random() * 1000000).toFixed(0);
+
+    const verify = verifyDatas();
+
+    if (!verify.status) {
+      toastRef.current?.show(verify.error, 2000);
       return;
     }
 
@@ -226,7 +261,7 @@ const Checkout = ({ navigation, route }) => {
     try {
       const junoValues = {};
       if (selectedPayment.value === 'Cartão de crédito') {
-        const juno = await postPagamento(codigo_transacao, totalWithTax, checkoutState?.enderecoEntregaPorEstabelecimento);
+        const juno = await postPagamento(codigoTransacao, totalWithTax, checkoutState?.enderecoEntregaPorEstabelecimento);
         junoValues.status = juno.status;
         junoValues.codeJuno = juno.code;
       }
@@ -235,9 +270,10 @@ const Checkout = ({ navigation, route }) => {
         const NumeroPedido = (Math.random() * 1000000).toFixed(0);
         productsPush = [...productsPush, ...cartState.products.filter((product) => product.product.IdEmpresa === market.market.IdEmpresa).map((product) => createOrderItem(product, NumeroPedido, market.market.IdEmpresa))];
 
-        return createOrder(market, codigo_transacao, junoValues, NumeroPedido);
+        return createOrder(market, codigoTransacao, junoValues, NumeroPedido);
       });
 
+      console.log('oioi');
       await Promise.all(promises);
       await Promise.all(productsPush);
       pedidoConfirmado();
@@ -452,9 +488,7 @@ const Checkout = ({ navigation, route }) => {
                       {showCartao
                         && (
                         <>
-                          {showCartao.Bandeira}
-                          {' '}
-                          {showCartao.Numero.split('').filter((index, i) => i < 4).join(' ')}
+                          {showCartao}
                         </>
                         )}
                     </Typography>
@@ -668,21 +702,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,.4)',
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
   textStyle: {
     color: 'white',
