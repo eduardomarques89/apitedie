@@ -34,39 +34,43 @@ const Locations = ({ route, navigation }) => {
   const toastRef = useRef();
 
   const setLocalizationByManual = async (local) => {
-    try {
-      const response = await api.post('Enderecos', {
-        IdCliente: state?.sessao?.IdCliente,
-        Endereco: local.Endereco,
-        Bairro: local.Bairro,
-        Cidade: local.Cidade,
-        UF: local.UF.toUpperCase(),
-        CEP: local.CEP.split('-').join(''),
-        Num: local.Num,
-        Complemento: '',
-        Latitude: local.Latitude,
-        Longitude: local.Longitude,
-        Padrao: local.Padrao,
-        Beautify: local.Endereco,
-      });
-      return response.data[0];
-    } catch (e) {
-      throw e;
-    }
+    const response = await api.post('Enderecos', {
+      IdCliente: state?.sessao?.IdCliente,
+      Endereco: local.Endereco,
+      Bairro: local.Bairro,
+      Cidade: local.Cidade,
+      UF: local.UF.toUpperCase(),
+      CEP: local.CEP.split('-').join(''),
+      Num: local.Num,
+      Complemento: '',
+      Latitude: local.Latitude,
+      Longitude: local.Longitude,
+      Padrao: local.Padrao,
+      Beautify: local.Endereco,
+    });
+    return response.data[0];
   };
+
+  async function getLocalizationByGPS() {
+    toastRef.current?.show('Carregando localização...', 2000);
+    const { status } = await Location.requestPermissionsAsync();
+    if (status !== 'granted') {
+      toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
+      return false;
+    }
+    const locationByLatLong = await Location.getCurrentPositionAsync({});
+    const locations = await getLocationByLatLong(locationByLatLong.coords.latitude, locationByLatLong.coords.longitude);
+    return locations.results.map(refactoreLocalization)[0];
+  }
 
   async function setLocalization(local) {
     let newLocation = local;
     if (local === 'gps') {
-      toastRef.current?.show('Carregando localização...', 2000);
-      const { status } = await Location.requestPermissionsAsync();
-      if (status !== 'granted') {
-        toastRef.current?.show('Permissão para acessar localização foi negada', 3000);
-        return;
-      }
-      const locationByLatLong = await Location.getCurrentPositionAsync({});
-      const locations = await getLocationByLatLong(locationByLatLong.coords.latitude, locationByLatLong.coords.longitude);
-      newLocation = locations.results.map(refactoreLocalization)[0];
+      newLocation = await getLocalizationByGPS();
+    }
+
+    if (!newLocation) {
+      return;
     }
 
     if (state?.sessao?.IdCliente && local !== 'gps') {
