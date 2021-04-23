@@ -12,16 +12,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 // components
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import theme from '../theme';
 import { CartContext } from '../contexts/CartContext';
-import { CheckoutContext } from '../contexts/CheckoutContext';
-import { AppContext } from '../contexts/AppContext';
-import { getMarketsListByIds } from '../services/market';
 
 const CartFab = () => {
   const { cartState, cartDispatch } = useContext(CartContext);
-  const { state, dispatch } = useContext(AppContext);
   const [markets, setMarkets] = useState([]);
   const [isOpen, setOpen] = useState(false);
   const openFabAnimation = useRef(new Animated.Value(0)).current;
@@ -59,9 +55,6 @@ const CartFab = () => {
 
   return (
     <>
-      {/* {isOpen && (
-        <View style={styles.fabBackdrop} />
-      )} */}
 
       <View style={styles.miniFabContainer}>
         {markets.map((obj) => (
