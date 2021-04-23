@@ -1,14 +1,12 @@
-import { useLinkProps } from '@react-navigation/native'
-import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { useLinkProps } from '@react-navigation/native';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 
-const ContentContainer = ({ children, background }) => {
-  return (
-    <View style={styles.container}>
-      { children}
-    </View>
-  )
-}
+const ContentContainer = ({ children, background }) => (
+  <View style={styles.container}>
+    {children}
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -18,8 +16,8 @@ const styles = StyleSheet.create({
     padding: 16,
     elevation: 2,
     borderRadius: 8,
-    textShadowColor: 'black'
-  }
-})
+    textShadowColor: 'black',
+  },
+});
 
-export default ContentContainer
+export default ContentContainer;

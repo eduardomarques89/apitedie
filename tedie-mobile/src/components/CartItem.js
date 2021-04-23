@@ -1,20 +1,19 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import {
   StyleSheet, View, Image, TouchableOpacity, Text,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
 import ModalDropdown from 'react-native-modal-dropdown';
+import PropTypes from 'prop-types';
 import ContentContainer from './ContentContainer';
 import Typography from './Typography';
 import { CartContext } from '../contexts/CartContext';
-import { AppContext } from '../contexts/AppContext';
 // theme
 import theme from '../theme';
 
 const CartItem = ({ cartItem }) => {
-  const { cartState, cartDispatch } = useContext(CartContext);
-  const { state, dispatch } = useContext(AppContext);
+  const { cartDispatch } = useContext(CartContext);
 
   function handleValueDropdown() {
     const payload = { product: cartItem.product, quantity: cartItem.quantity };
@@ -28,7 +27,7 @@ const CartItem = ({ cartItem }) => {
     cartDispatch(action);
   };
 
-  const handleAdd = async (quantity) => {
+  const handleAdd = async () => {
     const payload = { product: cartItem.product, quantity: 1 };
     const action = { type: 'ADD_PRODUCT', payload };
     cartDispatch(action);
@@ -151,5 +150,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
 });
+
+CartItem.propTypes = {
+  cartItem: PropTypes.shape({
+    quantity: PropTypes.oneOf([PropTypes.number, PropTypes.string]).isRequired,
+    product: PropTypes.shape({
+      Preco_Por: PropTypes.oneOf([PropTypes.number, PropTypes.string]).isRequired,
+      Nome: PropTypes.string.isRequired,
+      Imagem: PropTypes.string,
+    }),
+  }).isRequired,
+};
+
+CartItem.defaultProps = {
+
+};
 
 export default CartItem;

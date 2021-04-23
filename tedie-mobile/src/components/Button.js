@@ -37,4 +37,11 @@ Button.propTypes = {
   width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
+Button.defaultProps = {
+  color: PropTypes.string,
+  background: PropTypes.string,
+  onPress: PropTypes.func,
+  width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};
+
 export default Button;
