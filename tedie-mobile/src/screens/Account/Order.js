@@ -10,8 +10,7 @@ import ScreenContainer from '../../components/ScreenContainer';
 import ContentContainer from '../../components/ContentContainer';
 import Typography from '../../components/Typography';
 import Divider from '../../components/Divider';
-import Box from '../../components/Box';
-import Button from '../../components/Button';
+import api from '../../services/axios';
 // theme
 import theme from '../../theme';
 
@@ -21,10 +20,17 @@ const Order = ({ navigation, route }) => {
   const { order: orderParam } = route.params;
 
   useEffect(() => {
-    setOrder({
-      ...orderParam,
-      Data: new Date(),
-    });
+    async function fetchData() {
+      const response = await api.get(`PedidosItem/Item/${orderParam.NumeroPedido}`);
+      const data = new Date(orderParam.Data);
+      setOrder({
+        ...orderParam,
+        orders: response.data,
+        Data: `${data.getDate() || '00'}-${data.getMonth() || '00'}-${data.getFullYear() || '00'}`,
+        valorByProducts: orderParam.Valor - orderParam.Taxa,
+      });
+    }
+    fetchData();
   }, [orderParam]);
 
   return (
@@ -62,14 +68,70 @@ const Order = ({ navigation, route }) => {
               <Typography size="caption" color={theme.palette.light}>
                 Realizado em -
                 {' '}
-                {`${order?.Data?.getDate() || '00'}-${order?.Data?.getMonth() || '00'}-${order?.Data?.getFullYear() || '00'}`}
+                {`${order?.Data || '00-00-00'}`}
               </Typography>
             </View>
           </View>
 
           <Divider />
 
-          {order.review && (
+          {
+order.orders && order.orders.map((order, index) => (
+  <View key={index} style={styles.lineSpaceContainerMargin}>
+    <View style={styles.columnContainer}>
+      <Typography size="small" color={theme.palette.dark}>
+        {`Produto ${index + 1}`}
+      </Typography>
+      <Typography size="caption" color={theme.palette.light}>
+        {order.Quantidade}
+        x un.
+      </Typography>
+    </View>
+
+    <Typography size="small" color={theme.palette.dark}>
+      {`R$ ${(order?.Valor || 0).toFixed(2).replace('.', ',')}`}
+    </Typography>
+  </View>
+
+))
+
+  }
+          <TouchableOpacity>
+            <Typography size="small" color={theme.palette.primary}>
+              Refazer Pedido!
+            </Typography>
+          </TouchableOpacity>
+
+          <Divider />
+
+          <Typography size="medium" color={theme.palette.dark}>
+            Pedido #
+            {order.NumeroPedido}
+          </Typography>
+
+          <Divider />
+
+          <View style={styles.lineSpaceContainer}>
+            <Typography size="small" color={theme.palette.light}>
+              Total em produtos
+            </Typography>
+            <Typography size="small" color={theme.palette.light}>
+
+              {`R$ ${((order?.valorByProducts || 0)).toFixed(2).replace('.', ',')}`}
+            </Typography>
+          </View>
+
+          <View style={styles.lineSpaceContainer}>
+            <Typography size="small" color={theme.palette.light}>
+              Entrega
+            </Typography>
+            <Typography size="small" color={theme.palette.success}>
+
+              {`R$ ${((order?.Taxa || 0)).toFixed(2).replace('.', ',')}`}
+            </Typography>
+          </View>
+
+          {/* {order.review && (
           <TouchableOpacity onPress={() => navigation.navigate('Avaliar', { review: order.review })}>
             <Box direction="row" justify="space-between" alignItems="center" noMargin>
               <Box direction="column" justify="center" alignItems="flex-start" noMargin>
@@ -89,9 +151,9 @@ const Order = ({ navigation, route }) => {
               </Typography>
             </Box>
           </TouchableOpacity>
-          )}
+          )} */}
 
-          {!order.review && (
+          {/* {!order.review && (
           <Button
             background={theme.palette.primary}
             color="#fff"
@@ -99,9 +161,9 @@ const Order = ({ navigation, route }) => {
             text="Avaliar Pedido"
             onPress={() => navigation.navigate('Avaliar', { review: null })}
           />
-          )}
+          )} */}
 
-          <Divider />
+          {/* <Divider />
 
           <View style={styles.lineContainer}>
             <Ionicons name="ios-cart" size={25} color={theme.palette.success} />
@@ -111,102 +173,9 @@ const Order = ({ navigation, route }) => {
           </View>
 
           {order.status === 'finished' && (
-          <TouchableOpacity>
-            <Typography size="small" color={theme.palette.primary}>
-              Refazer Pedido!
-            </Typography>
-          </TouchableOpacity>
-          )}
+           */}
 
-          <Divider />
-
-          <Typography size="medium" color={theme.palette.dark}>
-            Pedido #0003
-          </Typography>
-
-          <View style={styles.lineSpaceContainerMargin}>
-            <View style={styles.columnContainer}>
-              <Typography size="small" color={theme.palette.dark}>
-                Produto 01
-              </Typography>
-              <Typography size="caption" color={theme.palette.light}>
-                1x un.
-              </Typography>
-            </View>
-
-            <Typography size="small" color={theme.palette.dark}>
-              {`R$ ${(order?.Valor || 0).toFixed(2).replace('.', ',')}`}
-            </Typography>
-          </View>
-
-          <View style={styles.lineSpaceContainerMargin}>
-            <View style={styles.columnContainer}>
-              <Typography size="small" color={theme.palette.dark}>
-                Produto 02
-              </Typography>
-              <Typography size="caption" color={theme.palette.light}>
-                2x 300g.
-              </Typography>
-            </View>
-
-            <Typography size="small" color={theme.palette.dark}>
-              R$ 15,00
-            </Typography>
-          </View>
-
-          <View style={styles.lineSpaceContainerMargin}>
-            <View style={styles.columnContainer}>
-              <Typography size="small" color={theme.palette.dark}>
-                Produto 03
-              </Typography>
-              <Typography size="caption" color={theme.palette.light}>
-                1x 1.5kg.
-              </Typography>
-            </View>
-
-            <Typography size="small" color={theme.palette.dark}>
-              R$ 15,00
-            </Typography>
-          </View>
-
-          <View style={styles.lineSpaceContainerMargin}>
-            <View style={styles.columnContainer}>
-              <Typography size="small" color={theme.palette.dark}>
-                Produto 04
-              </Typography>
-              <Typography size="caption" color={theme.palette.light}>
-                4x un.
-              </Typography>
-            </View>
-
-            <Typography size="small" color={theme.palette.dark}>
-              R$ 15,00
-            </Typography>
-          </View>
-
-          <Divider />
-
-          <View style={styles.lineSpaceContainer}>
-            <Typography size="small" color={theme.palette.light}>
-              Total em produtos
-            </Typography>
-            <Typography size="small" color={theme.palette.light}>
-
-              {`R$ ${((order?.Valor || 0) - (order?.Taxa || 0)).toFixed(2).replace('.', ',')}`}
-            </Typography>
-          </View>
-
-          <View style={styles.lineSpaceContainer}>
-            <Typography size="small" color={theme.palette.light}>
-              Entrega
-            </Typography>
-            <Typography size="small" color={theme.palette.success}>
-
-              {`R$ ${((order?.Taxa || 0)).toFixed(2).replace('.', ',')}`}
-            </Typography>
-          </View>
-
-          <View style={styles.lineSpaceContainer}>
+          {/* <View style={styles.lineSpaceContainer}>
             <View style={styles.columnContainer}>
               <Typography size="small" color={theme.palette.light}>
                 Cupom
@@ -218,7 +187,7 @@ const Order = ({ navigation, route }) => {
             <Typography size="small" color={theme.palette.success}>
               - R$ 12,00
             </Typography>
-          </View>
+          </View> */}
 
           <View style={styles.lineSpaceContainer}>
             <Typography size="medium" color={theme.palette.dark}>
@@ -230,7 +199,7 @@ const Order = ({ navigation, route }) => {
             </Typography>
           </View>
 
-          <Divider />
+          {/* <Divider />
 
           <View style={styles.lineSpaceContainer}>
             <View style={styles.columnContainer}>
@@ -244,24 +213,25 @@ const Order = ({ navigation, route }) => {
             <Typography size="small" color={theme.palette.dark}>
               **** 1234
             </Typography>
-          </View>
+          </View> */}
 
           <Divider />
 
+          {order?.Endereco && (
           <View style={styles.columnContainer}>
             <Typography size="caption" color={theme.palette.light}>
               Entregue em
             </Typography>
-            <Typography size="small" color={theme.palette.dark}>
-              Rua Dr. Guilherme Redher, 274
-            </Typography>
-            <Typography size="small" color={theme.palette.light}>
-              Vila N. S. de Fátima
-            </Typography>
-            <Typography size="small" color={theme.palette.light}>
-              São João da Boa Vista - SP
-            </Typography>
+            {order?.Endereco.split(',').map((value) => (
+              <Typography size="small" color={theme.palette.dark}>
+                {value}
+              </Typography>
+
+            ))}
           </View>
+
+          )}
+
         </ContentContainer>
       </ScreenContainer>
     </>

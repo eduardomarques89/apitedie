@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { AppearanceProvider } from 'react-native-appearance';
+import { View } from 'react-native';
 import Navigation from './src/navigation';
 // services
 import { AppContext, appReducer, initialState } from './src/contexts/AppContext';
@@ -13,6 +14,7 @@ import { getMarketsListByIds } from './src/services/market';
 export default function App() {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const [firstRender, setFirstRender] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [cartState, cartDispatch] = useReducer(appCartReducer, cartInitialState);
   const [checkoutState, checkoutDispatch] = useReducer(appCheckoutReducer, checkoutInitialState);
 
@@ -24,20 +26,26 @@ export default function App() {
 
   useEffect(() => {
     async function getItems() {
+      setLoading(true);
       const items = JSON.parse(await AsyncStorage.getItem('items'));
       if (items) {
-        const newMarkets = await loadMarkets(items.market.markets);
-        const market = items.market.markets.map((market) => {
-          const newMarket = newMarkets.find((marketa) => marketa.IdEmpresa === market.market.IdEmpresa);
-          if (newMarket) {
-            return { ...market, market: newMarket };
-          }
-          return market;
-        });
-        const action = { type: 'LOAD_MARKET_DATA', payload: { ...items.market, markets: market } };
         const actionState = { type: 'LOAD_USER_DATA', payload: { ...items.state } };
-        cartDispatch(action);
         dispatch(actionState);
+        try {
+          const newMarkets = await loadMarkets(items.market.markets);
+          const markets = items.market.markets.map((market) => {
+            const newMarket = newMarkets.find((marketa) => marketa.IdEmpresa === market.market.IdEmpresa);
+            if (newMarket) {
+              return { ...market, market: newMarket };
+            }
+            return market;
+          });
+          setLoading(false);
+          const action = { type: 'LOAD_MARKET_DATA', payload: { ...items.market, markets } };
+          cartDispatch(action);
+        } catch {
+          setLoading(false);
+        }
       }
     }
     getItems();
@@ -56,6 +64,10 @@ export default function App() {
     }
     setItems();
   }, [state, cartState]);
+
+  if (loading) {
+    return <View style={{ flex: 1, backgroundColor: '#d70d0f' }} />;
+  }
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

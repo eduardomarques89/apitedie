@@ -1,18 +1,16 @@
 import React, {
-  useContext, useEffect, useState, useCallback,
+  useContext, useEffect, useState,
 } from 'react';
 import {
   StyleSheet, View, Text, TouchableOpacity, Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
-import { useFocusEffect } from '@react-navigation/native';
 import ContentContainer from './ContentContainer';
 import Typography from './Typography';
 // theme
 import theme from '../theme';
 import { AppContext } from '../contexts/AppContext';
-import { useQuantity } from '../hooks/useQuantity';
 import { CartContext } from '../contexts/CartContext';
 import api from '../services/axios';
 
@@ -37,7 +35,8 @@ const ProductItem = ({ product, skeleton }) => {
       const market = await api.get(`Empresas/${marketId}`);
       const action = { type: 'Add_MARKET', payload: { market: market.data } };
       cartDispatch(action);
-    } catch {
+    } catch (e) {
+      console.log(e);
     }
   }
   const handleRemove = (quantity) => {

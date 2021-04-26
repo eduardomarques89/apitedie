@@ -245,6 +245,7 @@ const Checkout = ({ navigation, route }) => {
 
     return { status: true, error: '' };
   }
+  let juno;
 
   async function fazerPedido() {
     const codigoTransacao = (Math.random() * 1000000).toFixed(0);
@@ -261,19 +262,20 @@ const Checkout = ({ navigation, route }) => {
     try {
       const junoValues = {};
       if (selectedPayment.value === 'Cartão de crédito') {
-        const juno = await postPagamento(codigoTransacao, totalWithTax, checkoutState?.enderecoEntregaPorEstabelecimento);
+        juno = await postPagamento(codigoTransacao, totalWithTax, checkoutState?.enderecoEntregaPorEstabelecimento);
         junoValues.status = juno.status;
         junoValues.codeJuno = juno.code;
       }
       let productsPush = [];
       const promises = cartState.markets.map((market) => {
-        const NumeroPedido = (Math.random() * 1000000).toFixed(0);
-        productsPush = [...productsPush, ...cartState.products.filter((product) => product.product.IdEmpresa === market.market.IdEmpresa).map((product) => createOrderItem(product, NumeroPedido, market.market.IdEmpresa))];
+        const NumeroPedido = juno?.code || (Math.random() * 1000000).toFixed(0);
+        const productFilter = cartState.products.filter((product) => product.product.IdEmpresa === market.market.IdEmpresa);
+        const newProductsPromises = productFilter.map((product) => createOrderItem(product, NumeroPedido, market.market.IdEmpresa));
+        productsPush = [...productsPush, ...newProductsPromises];
 
         return createOrder(market, codigoTransacao, junoValues, NumeroPedido);
       });
 
-      console.log('oioi');
       await Promise.all(promises);
       await Promise.all(productsPush);
       pedidoConfirmado();
