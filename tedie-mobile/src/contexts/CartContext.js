@@ -84,7 +84,6 @@ export const appCartReducer = (state = cartInitialState, action) => {
       };
 
     case 'ADD_PRODUCT':
-      console.log('oioi');
       existProduct = state.products.find((product) => product.product.Id === action.payload.product.Id);
       if (existProduct) {
         newProducts = state.products.map((product) => {

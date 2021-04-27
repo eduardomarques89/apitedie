@@ -2,8 +2,9 @@ import React, {
   useEffect, useCallback, useState, useRef, useContext,
 } from 'react';
 import {
-  View, Text, StatusBar, FlatList, TouchableOpacity, TextInput, StyleSheet, SafeAreaView,
+  View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet, SafeAreaView,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 // components
 import Toast from 'react-native-easy-toast';
@@ -138,7 +139,7 @@ const Locations = ({ route, navigation }) => {
         textStyle={{ color: 'white' }}
       />
 
-      <StatusBar backgroundColor={theme.palette.primary} />
+      <StatusBar backgroundColor={theme.palette.primary} style="light" />
       <Navbar
         left={(
           <TouchableOpacity
