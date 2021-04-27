@@ -7,7 +7,7 @@ import theme from '../theme';
 
 const TextField = ({
   width, label, labelColor, borderColor, backgroundColor,
-  keyboardType, returnKeyType, onEndEditing, useContainerWidth, value, setValue, date, password, ...rest
+  keyboardType, returnKeyType, onEndEditing, useContainerWidth, value, setValue, date, password, inputStyle, ...rest
 }) => {
   const propWidth = width ? Number.parseInt(width.replace('%', '')) : null;
   const fieldWidth = width ? ((Dimensions.get('window').width * (propWidth / 100)) - 20) : null;
@@ -64,7 +64,7 @@ const TextField = ({
       onEndEditing={() => {}}
       // value={date ? maskDate(inputValue) : password ? inputValue.split("").reduce((a, v) => { return (a += "*") }, "") : inputValue}
       value={inputValue}
-      inputStyle={{ color: '#fff' }}
+      inputStyle={inputStyle || { color: '#fff' }}
       onChangeText={(value) => { setInfo(value); }}
     />
   );
@@ -90,6 +90,7 @@ TextField.propTypes = {
   returnKeyType: PropTypes.string,
   onEndEditing: PropTypes.func,
   value: PropTypes.string,
+
 };
 
 export default TextField;
