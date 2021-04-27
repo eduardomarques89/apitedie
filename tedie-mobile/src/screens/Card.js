@@ -76,7 +76,6 @@ const Card = ({ navigation, route }) => {
       cartao.IdCartao = formik.values.IdCartao;
     }
 
-    console.log(cartao);
     if (!(await addCardSchema.isValid(cartao))) {
       alert('Cartão invalido');
       setLoading(false);
@@ -91,7 +90,6 @@ const Card = ({ navigation, route }) => {
         expirationYear: cartao.Validade.split('/')[1],
       };
       await Juno.getCardHash(cardData);
-      console.log(cardData);
       if (route?.params?.editCard) {
         await api.put('clientes/PutCartao', cartao);
         console.log('editou');
@@ -137,7 +135,6 @@ const Card = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route.params?.editCard) {
-      console.log(route.params.card);
       formik.setValues({ ...route.params.card, CVV: route.params.card.CVV.trim() });
     }
   }, [route.params?.editCard]);
