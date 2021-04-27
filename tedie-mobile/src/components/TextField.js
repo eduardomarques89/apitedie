@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Dimensions } from 'react-native';
 import PropTypes from 'prop-types';
 import { Hoshi } from 'react-native-textinput-effects';
@@ -14,6 +14,15 @@ const TextField = ({
   const windowSizeWidth = (Dimensions.get('window').width - 24);
 
   const [inputValue, setInputValue] = useState(value);
+  useEffect(() => {
+    console.log();
+    if (date == true) {
+      setInputValue(maskDate(value));
+    } else {
+      const x = value;
+      setInputValue(x);
+    }
+  }, [value]);
 
   function setInfo(value) {
     if (date == true) {

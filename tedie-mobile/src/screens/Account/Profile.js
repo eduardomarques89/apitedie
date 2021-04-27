@@ -36,6 +36,23 @@ const Profile = ({ navigation }) => {
     },
   });
 
+  useEffect(() => {
+    async function fetchData() {
+      const { data } = await api.get(`Clientes/${state?.sessao?.IdCliente}`);
+      formik.setValues({
+        Nome: data.NomeCliente.split(' ')[0] || '',
+        SobreNome: data.NomeCliente.split(' ')[1],
+        Apelido: data.Apelido,
+        dataNasc: data.datanasc,
+        Telefone: data.Telefone,
+        Email: data.Email,
+        CPF: data.CPF,
+      });
+    }
+
+    fetchData();
+  }, []);
+
   async function handleSubmit() {
     const variables = {
       IdCliente: state?.sessao?.IdCliente,
