@@ -144,6 +144,7 @@ const Home = ({ navigation }) => {
             </Typography>
 
             <FlatList
+             style={styles.destaque}
               data={productsDestaque}
               keyExtractor={(item) => `${item.Id}`}
               horizontal
@@ -239,8 +240,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationInfo: {
-    maxWidth: 200,
-    marginHorizontal: 16,
+    maxWidth: 300,
+    marginHorizontal: 12,
   },
 
   horizontalList: {
@@ -248,6 +249,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     marginVertical: 16,
+  },
+  destaque: {
+    marginBottom: 30,
   },
   swiper: {
     marginBottom: 16,
