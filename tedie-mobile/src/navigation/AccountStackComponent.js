@@ -17,6 +17,7 @@ import Tickets from '../screens/Tickets';
 import Ticket from '../screens/Ticket';
 import { AppContext } from '../contexts/AppContext';
 import Login from './Login';
+import Beneficios from '../screens/Beneficios';
 
 const AccountStack = createStackNavigator();
 
@@ -37,6 +38,8 @@ const AccountStackComponent = () => {
       <AccountStack.Screen name="Avaliar" component={Rating} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Tickets" component={Tickets} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Ticket" component={Ticket} options={{ ...TransitionPresets.SlideFromRightIOS }} />
+      <AccountStack.Screen name="Benefícios" component={Beneficios} options={{ ...TransitionPresets.SlideFromRightIOS }} />
+      <AccountStack.Screen name="Rating" component={Rating} options={{ ...TransitionPresets.SlideFromRightIOS }} />
     </AccountStack.Navigator>
   );
 };

@@ -117,7 +117,7 @@ const Account = ({ navigation }) => {
                   <ContentContainer>
                     <View style={styles.optionContainer}>
                       <View style={styles.optionTextAndIcon}>
-                        <Ionicons name="md-gift" size={25} color={theme.palette.dark} />
+                        <Ionicons name="md-share" size={25} color={theme.palette.dark} />
 
                         <View style={styles.optionTextContainer}>
                           <Typography size="medium" color={theme.palette.dark}>
@@ -153,24 +153,26 @@ const Account = ({ navigation }) => {
                     </View>
                   </ContentContainer>
                 </TouchableOpacity>
-                <ContentContainer>
-                  <View style={styles.optionContainer}>
-                    <View style={styles.optionTextAndIcon}>
-                      <Ionicons name="md-notifications" size={25} color={theme.palette.dark} />
+                <TouchableOpacity onPress={() => navigation.navigate('Benefícios')}>
+                  <ContentContainer>
+                    <View style={styles.optionContainer}>
+                      <View style={styles.optionTextAndIcon}>
+                        <Ionicons name="md-gift" size={25} color={theme.palette.dark} />
 
-                      <View style={styles.optionTextContainer}>
-                        <Typography size="medium" color={theme.palette.dark}>
-                          Notificações
-                        </Typography>
-                        <Typography size="caption" color={theme.palette.light}>
-                          Minhas notificações recebidas
-                        </Typography>
+                        <View style={styles.optionTextContainer}>
+                          <Typography size="medium" color={theme.palette.dark}>
+                            Benefícios
+                          </Typography>
+                          <Typography size="caption" color={theme.palette.light}>
+                            Resgate de prêmios
+                          </Typography>
+                        </View>
                       </View>
-                    </View>
 
-                    <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
-                  </View>
-                </ContentContainer>
+                      <Ionicons name="ios-arrow-forward" size={25} color={theme.palette.light} />
+                    </View>
+                  </ContentContainer>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('Cupons')}>
                   <ContentContainer>
                     <View style={styles.optionContainer}>
