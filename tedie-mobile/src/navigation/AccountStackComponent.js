@@ -12,12 +12,12 @@ import Cards from '../screens/OrderPayments';
 import Card from '../screens/Card';
 import Help from '../screens/Account/Help';
 import MyCode from '../screens/Account/MyCode';
-import Rating from '../screens/Rating';
+import Rating from '../screens/Account/Rating';
 import Tickets from '../screens/Tickets';
 import Ticket from '../screens/Ticket';
 import { AppContext } from '../contexts/AppContext';
 import Login from './Login';
-import Beneficios from '../screens/Beneficios';
+import Beneficios from '../screens/Account/Beneficios';
 
 const AccountStack = createStackNavigator();
 

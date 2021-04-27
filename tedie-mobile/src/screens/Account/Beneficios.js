@@ -7,15 +7,15 @@ import {
 // components
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import Typography from '../components/Typography';
-import BeneficioItem from '../components/Beneficio';
-import Loader from '../components/Loader';
+import Typography from '../../components/Typography';
+import BeneficioItem from '../../components/Beneficio';
+import Loader from '../../components/Loader';
 // services
-import Navbar from '../components/Navbar';
-import Avatar from '../components/Avatar';
+import Navbar from '../../components/Navbar';
+import Avatar from '../../components/Avatar';
 // theme
-import theme from '../theme';
-import { AppContext } from '../contexts/AppContext';
+import theme from '../../theme';
+import { AppContext } from '../../contexts/AppContext';
 
 const Beneficios = ({ navigation }) => {
   const { state, dispatch } = useContext(AppContext);

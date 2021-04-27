@@ -3,8 +3,9 @@ import {
   StyleSheet, View, TouchableOpacity, StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-// components
 import { useNavigation } from '@react-navigation/native';
+import Button from '../../components/Button';
+// components
 import Navbar from '../../components/Navbar';
 import ScreenContainer from '../../components/ScreenContainer';
 import ContentContainer from '../../components/ContentContainer';
@@ -23,6 +24,7 @@ const Order = ({ navigation, route }) => {
     async function fetchData() {
       const response = await api.get(`PedidosItem/Item/${orderParam.NumeroPedido}`);
       const data = new Date(orderParam.Data);
+      console.log(orderParam);
       setOrder({
         ...orderParam,
         orders: response.data,
@@ -131,7 +133,7 @@ order.orders && order.orders.map((order, index) => (
             </Typography>
           </View>
 
-          {/* {order.review && (
+          {order.review && (
           <TouchableOpacity onPress={() => navigation.navigate('Avaliar', { review: order.review })}>
             <Box direction="row" justify="space-between" alignItems="center" noMargin>
               <Box direction="column" justify="center" alignItems="flex-start" noMargin>
@@ -151,19 +153,20 @@ order.orders && order.orders.map((order, index) => (
               </Typography>
             </Box>
           </TouchableOpacity>
-          )} */}
+          )}
 
-          {/* {!order.review && (
+          {!order.review && (
           <Button
             background={theme.palette.primary}
             color="#fff"
             width="100%"
             text="Avaliar Pedido"
-            onPress={() => navigation.navigate('Avaliar', { review: null })}
+            onPress={() => navigation.navigate('Rating', { order })}
           />
-          )} */}
+          )}
+          <Divider />
 
-          {/* <Divider />
+          {/*
 
           <View style={styles.lineContainer}>
             <Ionicons name="ios-cart" size={25} color={theme.palette.success} />
