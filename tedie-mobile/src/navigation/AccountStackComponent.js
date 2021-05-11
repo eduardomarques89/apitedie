@@ -14,6 +14,7 @@ import Help from '../screens/Account/Help';
 import MyCode from '../screens/Account/MyCode';
 import Rating from '../screens/Account/Rating';
 import Tickets from '../screens/Tickets';
+import Checkout from '../screens/Cart/Checkout';
 import Ticket from '../screens/Ticket';
 import { AppContext } from '../contexts/AppContext';
 import Login from './Login';
@@ -40,6 +41,8 @@ const AccountStackComponent = () => {
       <AccountStack.Screen name="Ticket" component={Ticket} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Benefícios" component={Beneficios} options={{ ...TransitionPresets.SlideFromRightIOS }} />
       <AccountStack.Screen name="Rating" component={Rating} options={{ ...TransitionPresets.SlideFromRightIOS }} />
+      <AccountStack.Screen name="Checkout" component={Checkout} options={{ ...TransitionPresets.SlideFromRightIOS }} />
+
     </AccountStack.Navigator>
   );
 };

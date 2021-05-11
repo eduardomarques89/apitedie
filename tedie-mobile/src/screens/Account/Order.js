@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   StyleSheet, View, TouchableOpacity, StatusBar,
 } from 'react-native';
@@ -12,6 +12,7 @@ import ContentContainer from '../../components/ContentContainer';
 import Typography from '../../components/Typography';
 import Divider from '../../components/Divider';
 import api from '../../services/axios';
+import { CartContext } from '../../contexts/CartContext';
 // theme
 import theme from '../../theme';
 
@@ -19,12 +20,12 @@ const Order = ({ navigation, route }) => {
   const navigate = useNavigation();
   const [order, setOrder] = useState({});
   const { order: orderParam } = route.params;
+  const { cartDispatch } = useContext(CartContext);
 
   useEffect(() => {
     async function fetchData() {
       const response = await api.get(`PedidosItem/Item/${orderParam.NumeroPedido}`);
       const data = new Date(orderParam.Data);
-      console.log(orderParam);
       setOrder({
         ...orderParam,
         orders: response.data,
@@ -34,6 +35,42 @@ const Order = ({ navigation, route }) => {
     }
     fetchData();
   }, [orderParam]);
+
+  async function repeatOrder() {
+    const products = order.itens.map((product) => ({
+      product: {
+        Id: product.IdProduto,
+        nome: product.NomeItem,
+        Desconto: product.Desconto,
+        Status: product.Status,
+        Observacao: product.Observacao,
+        Preco_Por: product.Valor_unit,
+        Preco_De: product.Valor_unit,
+        IdEmpresa: order.IdEmpresa,
+      },
+      quantity: product.Quantidade,
+    }
+    ));
+    try {
+      const { data } = await api.get(`Empresas/${order.IdEmpresa}`);
+      cartDispatch({
+        type: 'Add_MARKET',
+        payload: {
+          market: data,
+        },
+      });
+      cartDispatch({
+        type: 'ADD_MORE_PRODUCTS',
+        payload: {
+          products,
+        },
+      });
+      navigate.navigate('Checkout');
+    } catch (e) {
+      console.log(e);
+      alert('error');
+    }
+  }
 
   return (
     <>
@@ -78,7 +115,7 @@ const Order = ({ navigation, route }) => {
           <Divider />
 
           {
-order.orders && order.orders.map((order, index) => (
+(order?.itens?.length > 0) && order.itens.map((order, index) => (
   <View key={index} style={styles.lineSpaceContainerMargin}>
     <View style={styles.columnContainer}>
       <Typography size="small" color={theme.palette.dark}>
@@ -98,7 +135,7 @@ order.orders && order.orders.map((order, index) => (
 ))
 
   }
-          <TouchableOpacity>
+          <TouchableOpacity onPress={repeatOrder}>
             <Typography size="small" color={theme.palette.primary}>
               Refazer Pedido!
             </Typography>
@@ -133,7 +170,7 @@ order.orders && order.orders.map((order, index) => (
             </Typography>
           </View>
 
-          {order.review && (
+          {/* {order.review && (
           <TouchableOpacity onPress={() => navigation.navigate('Avaliar', { review: order.review })}>
             <Box direction="row" justify="space-between" alignItems="center" noMargin>
               <Box direction="column" justify="center" alignItems="flex-start" noMargin>
@@ -153,7 +190,7 @@ order.orders && order.orders.map((order, index) => (
               </Typography>
             </Box>
           </TouchableOpacity>
-          )}
+          )} */}
 
           {!order.review && (
           <Button
@@ -220,19 +257,20 @@ order.orders && order.orders.map((order, index) => (
 
           <Divider />
 
-          {order?.Endereco && (
-          <View style={styles.columnContainer}>
-            <Typography size="caption" color={theme.palette.light}>
-              Entregue em
-            </Typography>
-            {order?.Endereco.split(',').map((value) => (
-              <Typography size="small" color={theme.palette.dark}>
-                {value}
+          {order?.Endereco ? (
+            <View style={styles.columnContainer}>
+              <Typography size="caption" color={theme.palette.light}>
+                Entregue em
               </Typography>
-
-            ))}
-          </View>
-
+              {(order?.Endereco || 'rua,bairro').split(',').map((value) => (
+                <Typography size="small" color={theme.palette.dark}>
+                  {`${value}`}
+                </Typography>
+              ))}
+            </View>
+          ) : (
+            <>
+            </>
           )}
 
         </ContentContainer>

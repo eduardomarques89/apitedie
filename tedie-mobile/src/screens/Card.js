@@ -92,7 +92,6 @@ const Card = ({ navigation, route }) => {
       await Juno.getCardHash(cardData);
       if (route?.params?.editCard) {
         await api.put('clientes/PutCartao', cartao);
-        console.log('editou');
       } else {
         await api.post('clientes/PostCartao', cartao);
       }

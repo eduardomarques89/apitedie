@@ -23,13 +23,15 @@ const MarketItem = ({ market, skeleton }) => (
             <Typography size="medium" color="#000">
               {market.Nome}
             </Typography>
-
+            {market?.Score !== 'N' && (
             <Box direction="row" justifyContent="center" alignItems="center">
               <Typography size="medium" color={theme.palette.secondary}>
-                {(market?.Score || 0).toFixed(1).toString().replace('.', ',')}
+                {(Number(market?.Score) || 0).toFixed(1).toString().replace('.', ',')}
               </Typography>
               <Ionicons name="md-star" size={25} color={theme.palette.secondary} />
             </Box>
+
+            )}
           </Box>
 
           <Typography size="small" color="#000">

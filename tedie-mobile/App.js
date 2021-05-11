@@ -47,6 +47,7 @@ export default function App() {
           setLoading(false);
         }
       }
+      setLoading(false);
     }
     getItems();
   }, []);

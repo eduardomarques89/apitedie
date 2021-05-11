@@ -29,7 +29,9 @@ const Login = ({ navigation }) => {
     setLoading(true);
     try {
       const user = await api.get('Clientes');
-      const existPhone = user.data.find((usera) => usera.Telefone === usuario);
+      // const existPhone = user.data.find((usera) => usera.Telefone === usuario);
+      const existPhone = user.data.find((usera) => usera.Telefone === `55${usuario}`);
+      console.log(user);
       if (!existPhone) {
         toastRef.current?.show('Telefone não existe', 2000);
         alert('Telefone não existe');

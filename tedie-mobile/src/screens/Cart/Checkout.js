@@ -38,6 +38,7 @@ import api from '../../services/axios';
 import refactoreLocalization from '../../utils/refactoreLocalization';
 
 const Juno = new JunoCardHash('7ACA5244C520E4641C6E636E11AE9F05073D1B779B64825BD0F9DDFE44D9C954', 'sandbox');
+const junoUrl = 'https://sandbox.boletobancario.com';
 
 const Checkout = ({ navigation, route }) => {
   const navigate = useNavigation();
@@ -52,7 +53,7 @@ const Checkout = ({ navigation, route }) => {
 
   async function changeCartao() {
     if (!checkoutState.cartaoPorEstabelecimento.IdCartao) return;
-    const selected = checkoutState.cartaoPorEstabelecimento;
+    const selected = checkoutState.cartaoPorEstabelecimento.Numero;
     if (!selected) {
       return;
     }
@@ -116,13 +117,13 @@ const Checkout = ({ navigation, route }) => {
     };
     const cardHash = await Juno.getCardHash(cardData);
 
-    const cardId = await axios.post('https://sandbox.boletobancario.com/boletofacil/integration/api/v1/card-tokenization', {}, {
+    const cardId = await axios.post(`${junoUrl}/boletofacil/integration/api/v1/card-tokenization`, {}, {
       params: {
         token: '5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852',
         creditCardHash: cardHash,
       },
     });
-    const { data } = await axios.post('https://sandbox.boletobancario.com/boletofacil/integration/api/v1/issue-charge', {}, {
+    const { data } = await axios.post(`${junoUrl}/boletofacil/integration/api/v1/issue-charge`, {}, {
       params: {
         token: '5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852',
         description: codigoTransacao,
@@ -152,16 +153,17 @@ const Checkout = ({ navigation, route }) => {
       IdProduto: product.product.Id,
       NumeroPedido,
       Data,
-      Valor: product.quantity * product.product.Preco_Por,
+      Valor: product.quantity * (product.product.Preco_Por || product.product.Preco_De),
+      Valor_unit: (product.product.Preco_Por || product.product.Preco_De),
       Quantidade: product.quantity,
       Desconto: '',
       Status: product.product.Status,
       Observacao: '',
     };
-    return api.post('PedidosItem', item);
+    return item;
   }
 
-  function createOrder(market, codigoTransacao, junoValues, NumeroPedido) {
+  function createOrder(market, codigoTransacao, junoValues, NumeroPedido, itens) {
     const IdCupom = market.market.IdEmpresa === checkoutState.cupom?.IdEmpresa ? checkoutState.cupom.IdCupom : 0;
     const Desconto = market.market.IdEmpresa === checkoutState.cupom?.Valor ? checkoutState.cupom.IdCupom : 0;
 
@@ -208,6 +210,7 @@ const Checkout = ({ navigation, route }) => {
       status: 'aguardando pagamento',
       DataFinal: Data,
       codigoJuno: '',
+      itens,
     };
 
     if (selectedPayment.value === 'Cartão de crédito') {
@@ -215,7 +218,6 @@ const Checkout = ({ navigation, route }) => {
       pedido.status = junoValues.status;
       pedido.codigoJuno = junoValues.codeJuno;
     }
-
     return api.post('Pedidos', pedido);
   }
 
@@ -266,18 +268,15 @@ const Checkout = ({ navigation, route }) => {
         junoValues.status = juno.status;
         junoValues.codeJuno = juno.code;
       }
-      let productsPush = [];
       const promises = cartState.markets.map((market) => {
         const NumeroPedido = juno?.code || (Math.random() * 1000000).toFixed(0);
         const productFilter = cartState.products.filter((product) => product.product.IdEmpresa === market.market.IdEmpresa);
         const newProductsPromises = productFilter.map((product) => createOrderItem(product, NumeroPedido, market.market.IdEmpresa));
-        productsPush = [...productsPush, ...newProductsPromises];
 
-        return createOrder(market, codigoTransacao, junoValues, NumeroPedido);
+        return createOrder(market, codigoTransacao, junoValues, NumeroPedido, newProductsPromises);
       });
 
       await Promise.all(promises);
-      await Promise.all(productsPush);
       pedidoConfirmado();
     } catch (e) {
       console.log(e);

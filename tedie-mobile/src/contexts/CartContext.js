@@ -1,7 +1,5 @@
 import { createContext } from 'react';
 
-export const CartContext = createContext();
-
 export const cartInitialState = {
   selected: undefined,
   selectedNome: undefined,
@@ -13,17 +11,26 @@ export const cartInitialState = {
   selectMarket: {},
 };
 
+export const CartContext = createContext({
+  cartState: cartInitialState,
+  cartDispatch: () => {},
+});
+
 export const appCartReducer = (state = cartInitialState, action) => {
   let existProduct;
   let newProducts;
   let existMarket;
   let newMarkets;
   let newTotal;
+  let productsNot;
+
   switch (action.type) {
     case 'select':
       return { ...state, selected: action.payload };
+
     case 'CLEAR_CART':
       return { ...cartInitialState };
+
     case 'ADD_MARKET_TAX':
       newMarkets = state.markets.map((market) => {
         if (market.market.IdEmpresa === action.payload.id) {
@@ -32,6 +39,7 @@ export const appCartReducer = (state = cartInitialState, action) => {
         return market;
       });
       return { ...state, markets: newMarkets };
+
     case 'Add_MARKET':
       existMarket = state.markets.find((market) => market.market.IdEmpresa === action.payload.market.IdEmpresa);
       if (existMarket) {
@@ -43,8 +51,27 @@ export const appCartReducer = (state = cartInitialState, action) => {
           market: action.payload.market, quantity: 0, total: 0, tax: 0,
         }],
       };
+
+    case 'ADD_MORE_MARKET':
+      newMarkets = [];
+      action.payload.markets.forEach((market) => {
+        existMarket = state.markets.find((market) => market.market.IdEmpresa === action.payload.market.IdEmpresa);
+        if (existMarket) {
+          return;
+        }
+        newMarkets.push({
+          market: action.payload.market, quantity: 0, total: 0, tax: 0,
+        });
+      });
+
+      return {
+        ...state,
+        markets: [...state.markets, ...newMarkets],
+      };
+
     case 'LOAD_MARKET_DATA':
       return action.payload;
+
     case 'REMOVE_PRODUCT':
       existProduct = state.products.find((product) => product.product.Id === action.payload.product.Id);
 
@@ -108,6 +135,39 @@ export const appCartReducer = (state = cartInitialState, action) => {
       newTotal = newMarkets.reduce((marketPrev, marketCurrent) => marketPrev + marketCurrent.total, 0);
       return {
         ...state, products: newProducts, markets: newMarkets, total: newTotal,
+      };
+
+    case 'ADD_MORE_PRODUCTS':
+      productsNot = [];
+      newProducts = [];
+
+      action.payload.products.forEach((product) => {
+        const existProduct = state.products.find((product) => product.product.Id === product.product.Id);
+
+        if (existProduct) {
+          newProducts = state.products.map((productOld) => {
+            if (productOld.product.Id === product.product.Id) {
+              return { ...productOld, quantity: (productOld.quantity || 0) + product.quantity };
+            }
+            return productOld;
+          });
+        } else {
+          productsNot.push({ product: product.product, quantity: product.quantity });
+        }
+        newMarkets = state.markets.map((market) => {
+          if (market.market.IdEmpresa === product.product.IdEmpresa) {
+            const newMarket = market;
+            newMarket.quantity += product.quantity;
+            newMarket.total += product.quantity * (product.product.Preco_Por || product.product.Preco_De);
+            return newMarket;
+          }
+          return market;
+        });
+      });
+      newTotal = newMarkets.reduce((marketPrev, marketCurrent) => marketPrev + marketCurrent.total, 0);
+
+      return {
+        ...state, products: [...newProducts, ...productsNot], total: newTotal,
       };
     default:
       return state;

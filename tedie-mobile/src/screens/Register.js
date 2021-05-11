@@ -30,7 +30,7 @@ const Login = ({ navigation }) => {
     try {
       const response = await api.get('Clientes');
 
-      const existPhone = response.data.find((user) => user.Telefone === usuario);
+      const existPhone = response.data.find((user) => user.Telefone === `55${usuario}`);
 
       if (existPhone) {
         toastRef.current?.show('Telefone já existe', 2000);

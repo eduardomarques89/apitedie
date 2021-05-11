@@ -11,22 +11,32 @@ import ScreenContainer from '../../components/ScreenContainer';
 import ContentContainer from '../../components/ContentContainer';
 import TextField from '../../components/TextField';
 import Button from '../../components/Button';
+import api from '../../services/axios';
 
 const Rating = ({ navigation, route }) => {
   const navigate = useNavigation();
   const [review, setReview] = useState({
     value: 3,
-    content: 'Péssimo',
+    content: 'Ok',
   });
   const [order, setOrder] = useState({});
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState('observação');
   const { order: orderParams } = route.params;
 
   useEffect(() => {
     if (orderParams) {
-      setOrder(...orderParams);
+      setOrder(orderParams);
     }
   }, [orderParams]);
+
+  async function postRating() {
+    try {
+      await api.post(`Pedidos/${orderParams.NumeroPedido}/Avaliacao?nota=${review.value}&observacao=${value}`);
+      alert('Avaliação feita com sucesso');
+    } catch (e) {
+      alert('error, tente novamente');
+    }
+  }
   return (
     <>
       <StatusBar backgroundColor={theme.palette.primary} />
@@ -51,7 +61,7 @@ const Rating = ({ navigation, route }) => {
       />
 
       <ScreenContainer>
-        {order?.Score
+        {!order?.Score
           && (
             <>
               <Typography size="medium" color={theme.palette.dark}>
@@ -68,12 +78,13 @@ const Rating = ({ navigation, route }) => {
                 </Typography>
                 <AirbnbRating
                   defaultRating={review.value}
-                  isDisabled={order?.Score == 0}
+                  isDisabled={order?.Score !== null}
                   onFinishRating={(e) => setReview((props) => ({
                     ...props,
                     value: e,
                   }))}
                   reviews={['Péssimo', 'Ruim', 'Ok', 'Bom', 'Incrível!']}
+                  unSelectedColor="#eee"
                 />
               </ContentContainer>
               <ContentContainer>
@@ -91,14 +102,14 @@ const Rating = ({ navigation, route }) => {
                 />
               </ContentContainer>
               {
-                order?.Score
+                !order?.Score
               && (
               <Button
                 background={theme.palette.primary}
                 color="#fff"
                 width="100%"
                 text="Enviar"
-                onPress={() => alert('woohoo')}
+                onPress={postRating}
               />
               )
               }

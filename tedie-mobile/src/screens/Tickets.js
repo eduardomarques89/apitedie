@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { TouchableOpacity, StatusBar, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 // components
@@ -8,32 +8,36 @@ import Navbar from '../components/Navbar';
 import Typography from '../components/Typography';
 import ScreenContainer from '../components/ScreenContainer';
 import TicketItem from '../components/TicketItem';
+import api from '../services/axios';
+import { AppContext } from '../contexts/AppContext';
+import Loader from '../components/Loader';
 
 const Tickets = ({ navigation }) => {
+  const { state } = useContext(AppContext);
   const navigate = useNavigation();
   const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTickets([
-      {
-        Pedido: '1234',
-        Empresa: 'Mercado',
-        Data: '27/10/2020',
-        Status: 'Aberto',
-      },
-      {
-        Pedido: '1233',
-        Empresa: 'Mercado',
-        Data: '15/10/2020',
-        Status: 'Fechado',
-      },
-      {
-        Pedido: '1232',
-        Empresa: 'Mercado',
-        Data: '03/10/2020',
-        Status: 'Fechado',
-      },
-    ]);
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const { data } = await api.get(`Ticket/Cliente/${state?.sessao?.IdCliente}`);
+        const newTickes = data.map((ticket) => {
+          const date = new Date(ticket.DataCadastro);
+          return {
+            ...ticket,
+            date: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
+          };
+        });
+        setTickets(newTickes);
+      } catch {
+
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
   }, []);
 
   return (
@@ -59,18 +63,22 @@ const Tickets = ({ navigation }) => {
           </Typography>
         )}
       />
+      <Loader show={loading} />
 
-      <ScreenContainer>
+      {!loading && (
         <FlatList
+          contentContainerStyle={{ paddingHorizontal: 16 }}
           data={tickets}
-          keyExtractor={(item) => `${item.Pedido}`}
+          keyExtractor={(item) => `${item.IdTicket}`}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => navigation.push('Ticket', { ticket: item })}>
               <TicketItem ticket={item} />
             </TouchableOpacity>
           )}
         />
-      </ScreenContainer>
+
+      )}
+
     </>
   );
 };

@@ -31,10 +31,8 @@ const Deals = ({ navigation }) => {
   const fetchProducts = useCallback(() => {
     async function fetchData() {
       try {
-        console.log(`Produtos/CEPCategoriaPaginado?CEP=${state.address?.CEP.replace('-', '')}&offset=${40 * (refresh.page - 1)}&limite=${40 * refresh.page}&Categoria={}&searchQuery=${filter}`);
         const value = await api.get(`Produtos/CEPCategoriaPaginado?CEP=${state.address?.CEP.replace('-', '')}&offset=${40 * (refresh.page - 1)}&limite=${40 * refresh.page}&Categoria=&searchQuery=${filter}`);
         const productsOferta = value.data.filter((product) => product.Oferta === 'S');
-        console.log(productsOferta);
         if (!state.market?.IdEmpresa) {
           setProductsFilter((props) => [...props, ...productsOferta]);
 
@@ -42,10 +40,7 @@ const Deals = ({ navigation }) => {
           return;
         }
         const FilterValues = productsOferta.filter((value) => value.IdEmpresa === state.market.IdEmpresa);
-        setProductsFilter((props) => {
-          console.log([...props, ...FilterValues]);
-          return [...props, ...FilterValues];
-        });
+        setProductsFilter((props) => [...props, ...FilterValues]);
       } catch (e) {
         console.log(e);
       }

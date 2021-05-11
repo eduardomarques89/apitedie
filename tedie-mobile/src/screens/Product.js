@@ -32,10 +32,10 @@ const Product = ({ navigation, route }) => {
       setEmpresa(empresa.data);
     }
 
-    if (product.Preco_Por) {
+    if (product.Preco_Por > 0) {
       setProductValue(product.Preco_Por);
     } else {
-      setProductValue(product.Preco_Der);
+      setProductValue(product.Preco_De);
     }
     fetch();
   }, []);
