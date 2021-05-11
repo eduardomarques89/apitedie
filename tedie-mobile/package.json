@@ -38,7 +38,7 @@
     "react-native-juno-rn-card-hash": "^1.2.0",
     "react-native-modal-dropdown": "^1.0.0",
     "react-native-qrcode-svg": "^6.0.6",
-    "react-native-ratings": "^7.3.0",
+    "react-native-ratings": "^8.0.4",
     "react-native-safe-area-context": "3.1.4",
     "react-native-safe-area-view": "^1.1.1",
     "react-native-screens": "~2.15.2",
