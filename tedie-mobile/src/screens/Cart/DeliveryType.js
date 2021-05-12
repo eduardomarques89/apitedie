@@ -176,6 +176,7 @@ const DeliveryType = ({ route }) => {
                   style={{ display: show ? 'flex' : 'none' }}
                   display="spinner"
                   onChange={onChange}
+                  locale="pt-br"
                 />
                 )}
                 <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Tipo</Typography>
