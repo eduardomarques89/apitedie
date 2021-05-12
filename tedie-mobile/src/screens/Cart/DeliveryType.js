@@ -81,6 +81,7 @@ const DeliveryType = ({ route }) => {
     const horarioEntrega = `${currentHorario.TIPOENTREGA}-${currentHorario.horario}-${currentHorario.TAXA}-${currentHorario.identrega}-${currentHorario.horacod}`;
 
     const he = { ...checkoutState.horarioEntregaPorEstabelecimento };
+    const tax = type === 2 ? '0' : Number(currentHorario.TAXA);
     he[`${IdEmpresa}`] = {
       title: horarioEntrega,
       IdTipoEntrega: currentHorario.identrega >= 2 ? 2 : 1,
@@ -92,10 +93,10 @@ const DeliveryType = ({ route }) => {
       DataFormat: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
       Data: date,
       horacod: currentHorario.horacod,
-      taxa: currentHorario.TAXA,
+      taxa: tax,
     };
     const action = { type: 'setHorarioEntregaPorEstabelecimento', payload: { horarioEntregaPorEstabelecimento: he } };
-    const tax = type === 2 ? '0' : Number(currentHorario.TAXA);
+
     const actionCart = { type: 'ADD_MARKET_TAX', payload: { tax, id: IdEmpresa } };
     cartDispatch(actionCart);
     checkoutDispatch(action);
@@ -151,8 +152,6 @@ const DeliveryType = ({ route }) => {
       {
           !loading && (
             <>
-              <View style={{ position: 'absolute', top: -100 }}>
-
                 {show && (
                 <DateTimePicker
                   testID="dateTimePicker"
@@ -164,7 +163,6 @@ const DeliveryType = ({ route }) => {
                   onChange={onChange}
                 />
                 )}
-              </View>
               <ScreenContainer>
                 <View style={styles.container}>
                   <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data</Typography>

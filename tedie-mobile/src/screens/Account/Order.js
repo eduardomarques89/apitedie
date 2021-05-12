@@ -29,7 +29,7 @@ const Order = ({ navigation, route }) => {
       setOrder({
         ...orderParam,
         orders: response.data,
-        Data: `${data.getDate() || '00'}-${data.getMonth() || '00'}-${data.getFullYear() || '00'}`,
+        Data: `${data.getDate() || '00'}-${(data.getMonth() + 1) || '00'}-${data.getFullYear() || '00'}`,
         valorByProducts: orderParam.Valor - orderParam.Taxa,
       });
     }

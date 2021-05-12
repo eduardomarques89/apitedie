@@ -38,7 +38,7 @@ import api from '../../services/axios';
 import refactoreLocalization from '../../utils/refactoreLocalization';
 
 const Juno = new JunoCardHash('7ACA5244C520E4641C6E636E11AE9F05073D1B779B64825BD0F9DDFE44D9C954', 'sandbox');
-const junoUrl = 'https://sandbox.boletobancario.com';
+const junoUrl = 'https://sandbox.boletobancario.com/';
 
 const Checkout = ({ navigation, route }) => {
   const navigate = useNavigation();

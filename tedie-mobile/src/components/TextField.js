@@ -15,7 +15,6 @@ const TextField = ({
 
   const [inputValue, setInputValue] = useState(value);
   useEffect(() => {
-    console.log();
     if (date == true) {
       setInputValue(maskDate(value));
     } else {
@@ -29,6 +28,7 @@ const TextField = ({
       setInputValue(maskDate(value));
       setValue(maskDate(value));
     } else {
+      console.log(value);
       const x = value;
       setInputValue(x);
       setValue(x);

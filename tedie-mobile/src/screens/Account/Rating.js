@@ -25,6 +25,7 @@ const Rating = ({ navigation, route }) => {
 
   useEffect(() => {
     if (orderParams) {
+      setValue(orderParams.Observacao);
       setOrder(orderParams);
     }
   }, [orderParams]);
@@ -61,47 +62,45 @@ const Rating = ({ navigation, route }) => {
       />
 
       <ScreenContainer>
-        {!order?.Score
-          && (
-            <>
-              <Typography size="medium" color={theme.palette.dark}>
-                {order?.Score ? <>{`Sua avaliação do pedido #${order.NumeroPedido} de R$ ${(order?.Valor || 0).toFixed(2).replace('.', ',')} no Big Bom!`}</>
-                  : (
-                    <>
-                      {`Avalie seu pedido #${order.NumeroPedido} de R$ ${(order?.Valor || 0).toFixed(2).replace('.', ',')} no Big Bom!`}
-                    </>
-                  )}
-              </Typography>
-              <ContentContainer>
-                <Typography size="medium" color={theme.palette.dark}>
-                  Sua nota
-                </Typography>
-                <AirbnbRating
-                  defaultRating={review.value}
-                  isDisabled={order?.Score !== null}
-                  onFinishRating={(e) => setReview((props) => ({
-                    ...props,
-                    value: e,
-                  }))}
-                  reviews={['Péssimo', 'Ruim', 'Ok', 'Bom', 'Incrível!']}
-                  unSelectedColor="#eee"
-                />
-              </ContentContainer>
-              <ContentContainer>
-                <Typography size="medium" color={theme.palette.dark}>
-                  {`${order?.Score ? 'Sua' : 'Deixe uma'} Observação`}
+        <>
+          <Typography size="medium" color={theme.palette.dark}>
+            {order?.Score ? <>{`Sua avaliação do pedido #${order.NumeroPedido} de R$ ${(order?.Valor || 0).toFixed(2).replace('.', ',')} no Big Bom!`}</>
+              : (
+                <>
+                  {`Avalie seu pedido #${order?.NumeroPedido} de R$ ${(order?.Valor || 0).toFixed(2).replace('.', ',')} no Big Bom!`}
+                </>
+              )}
+          </Typography>
+          <ContentContainer>
+            <Typography size="medium" color={theme.palette.dark}>
+              Sua nota
+            </Typography>
+            <AirbnbRating
+              defaultRating={review.value}
+              isDisabled={order?.Score}
+              onFinishRating={(e) => setReview((props) => ({
+                ...props,
+                value: e,
+              }))}
+              reviews={['1 estrela', '2 estrelas', '3 estrelas', '4 estrelas', '5 estrelas']}
+              unSelectedColor="#eee"
+            />
+          </ContentContainer>
+          <ContentContainer>
+            <Typography size="medium" color={theme.palette.dark}>
+              {`${order?.Score ? 'Sua' : 'Deixe uma'} Observação`}
 
-                </Typography>
-                <TextField
-                  width="100%"
-                  label="Observação"
-                  useContainerWidth
-                  value={value}
-                  setValue={setValue}
-                  inputStyle={{ color: '#000' }}
-                />
-              </ContentContainer>
-              {
+            </Typography>
+            <TextField
+              width="100%"
+              label="Observação"
+              useContainerWidth
+              value={value}
+              setValue={setValue}
+              inputStyle={{ color: '#000' }}
+            />
+          </ContentContainer>
+          {
                 !order?.Score
               && (
               <Button
@@ -113,38 +112,10 @@ const Rating = ({ navigation, route }) => {
               />
               )
               }
-            </>
-          )}
+        </>
       </ScreenContainer>
     </>
   );
 };
 
-// : (
-//   <>
-//     <Typography size="medium" color={theme.palette.dark} />
-
-//     <ContentContainer>
-//       <Typography size="medium" color={theme.palette.dark}>
-//         Sua nota
-//       </Typography>
-
-//       <AirbnbRating
-//         defaultRating={review.value}
-//         reviews={['Péssimo', 'Ruim', 'Ok', 'Bom', 'Incrível!']}
-//         isDisabled
-//       />
-//     </ContentContainer>
-
-//     <ContentContainer>
-//       <Typography size="medium" color={theme.palette.dark}>
-//         Sua Observação:
-//       </Typography>
-
-//       <Typography size="small" color={theme.palette.dark}>
-//         {review.content}
-//       </Typography>
-//     </ContentContainer>
-//   </>
-// )}
 export default Rating;
