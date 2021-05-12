@@ -167,6 +167,17 @@ const DeliveryType = ({ route }) => {
                     </TouchableOpacity>
                   </View>
                 </View>
+                {show && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={date}
+                  mode="date"
+                  minimumDate={new Date()}
+                  style={{ display: show ? 'flex' : 'none' }}
+                  display="spinner"
+                  onChange={onChange}
+                />
+                )}
                 <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Tipo</Typography>
                 <ContentContainer>
                   <TouchableOpacity style={{ flexDirection: 'row', marginBottom: 8 }} onPress={() => setType(1)}>
@@ -208,17 +219,7 @@ const DeliveryType = ({ route }) => {
                   </Box>
                 </ContentContainer>
               </ScreenContainer>
-              {show && (
-                <DateTimePicker
-                  testID="dateTimePicker"
-                  value={date}
-                  mode="date"
-                  minimumDate={new Date()}
-                  style={{ display: show ? 'flex' : 'none' }}
-                  display="spinner"
-                  onChange={onChange}
-                />
-              )}
+
             </>
           )
         }
