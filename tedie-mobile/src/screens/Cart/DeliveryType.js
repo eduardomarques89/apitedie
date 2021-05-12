@@ -2,7 +2,7 @@ import React, {
   useContext, useEffect, useState, useRef, useCallback,
 } from 'react';
 import {
-  TouchableOpacity, StatusBar, TextInput, View, StyleSheet, FlatList,
+  TouchableOpacity, StatusBar, TextInput, View, StyleSheet, FlatList, Platform,
 } from 'react-native';
 import { Ionicons, EvilIcons } from '@expo/vector-icons';
 // components
@@ -43,7 +43,7 @@ const DeliveryType = ({ route }) => {
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
-    setShow(false);
+    setShow(Platform.OS === 'ios');
     setDate(currentDate);
 
     return event;
@@ -152,17 +152,7 @@ const DeliveryType = ({ route }) => {
       {
           !loading && (
             <>
-                {show && (
-                <DateTimePicker
-                  testID="dateTimePicker"
-                  value={date}
-                  mode="date"
-                  minimumDate={new Date()}
-                  style={{ display: show ? 'flex' : 'none' }}
-                  display="calendar"
-                  onChange={onChange}
-                />
-                )}
+
               <ScreenContainer>
                 <View style={styles.container}>
                   <Typography size="small" color={theme.palette.light} style={styles.dataLabel}>Data</Typography>
@@ -218,6 +208,17 @@ const DeliveryType = ({ route }) => {
                   </Box>
                 </ContentContainer>
               </ScreenContainer>
+              {show && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={date}
+                  mode="date"
+                  minimumDate={new Date()}
+                  style={{ display: show ? 'flex' : 'none' }}
+                  display="spinner"
+                  onChange={onChange}
+                />
+              )}
             </>
           )
         }
