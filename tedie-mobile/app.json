@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "TEDIE",
+    "name": "Tedie",
     "slug": "tedie-mobile",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -37,7 +37,7 @@
       "supportsTablet": true,
       "userInterfaceStyle": "light",
       "bundleIdentifier": "com.tedie.tedie",
-      "buildNumber": "4",
+      "buildNumber": "6",
       "infoPlist": {
         "NSLocationAlwaysUsageDescription": "Permita o Tedie a utilizar sua localização para fornecer uma experiência completa do aplicativo e obter a sua localização para que a entrega seja realizada corretamente no seu endereço",
         "NSLocationWhenInUseUsageDescription": "Permita o Tedie a utilizar sua localização para fornecer uma experiência completa do aplicativo e obter a sua localização para que a entrega seja realizada corretamente no seu endereço"
@@ -48,7 +48,7 @@
     },
     "android": {
       "package": "com.tedie.tedie",
-      "versionCode": 11,
+      "versionCode": 12,
       "userInterfaceStyle": "light",
       "permissions":["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },

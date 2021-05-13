@@ -37,8 +37,8 @@ import { AppContext } from '../../contexts/AppContext';
 import api from '../../services/axios';
 import refactoreLocalization from '../../utils/refactoreLocalization';
 
-const Juno = new JunoCardHash('7ACA5244C520E4641C6E636E11AE9F05073D1B779B64825BD0F9DDFE44D9C954', 'sandbox');
-const junoUrl = 'https://sandbox.boletobancario.com/';
+const Juno = new JunoCardHash('D4A7297855842884869B6967597728FDB3DE5919449EE231C4976018A21D2D436C8AAA22A2A29642');
+const junoUrl = 'https://www.boletobancario.com';
 
 const Checkout = ({ navigation, route }) => {
   const navigate = useNavigation();
@@ -119,13 +119,13 @@ const Checkout = ({ navigation, route }) => {
 
     const cardId = await axios.post(`${junoUrl}/boletofacil/integration/api/v1/card-tokenization`, {}, {
       params: {
-        token: '5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852',
+        token: 'A05E02D738AD1205543CA5EFA54C4B134A5E0ACA5E19DC311D65889D9D8F95D7',
         creditCardHash: cardHash,
       },
     });
     const { data } = await axios.post(`${junoUrl}/boletofacil/integration/api/v1/issue-charge`, {}, {
       params: {
-        token: '5D2446161015CC472AB6440E8D99516AA1E041BD6AA1CDBA9794C1D61DEB9852',
+        token: 'A05E02D738AD1205543CA5EFA54C4B134A5E0ACA5E19DC311D65889D9D8F95D7',
         description: codigoTransacao,
         amount: valor,
         billingAddressStreet: 'null',
